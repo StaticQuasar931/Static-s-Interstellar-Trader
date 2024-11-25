@@ -85,7 +85,7 @@
             color: #0b0c10;
         }
 
-        /* ==================== SETTINGS & HELP BUTTONS ==================== */
+        /* ==================== SETTINGS, HELP & SHARE BUTTONS ==================== */
         .settings-button, .help-button, .share-button {
             position: absolute;
             top: 10px;
@@ -173,7 +173,7 @@
             margin: 5% auto;
             padding: 20px;
             width: 80%;
-            max-width: 600px;
+            max-width: 800px; /* Increased max-width for wider help menu */
             border-radius: 10px;
             color: #000;
             position: relative;
@@ -365,6 +365,10 @@
                 top: 50px;
                 right: 200px;
             }
+            .modal-content {
+                width: 95%;
+                max-width: 600px;
+            }
         }
 
         /* ==================== HIGHLIGHTED CREDITS ==================== */
@@ -378,6 +382,36 @@
             color: #45a29e;
         }
         body.blue-theme #credits {
+            color: #f0f0f0;
+        }
+
+        /* ==================== SPACESHIP CAP DISPLAY ==================== */
+        #spaceship-display {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 5px;
+            color: #c5c6c7;
+            transition: color 0.5s;
+        }
+        body.light-theme #spaceship-display {
+            color: #1f2833;
+        }
+        body.blue-theme #spaceship-display {
+            color: #f0f0f0;
+        }
+
+        /* ==================== TECH LEVEL DISPLAY ==================== */
+        #tech-level-display {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 5px;
+            color: #c5c6c7;
+            transition: color 0.5s;
+        }
+        body.light-theme #tech-level-display {
+            color: #1f2833;
+        }
+        body.blue-theme #tech-level-display {
             color: #f0f0f0;
         }
     </style>
@@ -410,9 +444,9 @@
 
     <!-- Game Area -->
     <div id="game-area">
-        <p>Credits: <span id="credits">100</span> 💸</p>
-        <p>Spaceships: <span id="spaceship-count">1</span> 🚀</p>
-        <p><strong>Technology Level:</strong> <span id="tech-level">1</span> ✯</p>
+        <p id="credits">100 💸</p>
+        <p id="spaceship-display">Spaceships: 1/10 🚀</p>
+        <p id="tech-level-display"><strong>Technology Level:</strong> 1 ✯</p>
         <div class="action-buttons">
             <button class="button" onclick="sendAllShips()" title="Send all ships to trade and earn credits">⚙️ Send All Ships to Trade</button>
             <button class="button" onclick="buyShip()" title="Purchase a new spaceship">⚖️ Buy a New Ship</button>
@@ -433,7 +467,7 @@
     </div>
 
     <!-- Version Number -->
-    <div class="version" id="version-number">v2.1.0</div>
+    <div class="version" id="version-number">v1.62.08</div>
 
     <!-- Modals -->
     <!-- Upgrade Menu Modal -->
@@ -589,6 +623,11 @@
             <span class="close-modal" onclick="closeShareConfirmModal()">&times;</span>
             <h3>Share the Game</h3>
             <p>Share this link on your favorite platform to earn a bonus!</p>
+            <div style="margin-bottom: 10px;">
+                <a href="https://twitter.com/intent/tweet?text=Join%20me%20in%20Interstellar%20Trader%20and%20build%20your%20own%20intergalactic%20trading%20empire!%20https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader" target="_blank" class="button" style="background-color: #1da1f2; margin-right: 5px;">🐦 Share on Twitter</a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u=https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader" target="_blank" class="button" style="background-color: #4267B2;">📘 Share on Facebook</a>
+            </div>
+            <p>Or copy the link below:</p>
             <input type="text" id="share-link" value="https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader" readonly style="width: 100%; padding: 10px; margin-bottom: 10px;">
             <button class="button" onclick="copyShareLink()" title="Copy Share Link">📋 Copy Link</button>
             <button class="button" onclick="closeShareConfirmModal()" title="Cancel Share">❌ Cancel</button>
@@ -604,7 +643,6 @@
             rebirthPoints: 0,
             totalCreditsEarned: 100, // For rebirth calculation
             automation: false,
-            employee: false,
             multiplier: 1,
             ships: [
                 {
@@ -640,10 +678,14 @@
                 }
                 // Additional employee types can be added here
             },
-            version: "v2.1.0" // Updated version
+            shareCooldown: {
+                lastShareTime: 0,
+                cooldownDuration: 86400 // 24 hours in seconds
+            },
+            version: "v1.62.08" // Updated version
         };
 
-        const VERSION = "v2.1.0"; // Updated version
+        const VERSION = "v1.62.08"; // Updated version
 
         // ==================== SAVE & LOAD ====================
         function saveGame() {
@@ -679,6 +721,14 @@
         function migrateGameState() {
             if (!gameState.version || gameState.version !== VERSION) {
                 // Handle migration if needed
+                // Example: Initialize new properties for newer versions
+                if (gameState.version === "v2.0.0") {
+                    gameState.shareCooldown = {
+                        lastShareTime: 0,
+                        cooldownDuration: 86400 // 24 hours in seconds
+                    };
+                }
+                // Update version
                 gameState.version = VERSION;
                 saveGame();
             }
@@ -687,7 +737,7 @@
         // ==================== HANDLE OFFLINE PROGRESS ====================
         function handleOfflineProgress() {
             const currentTime = Date.now();
-            const offlineTime = (currentTime - gameState.lastSaveTime) / 1000; // in seconds
+            const offlineTime = Math.floor((currentTime - gameState.lastSaveTime) / 1000); // in seconds
             if (offlineTime > 0) {
                 const rebirthBonus = gameState.rebirthPoints * 0.1; // 10% bonus per RP
                 const effectiveTime = offlineTime * 0.3 + rebirthBonus; // 0.3x effectiveness plus rebirth bonus
@@ -698,7 +748,7 @@
                 gameState.totalEarnings += totalProfit;
                 gameState.totalTrades += tradesPossible * gameState.ships.length;
                 if (tradesPossible > 0) {
-                    logEvent(`⏰ You were offline for ${Math.floor(offlineTime)} seconds and earned ${formatNumberWithSuffix(totalProfit)} credits.`);
+                    logEvent(`⏰ You were offline for ${offlineTime} seconds and earned ${formatNumberWithSuffix(totalProfit)} credits.`);
                     updateDisplay();
                 }
             }
@@ -706,19 +756,19 @@
 
         // ==================== UPDATE DISPLAY ====================
         function updateDisplay() {
-            document.getElementById('credits').innerText = formatNumberWithSuffix(gameState.credits);
-            document.getElementById('spaceship-count').innerText = gameState.ships.length;
-            document.getElementById('tech-level').innerText = gameState.techLevel;
+            document.getElementById('credits').innerText = `${formatNumberWithSuffix(gameState.credits)} 💸`;
+            document.getElementById('spaceship-display').innerText = `Spaceships: ${gameState.ships.length}/${formatNumberWithSuffix(gameState.shipLimit)} 🚀`;
+            document.getElementById('tech-level-display').innerText = `<strong>Technology Level:</strong> ${gameState.techLevel.toFixed(1)} ✯`;
             document.getElementById('rebirth-points').innerText = gameState.rebirthPoints;
             document.getElementById('buy-amount-button').innerText = `Buy: ${gameState.buyAmounts[gameState.currentBuyIndex]}`;
-            document.getElementById('price-per-trade').innerText = formatNumberWithSuffix(50 * gameState.techLevel * gameState.multiplier); // Price scales with multiplier
+            document.getElementById('price-per-trade').innerText = `${formatNumberWithSuffix(50 * gameState.techLevel * gameState.multiplier)}`; // Price scales with multiplier
             document.getElementById('version-number').innerText = VERSION;
 
-            // Update stats in settings
-            document.getElementById('total-trades').innerText = formatNumberWithSuffix(gameState.totalTrades);
-            document.getElementById('total-earnings').innerText = formatNumberWithSuffix(gameState.totalEarnings);
-            document.getElementById('total-upgrades').innerText = formatNumberWithSuffix(gameState.totalUpgrades);
-            document.getElementById('time-played').innerText = formatTime(gameState.timePlayed);
+            // Update stats in settings (if any)
+            // document.getElementById('total-trades').innerText = formatNumberWithSuffix(gameState.totalTrades);
+            // document.getElementById('total-earnings').innerText = formatNumberWithSuffix(gameState.totalEarnings);
+            // document.getElementById('total-upgrades').innerText = formatNumberWithSuffix(gameState.totalUpgrades);
+            // document.getElementById('time-played').innerText = formatTime(gameState.timePlayed);
 
             // Update upgrade buttons with dynamic costs and disable if not affordable
             gameState.ships.forEach(ship => {
@@ -784,13 +834,13 @@
 
         function formatNumberWithSuffix(num) {
             if (num >= 1e9) {
-                return (num / 1e9).toFixed(1).replace(/\.0$/, '') + 'B';
+                return (num / 1e9).toFixed(2).replace(/\.00$/, '') + 'B';
             }
             if (num >= 1e6) {
-                return (num / 1e6).toFixed(1).replace(/\.0$/, '') + 'M';
+                return (num / 1e6).toFixed(2).replace(/\.00$/, '') + 'M';
             }
             if (num >= 1e3) {
-                return (num / 1e3).toFixed(1).replace(/\.0$/, '') + 'K';
+                return (num / 1e3).toFixed(2).replace(/\.00$/, '') + 'K';
             }
             return num.toString();
         }
@@ -867,8 +917,9 @@
 
             let progress = 0;
             let tradeDuration = 10; // seconds
-            // Decrease trade duration based on upgrades
-            tradeDuration = Math.max(5, tradeDuration - Math.floor(ship.upgrades / 5)); // Minimum 5 seconds
+            // Decrease trade duration based on upgrades and efficiency employees
+            const efficiencyBonus = Math.floor(gameState.employees.efficiency.level * 1); // 1 second reduction per level
+            tradeDuration = Math.max(5, tradeDuration - Math.floor(ship.upgrades / 5) - efficiencyBonus); // Minimum 5 seconds
 
             const intervalTime = 1000;
 
@@ -1040,13 +1091,15 @@
                         logEvent(`📦 Storage Employee increased ship limit by ${formatNumberWithSuffix(shipsToAdd)} ships to ${formatNumberWithSuffix(gameState.shipLimit)}.`);
                         break;
                     case 'efficiency':
-                        // Reduce trade duration by 1 second per level
-                        gameState.techLevel += 0.1 * gameState.employees.efficiency.level;
-                        logEvent(`⚙️ Efficiency Employee improved trade efficiency. Tech level slightly increased.`);
+                        // One-time increase in tech level multiplier
+                        gameState.multiplier += 0.5; // Example: each Efficiency Employee increases multiplier by 0.5
+                        logEvent(`⚙️ Efficiency Employee improved trade efficiency. Tech multiplier increased to x${gameState.multiplier.toFixed(1)}.`);
                         break;
                     case 'security':
-                        // Reduce chance of losing credits from random events
-                        logEvent(`🛡️ Security Employee increased protection against random events.`);
+                        // One-time decrease in chance of random credit loss
+                        // Assuming a mechanic where security reduces credit loss by 10% per level
+                        gameState.securityProtection += 10; // New property to track protection percentage
+                        logEvent(`🛡️ Security Employee increased protection against random events by 10%. Current Protection: ${gameState.securityProtection}%`);
                         break;
                     default:
                         break;
@@ -1193,13 +1246,20 @@
                     return;
                 }
 
+                // Implement cooldown check
+                const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+                if (currentTime - gameState.shareCooldown.lastShareTime < gameState.shareCooldown.cooldownDuration) {
+                    const remaining = gameState.shareCooldown.cooldownDuration - (currentTime - gameState.shareCooldown.lastShareTime);
+                    logEvent(`⚠ Rebirth is on cooldown. Please wait ${formatTime(remaining)} before rebirthing again.`);
+                    return;
+                }
+
                 gameState.rebirthPoints += pointsEarned;
                 // Reset game state but keep automation and rebirth points
                 gameState.credits = 100;
                 gameState.spaceshipCount = 1;
                 gameState.techLevel = 1;
                 gameState.totalCreditsEarned = 100;
-                gameState.employee = false;
                 gameState.multiplier = 1;
                 const automationShips = gameState.ships.filter(s => s.automation);
                 gameState.ships = [{
@@ -1220,6 +1280,7 @@
                     efficiency: { level: 0, cost: 1500 },
                     security: { level: 0, cost: 2000 }
                 };
+                gameState.securityProtection = gameState.securityProtection || 0; // Initialize if not present
 
                 // Clear all intervals before resetting ships
                 clearAllIntervals();
@@ -1257,9 +1318,15 @@
                 let eventType = Math.floor(Math.random() * 3);
                 switch (eventType) {
                     case 0:
-                        logEvent(`💥 An alien attack! You lost 50 credits to defend yourself.`);
-                        gameState.credits -= Math.min(50, gameState.credits);
-                        gameState.totalEarnings -= 50;
+                        // Check security protection
+                        const protection = gameState.securityProtection || 0;
+                        if (Math.random() * 100 < (100 - protection)) {
+                            logEvent(`💥 An alien attack! You lost 50 credits to defend yourself.`);
+                            gameState.credits -= Math.min(50, gameState.credits);
+                            gameState.totalEarnings -= 50;
+                        } else {
+                            logEvent(`🛡️ Security Employee protected you from an alien attack! No credits lost.`);
+                        }
                         break;
                     case 1:
                         logEvent(`☄️✨ Meteor shower! Your ships earned a bonus of 25 credits per trade.`);
@@ -1387,7 +1454,7 @@
             const combineAllCostSpan = document.getElementById('combine-all-cost');
             const totalUpgrades = gameState.ships.reduce((acc, ship) => acc + ship.upgrades, 0);
             const combineAllCost = Math.floor(totalUpgrades / 4); // Example scaling
-            combineAllCostSpan.innerText = formatNumberWithSuffix(combineAllCost);
+            combineAllCostSpan.innerText = `${formatNumberWithSuffix(combineAllCost)}`;
             combineAllModal.style.display = combineAllModal.style.display === 'block' ? 'none' : 'block';
         }
 
@@ -1426,6 +1493,12 @@
 
         // ==================== SHARE FEATURE ====================
         function shareGame() {
+            const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+            if (currentTime - gameState.shareCooldown.lastShareTime < gameState.shareCooldown.cooldownDuration) {
+                const remaining = gameState.shareCooldown.cooldownDuration - (currentTime - gameState.shareCooldown.lastShareTime);
+                logEvent(`⚠ Share bonus is on cooldown. Please wait ${formatTime(remaining)} before sharing again.`);
+                return;
+            }
             const shareModal = document.getElementById('share-confirm-modal');
             shareModal.style.display = 'block';
         }
@@ -1446,6 +1519,8 @@
                 gameState.credits += 500;
                 gameState.totalCreditsEarned += 500;
                 gameState.totalEarnings += 500;
+                // Update share cooldown
+                gameState.shareCooldown.lastShareTime = Math.floor(Date.now() / 1000);
                 updateDisplay();
                 saveGame();
             } catch (err) {
@@ -1462,7 +1537,8 @@
         // ==================== KEY BINDINGS ====================
         document.addEventListener('keydown', function(e) {
             if (e.key === 'w' || e.key === 'W') {
-                cycleBuyAmount();
+                // Prevent cycling buy amount on key press
+                // Removed based on new requirements
             }
             if (e.key === 'Escape') {
                 closeAllModals();
@@ -1475,6 +1551,12 @@
             }
         });
 
+        document.addEventListener('keyup', function(e) {
+            if (e.key === 'Control' || e.key === 'Shift') {
+                setBuyMode(0); // Reset to 1x
+            }
+        });
+
         function setBuyMode(modeIndex) {
             if (modeIndex >=0 && modeIndex < gameState.buyAmounts.length) {
                 gameState.currentBuyIndex = modeIndex;
@@ -1484,9 +1566,7 @@
         }
 
         function cycleBuyAmount() {
-            gameState.currentBuyIndex = (gameState.currentBuyIndex + 1) % gameState.buyAmounts.length;
-            document.getElementById('buy-amount-button').innerText = `Buy: ${gameState.buyAmounts[gameState.currentBuyIndex]}`;
-            saveGame();
+            // No longer used based on new requirements
         }
 
         // ==================== THEME TOGGLE ====================
@@ -1574,6 +1654,16 @@
             });
         }
 
+        // Close modals when clicking outside of them
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal-menu');
+            modals.forEach(modal => {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
         // ==================== INITIALIZE GAME ====================
         function initialize() {
             loadGame();
@@ -1595,7 +1685,8 @@
             if (!timeCounterInterval) {
                 timeCounterInterval = setInterval(() => {
                     gameState.timePlayed += 1;
-                    document.getElementById('time-played').innerText = formatTime(gameState.timePlayed);
+                    // If using separate displays in settings, update here
+                    // document.getElementById('time-played').innerText = formatTime(gameState.timePlayed);
                 }, 1000);
             }
         }
@@ -1624,7 +1715,7 @@
         // Already implemented with shareGame(), copyShareLink(), and share-confirm-modal
 
         // ==================== COMBINE SHIPS ====================
-        // Already handled with dedicated modal and functions
+        // Already implemented with dedicated modal and functions
 
         // ==================== EMPLOYEE MANAGEMENT ====================
         // Already handled with separate employee menu and hireEmployee function
@@ -1632,7 +1723,19 @@
         // ==================== EMPLOYEE MENU ====================
         // Already implemented with toggleEmployeeMenu() and hireEmployee(type)
 
-        // ==================== FULL BUY AMOUNT FUNCTIONALITY ====================
+        // ==================== EMPLOYEE TYPES ====================
+        // Already handled in hireEmployee() function with specific benefits
+
+        // ==================== HELPER FUNCTIONS ====================
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function calculateShipLimitUpgradeCost() {
+            // Example: Each ship limit upgrade costs 500 * current ship limit
+            return Math.floor(500 * gameState.shipLimit);
+        }
+
         function getBuyAmountMultiplier() {
             const multiplierText = gameState.buyAmounts[gameState.currentBuyIndex];
             if (multiplierText === 'Max') {
