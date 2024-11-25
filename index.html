@@ -11,9 +11,26 @@
             font-family: Arial, sans-serif;
             text-align: center;
             overflow-x: hidden;
+            position: relative;
         }
         .ship {
             transition: all 2s ease-in-out;
+            position: relative;
+            margin: 10px;
+        }
+        .upgrade-count {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            background: #00ff00;
+            color: black;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
         }
         .button {
             background-color: #00ff00;
@@ -39,7 +56,7 @@
             height: 200px;
             overflow-y: auto;
         }
-        .upgrade-menu {
+        .upgrade-menu, .rebirth-menu {
             max-width: 600px;
             margin: 20px auto;
             background: #222;
@@ -47,14 +64,9 @@
             padding: 20px;
             text-align: left;
             color: #00ff00;
+            display: none;
         }
         .rebirth-menu {
-            max-width: 600px;
-            margin: 20px auto;
-            background: #444;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: left;
             color: #ff9900;
         }
         .progress-bar {
@@ -62,7 +74,8 @@
             background-color: #555;
             border-radius: 5px;
             margin: 10px 0;
-            height: 20px;
+            height: 25px;
+            position: relative;
         }
         .progress {
             height: 100%;
@@ -70,6 +83,17 @@
             border-radius: 5px;
             width: 0;
             transition: width 1s ease-in-out;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .progress-time {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            top: 0;
+            color: black;
+            font-weight: bold;
         }
         .column {
             display: inline-block;
@@ -85,42 +109,76 @@
             text-decoration: none;
             font-size: 16px;
         }
+        .upgrade-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #444;
+            padding: 10px;
+            border-radius: 10px;
+            color: #00ff00;
+        }
+        .hidden-ships {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #333;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: left;
+            color: #ff9900;
+            display: none;
+        }
+        .hidden-ships ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .hidden-ships li {
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body>
     <a href="https://sites.google.com/view/staticquasar931" class="header-link">Made By Static</a>
     <h1>✨ Interstellar Trader ✨</h1>
     <h2>Your goal: Build an intergalactic trading empire!</h2>
+
+    <div class="upgrade-toggle">
+        <label for="multiplier">Upgrade Multiplier:</label>
+        <select id="multiplier">
+            <option value="1">1x</option>
+            <option value="10">10x</option>
+            <option value="100">100x</option>
+            <option value="1000">1000x</option>
+            <option value="max">Max</option>
+        </select>
+    </div>
     
     <div id="game-area">
-        <p>Credits: <span id="credits">100</span> 💸</p>
+        <p>Credits: <span id="credits">1,000</span> 💸</p>
         <p>Spaceships: <span id="spaceship-count">1</span> 🚀</p>
         <div>
             <button class="button" onclick="sendShip()">⚙ Send Ship to Trade</button>
             <button class="button" onclick="buyShip()">⚖ Buy a New Ship (Cost: 100)</button>
-            <button class="button" onclick="researchTech()">⚛ Research Technology (Cost: 200)</button>
+            <button class="button" onclick="buyUpgrade()">✚ Buy Upgrade</button>
             <button class="button" onclick="toggleUpgradeMenu()">🔧 Upgrade Menu</button>
             <button class="button" onclick="toggleRebirthMenu()">♻️ Rebirth Menu</button>
+            <button class="button" onclick="upgradeAll()">🔼 Upgrade All</button>
         </div>
         <div>
-            <button class="button" onclick="massUpgrade(1)">1x</button>
-            <button class="button" onclick="massUpgrade(10)">10x</button>
-            <button class="button" onclick="massUpgrade(100)">100x</button>
-            <button class="button" onclick="massUpgrade(1000)">1000x</button>
-            <button class="button" onclick="massUpgrade('max')">Max</button>
+            <!-- Removed individual multiplier buttons -->
         </div>
         <p><strong>Technology Level:</strong> <span id="tech-level">1</span> ✯</p>
         <div id="event-log" class="event-log">
             <p>Game log:</p>
         </div>
-        <div id="upgrade-menu" class="upgrade-menu" style="display: none;">
+        <div id="upgrade-menu" class="upgrade-menu">
             <h3>Upgrade Menu</h3>
             <button class="button" onclick="buyAutomation()">🤖 Buy Automation (Cost: 500)</button>
             <button class="button" onclick="buyMultiplier()">✖ Buy Multiplier (Cost: 1000)</button>
             <button class="button" onclick="buyEmployee()">👨‍🚀 Hire Employee (Cost: 800)</button>
             <button class="button" onclick="buyBigUpgrade()">🚀 Ship Speed x2 (Cost: 5000)</button>
         </div>
-        <div id="rebirth-menu" class="rebirth-menu" style="display: none;">
+        <div id="rebirth-menu" class="rebirth-menu">
             <h3>Rebirth Menu</h3>
             <p>Rebirth Points: <span id="rebirth-points">0</span> 🔄</p>
             <button class="button" onclick="rebirth()">♻️ Rebirth (Requires 5000 Credits)</button>
@@ -134,162 +192,271 @@
         <div class="column" id="right-column"></div>
     </div>
 
+    <div id="hidden-ships" class="hidden-ships">
+        <h3>Hidden Ships</h3>
+        <ul id="hidden-list"></ul>
+    </div>
+
     <div id="settings">
         <a href="https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader" class="header-link" style="top: 50px;">Play Game Here</a>
     </div>
 
     <script>
-        let credits = 100;
-        let spaceshipCount = 1;
-        let techLevel = 1;
-        let rebirthPoints = 0;
-        let automation = false;
-        let employee = false;
-        const eventLog = document.getElementById('event-log');
-        const leftColumn = document.getElementById('left-column');
-        const rightColumn = document.getElementById('right-column');
+        // Game State
+        let gameState = {
+            credits: 1000,
+            spaceshipCount: 1,
+            techLevel: 1,
+            rebirthPoints: 0,
+            automation: false,
+            employee: false,
+            multiplier: 1,
+            ships: [
+                {
+                    id: 0,
+                    upgrades: 0,
+                    hidden: false,
+                    traderLevel: 1
+                }
+            ],
+            hiddenShips: []
+        };
 
-        function updateDisplay() {
-            document.getElementById('credits').innerText = credits;
-            document.getElementById('spaceship-count').innerText = spaceshipCount;
-            document.getElementById('tech-level').innerText = techLevel;
-            document.getElementById('rebirth-points').innerText = rebirthPoints;
+        // Load Game State from localStorage
+        function loadGame() {
+            const savedState = localStorage.getItem('interstellarTraderSave');
+            if (savedState) {
+                gameState = JSON.parse(savedState);
+                updateDisplay();
+                renderShips();
+                renderHiddenShips();
+            } else {
+                addProgressBar(); // Initialize first ship
+                saveGame();
+            }
         }
 
+        // Save Game State to localStorage
+        function saveGame() {
+            localStorage.setItem('interstellarTraderSave', JSON.stringify(gameState));
+        }
+
+        // Auto-save every 15 seconds
+        setInterval(saveGame, 15000);
+
+        // Update Display
+        function updateDisplay() {
+            document.getElementById('credits').innerText = formatNumber(gameState.credits);
+            document.getElementById('spaceship-count').innerText = gameState.spaceships.length;
+            document.getElementById('tech-level').innerText = gameState.techLevel;
+            document.getElementById('rebirth-points').innerText = gameState.rebirthPoints;
+            document.getElementById('multiplier').value = gameState.multiplier;
+        }
+
+        // Format large numbers
+        function formatNumber(num) {
+            if (num >= 1e12) return (num / 1e12).toFixed(2) + "T";
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + "B";
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + "M";
+            if (num >= 1e3) return (num / 1e3).toFixed(2) + "K";
+            return num;
+        }
+
+        // Log Events
         function logEvent(message) {
             const p = document.createElement('p');
             p.innerText = message;
             eventLog.appendChild(p);
             eventLog.scrollTop = eventLog.scrollHeight;
+            saveGame();
         }
 
-        function sendShip() {
-            let shipIndex = Math.floor(Math.random() * spaceshipCount);
-            let progressBar = document.getElementById(`progress-${shipIndex}`);
+        // Send Ship to Trade
+        function sendShip(shipId = 0) {
+            const ship = gameState.ships.find(s => s.id === shipId);
+            if (!ship) return;
+
+            const progressBar = document.getElementById(`progress-${ship.id}`);
+            const progressTime = document.getElementById(`progress-time-${ship.id}`);
             progressBar.style.width = '0%';
-            let progressInterval = setInterval(() => {
-                let currentWidth = parseInt(progressBar.style.width);
-                if (currentWidth < 100) {
-                    currentWidth += 10;
-                    progressBar.style.width = currentWidth + '%';
-                } else {
+            progressTime.innerText = '0s';
+
+            let progress = 0;
+            const totalTime = 10; // seconds
+            const intervalTime = 1000;
+
+            const progressInterval = setInterval(() => {
+                progress++;
+                const percentage = (progress / totalTime) * 100;
+                progressBar.style.width = percentage + '%';
+                progressTime.innerText = `${progress}s`;
+
+                if (progress >= totalTime) {
                     clearInterval(progressInterval);
-                    let profit = Math.floor((Math.random() * 10 + 10) * techLevel);
-                    credits += profit;
-                    logEvent(`✨ One of your ships completed a trade mission and earned ${profit} credits!`);
+                    const profit = Math.floor((Math.random() * 10 + 10) * gameState.techLevel * ship.traderLevel);
+                    gameState.credits += profit;
+                    logEvent(`✨ Ship ${ship.id + 1} completed a trade mission and earned ${formatNumber(profit)} credits!`);
                     updateDisplay();
+                    saveGame();
                     randomEvent();
                 }
-            }, 500);
+            }, intervalTime);
         }
 
+        // Buy a New Ship
         function buyShip() {
-            if (credits >= 100) {
-                spaceshipCount++;
-                credits -= 100;
-                addProgressBar();
-                logEvent(`🚀 You bought a new spaceship! Total spaceships: ${spaceshipCount}`);
+            const cost = 100 * Math.pow(1.15, gameState.spaceships.length - 1);
+            if (gameState.credits >= cost) {
+                gameState.credits -= cost;
+                const newShip = {
+                    id: gameState.ships.length,
+                    upgrades: 0,
+                    hidden: false,
+                    traderLevel: 1
+                };
+                gameState.ships.push(newShip);
+                addProgressBar(newShip.id);
+                logEvent(`🚀 You bought a new spaceship! Total spaceships: ${gameState.ships.length}`);
                 updateDisplay();
+                saveGame();
             } else {
                 logEvent(`⚠ Not enough credits to buy a new ship!`);
             }
         }
 
-        function researchTech() {
-            if (credits >= 200) {
-                techLevel++;
-                credits -= 200;
-                logEvent(`⚛ Your scientists have made technological advancements! Tech level increased to ${techLevel}.`);
+        // Buy Upgrade based on Multiplier
+        function buyUpgrade() {
+            const multiplier = gameState.multiplier;
+            const cost = 50 * multiplier * Math.pow(1.15, gameState.multiplierUpgrades || 0);
+            const totalCost = cost * multiplier;
+
+            if (gameState.credits >= totalCost) {
+                gameState.credits -= totalCost;
+                gameState.techLevel += multiplier;
+                logEvent(`✚ Bought upgrade x${multiplier}! Tech level increased to ${gameState.techLevel}.`);
                 updateDisplay();
+                saveGame();
             } else {
-                logEvent(`⚠ Not enough credits to research new technology!`);
+                logEvent(`⚠ Not enough credits to buy upgrade!`);
             }
         }
 
+        // Toggle Upgrade Menu
         function toggleUpgradeMenu() {
             const upgradeMenu = document.getElementById('upgrade-menu');
             upgradeMenu.style.display = upgradeMenu.style.display === 'none' ? 'block' : 'none';
         }
 
+        // Toggle Rebirth Menu
         function toggleRebirthMenu() {
             const rebirthMenu = document.getElementById('rebirth-menu');
             rebirthMenu.style.display = rebirthMenu.style.display === 'none' ? 'block' : 'none';
         }
 
+        // Buy Automation
         function buyAutomation() {
-            if (credits >= 500 && !automation) {
-                credits -= 500;
-                automation = true;
+            const cost = 500 * Math.pow(1.15, gameState.automation ? 1 : 0);
+            if (gameState.credits >= cost && !gameState.automation) {
+                gameState.credits -= cost;
+                gameState.automation = true;
                 logEvent(`🤖 Automation purchased! Your ships will now trade automatically.`);
                 updateDisplay();
+                saveGame();
             } else {
                 logEvent(`⚠ Not enough credits or automation already purchased!`);
             }
         }
 
+        // Buy Multiplier
         function buyMultiplier() {
-            if (credits >= 1000) {
-                credits -= 1000;
-                techLevel++;
-                logEvent(`✖ Multiplier purchased! Tech level increased to ${techLevel}.`);
+            const cost = 1000 * Math.pow(1.15, gameState.techLevel - 1);
+            if (gameState.credits >= cost) {
+                gameState.credits -= cost;
+                gameState.techLevel++;
+                logEvent(`✖ Multiplier purchased! Tech level increased to ${gameState.techLevel}.`);
                 updateDisplay();
+                saveGame();
             } else {
                 logEvent(`⚠ Not enough credits to buy multiplier!`);
             }
         }
 
+        // Hire Employee
         function buyEmployee() {
-            if (credits >= 800 && !employee) {
-                credits -= 800;
-                employee = true;
+            const cost = 800 * Math.pow(1.15, gameState.employee ? 1 : 0);
+            if (gameState.credits >= cost && !gameState.employee) {
+                gameState.credits -= cost;
+                gameState.employee = true;
                 logEvent(`👨‍🚀 Employee hired! They will help auto-send ships.`);
                 updateDisplay();
+                // Auto send ships every 8 seconds
                 setInterval(() => {
-                    if (employee) {
-                        sendShip();
+                    if (gameState.employee) {
+                        gameState.ships.forEach(ship => sendShip(ship.id));
                     }
                 }, 8000);
+                saveGame();
             } else {
                 logEvent(`⚠ Not enough credits or employee already hired!`);
             }
         }
 
+        // Buy Big Upgrade
         function buyBigUpgrade() {
-            if (credits >= 5000) {
-                credits -= 5000;
-                techLevel *= 2;
+            const cost = 5000 * Math.pow(1.15, gameState.techLevel - 1);
+            if (gameState.credits >= cost) {
+                gameState.credits -= cost;
+                gameState.techLevel *= 2;
                 logEvent(`🚀 Big Upgrade purchased! All ships are now 2x faster.`);
                 updateDisplay();
+                saveGame();
             } else {
                 logEvent(`⚠ Not enough credits to buy big upgrade!`);
             }
         }
 
+        // Rebirth
         function rebirth() {
-            if (credits >= 5000) {
-                let pointsEarned = Math.floor(credits / 1000);
-                rebirthPoints += pointsEarned;
-                credits = 100;
-                spaceshipCount = 1;
-                techLevel = 1;
+            if (gameState.credits >= 5000) {
+                const pointsEarned = Math.floor(gameState.credits / 1000);
+                gameState.rebirthPoints += pointsEarned;
+                gameState.credits = 100;
+                gameState.spaceships = [{
+                    id: 0,
+                    upgrades: 0,
+                    hidden: false,
+                    traderLevel: 1
+                }];
+                gameState.techLevel = 1;
+                gameState.automation = false;
+                gameState.employee = false;
+                gameState.hiddenShips = [];
+                document.getElementById('left-column').innerHTML = '';
+                document.getElementById('right-column').innerHTML = '';
+                addProgressBar();
                 logEvent(`♻️ You have rebirthed! Earned ${pointsEarned} rebirth points.`);
                 updateDisplay();
+                renderHiddenShips();
+                saveGame();
             } else {
                 logEvent(`⚠ Not enough credits to rebirth!`);
             }
         }
 
+        // Spend Rebirth Points
         function spendRebirthPoints() {
-            if (rebirthPoints > 0) {
-                techLevel += rebirthPoints;
-                logEvent(`🔧 You spent ${rebirthPoints} rebirth points to increase tech level by ${rebirthPoints}.`);
-                rebirthPoints = 0;
+            if (gameState.rebirthPoints > 0) {
+                gameState.techLevel += gameState.rebirthPoints;
+                logEvent(`🔧 You spent ${gameState.rebirthPoints} rebirth points to increase tech level by ${gameState.rebirthPoints}.`);
+                gameState.rebirthPoints = 0;
                 updateDisplay();
+                saveGame();
             } else {
                 logEvent(`⚠ No rebirth points to spend!`);
             }
         }
 
+        // Random Events
         function randomEvent() {
             let eventChance = Math.random();
             if (eventChance < 0.2) {
@@ -297,63 +464,196 @@
                 switch (eventType) {
                     case 0:
                         logEvent(`💥 An alien attack! You lost 50 credits to defend yourself.`);
-                        credits -= Math.min(50, credits);
+                        gameState.credits -= Math.min(50, gameState.credits);
                         break;
                     case 1:
                         logEvent(`☄✨ Meteor shower! Your ships temporarily increase profit by 50% for the next mission.`);
-                        credits += Math.floor((Math.random() * 5 + 5) * techLevel);
+                        // Implement temporary profit increase if needed
+                        const bonus = Math.floor((Math.random() * 5 + 5) * gameState.techLevel);
+                        gameState.credits += bonus;
+                        logEvent(`✨ Bonus: Earned an extra ${formatNumber(bonus)} credits from meteor shower.`);
                         break;
                     case 2:
                         logEvent(`🎉 Galactic fair! You made a deal and earned 100 bonus credits.`);
-                        credits += 100;
+                        gameState.credits += 100;
                         break;
                 }
                 updateDisplay();
+                saveGame();
             }
         }
 
-        function addProgressBar() {
+        // Add Progress Bar for a Ship
+        function addProgressBar(shipId) {
             const progressContainer = document.createElement('div');
             progressContainer.classList.add('progress-bar');
             const progressBar = document.createElement('div');
             progressBar.classList.add('progress');
-            progressBar.id = `progress-${spaceshipCount - 1}`;
+            progressBar.id = `progress-${shipId}`;
+            const progressTime = document.createElement('span');
+            progressTime.classList.add('progress-time');
+            progressTime.id = `progress-time-${shipId}`;
+            progressTime.innerText = '0s';
             progressContainer.appendChild(progressBar);
-            if (spaceshipCount % 2 === 0) {
-                rightColumn.appendChild(progressContainer);
+            progressContainer.appendChild(progressTime);
+
+            // Add Upgrade Count
+            const shipDiv = document.createElement('div');
+            shipDiv.classList.add('ship');
+            shipDiv.innerHTML = `<img src="https://via.placeholder.com/50" alt="Ship ${shipId + 1}">`;
+            const upgradeCount = document.createElement('div');
+            upgradeCount.classList.add('upgrade-count');
+            upgradeCount.id = `upgrade-count-${shipId}`;
+            upgradeCount.innerText = gameState.ships[shipId].upgrades;
+            shipDiv.appendChild(upgradeCount);
+            shipDiv.appendChild(progressContainer);
+
+            // Add Hide Button
+            const hideButton = document.createElement('button');
+            hideButton.classList.add('button');
+            hideButton.innerText = '👁️ Hide Ship';
+            hideButton.onclick = () => hideShip(shipId);
+            shipDiv.appendChild(hideButton);
+
+            // Append to Columns
+            if (shipId % 2 === 0) {
+                document.getElementById('left-column').appendChild(shipDiv);
+                document.getElementById('left-column').appendChild(progressContainer);
             } else {
-                leftColumn.appendChild(progressContainer);
+                document.getElementById('right-column').appendChild(shipDiv);
+                document.getElementById('right-column').appendChild(progressContainer);
             }
         }
 
-        function massUpgrade(multiplier) {
-            let cost;
-            switch (multiplier) {
-                case 'max':
-                    cost = credits;
-                    break;
-                default:
-                    cost = 100 * multiplier;
-                    break;
-            }
-            if (credits >= cost) {
-                credits -= cost;
-                techLevel += multiplier === 'max' ? Math.floor(credits / 100) : multiplier;
-                logEvent(`🚀 Mass upgrade completed for ${multiplier}x multiplier!`);
+        // Render Ships
+        function renderShips() {
+            document.getElementById('left-column').innerHTML = '';
+            document.getElementById('right-column').innerHTML = '';
+            gameState.ships.forEach(ship => {
+                if (!ship.hidden) {
+                    addProgressBar(ship.id);
+                }
+            });
+        }
+
+        // Hide a Ship
+        function hideShip(shipId) {
+            const ship = gameState.ships.find(s => s.id === shipId);
+            if (ship) {
+                ship.hidden = true;
+                gameState.hiddenShips.push(ship);
+                gameState.ships = gameState.ships.filter(s => s.id !== shipId);
+                document.getElementById(`progress-${shipId}`).parentElement.remove();
+                logEvent(`👁️ Ship ${shipId + 1} has been hidden.`);
                 updateDisplay();
-            } else {
-                logEvent(`⚠ Not enough credits for mass upgrade!`);
+                renderShips();
+                renderHiddenShips();
+                saveGame();
             }
         }
 
-        setInterval(() => {
-            if (automation) {
-                sendShip();
+        // Render Hidden Ships
+        function renderHiddenShips() {
+            const hiddenList = document.getElementById('hidden-list');
+            hiddenList.innerHTML = '';
+            gameState.hiddenShips.forEach(ship => {
+                const li = document.createElement('li');
+                li.innerText = `Ship ${ship.id + 1} - Upgrades: ${ship.upgrades}`;
+                const showButton = document.createElement('button');
+                showButton.classList.add('button');
+                showButton.innerText = '👁️ Show';
+                showButton.onclick = () => showShip(ship.id);
+                li.appendChild(showButton);
+                hiddenList.appendChild(li);
+            });
+        }
+
+        // Show a Hidden Ship
+        function showShip(shipId) {
+            const shipIndex = gameState.hiddenShips.findIndex(s => s.id === shipId);
+            if (shipIndex !== -1) {
+                const ship = gameState.hiddenShips[shipIndex];
+                ship.hidden = false;
+                gameState.ships.push(ship);
+                gameState.hiddenShips.splice(shipIndex, 1);
+                logEvent(`👁️ Ship ${ship.id + 1} has been shown.`);
+                updateDisplay();
+                renderShips();
+                renderHiddenShips();
+                saveGame();
             }
-            credits += spaceshipCount * techLevel;
-            logEvent(`⚙ Your spaceships generated ${spaceshipCount * techLevel} credits from trading.`);
-            updateDisplay();
-        }, 5000);
+        }
+
+        // Upgrade All Ships
+        function upgradeAll() {
+            const multiplier = gameState.multiplier;
+            const cost = 100 * multiplier * gameState.ships.length;
+            if (gameState.credits >= cost) {
+                gameState.credits -= cost;
+                gameState.ships.forEach(ship => {
+                    ship.upgrades += multiplier;
+                    document.getElementById(`upgrade-count-${ship.id}`).innerText = ship.upgrades;
+                });
+                logEvent(`🔼 All ships upgraded by x${multiplier}!`);
+                updateDisplay();
+                saveGame();
+            } else {
+                logEvent(`⚠ Not enough credits to upgrade all ships!`);
+            }
+        }
+
+        // Upgrade Multiplier Selection
+        document.getElementById('multiplier').addEventListener('change', function() {
+            gameState.multiplier = this.value === 'max' ? 'max' : parseInt(this.value);
+            saveGame();
+        });
+
+        // Handle Control Key for Temporary Multiplier
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey) {
+                document.getElementById('multiplier').value = '100';
+                gameState.multiplierBackup = gameState.multiplier;
+                gameState.multiplier = 100;
+            }
+        });
+
+        document.addEventListener('keyup', function(e) {
+            if (!e.ctrlKey && gameState.multiplierBackup) {
+                document.getElementById('multiplier').value = gameState.multiplierBackup;
+                gameState.multiplier = gameState.multiplierBackup;
+                delete gameState.multiplierBackup;
+                saveGame();
+            }
+        });
+
+        // Buy Better Ship Traders (Example Implementation)
+        function buyBetterTrader(shipId) {
+            const ship = gameState.ships.find(s => s.id === shipId);
+            const cost = 1000 * ship.traderLevel;
+            if (gameState.credits >= cost) {
+                gameState.credits -= cost;
+                ship.traderLevel += 1;
+                logEvent(`🚀 Ship ${ship.id + 1} trader level increased to ${ship.traderLevel}.`);
+                updateDisplay();
+                saveGame();
+            } else {
+                logEvent(`⚠ Not enough credits to upgrade trader for Ship ${ship.id + 1}!`);
+            }
+        }
+
+        // Initialize Game
+        function initialize() {
+            loadGame();
+            // Start Automation if purchased
+            if (gameState.automation) {
+                setInterval(() => {
+                    gameState.ships.forEach(ship => sendShip(ship.id));
+                }, 5000);
+            }
+        }
+
+        // Run Initialize on Page Load
+        window.onload = initialize;
     </script>
 </body>
 </html>
