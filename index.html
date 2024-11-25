@@ -41,6 +41,25 @@
             color: #0b0c10;
             background-color: rgba(102, 252, 241, 0.4);
         }
+        /* Play Game Here Link */
+        a.play-game-link {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            color: #66fcf1;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s, background-color 0.3s;
+            padding: 8px 12px;
+            border-radius: 5px;
+            background-color: rgba(102, 252, 241, 0.2);
+            font-weight: bold;
+            z-index: 1000;
+        }
+        a.play-game-link:hover {
+            color: #0b0c10;
+            background-color: rgba(102, 252, 241, 0.4);
+        }
         .version {
             position: fixed;
             bottom: 10px;
@@ -100,14 +119,14 @@
             font-weight: bold;
             z-index: 1001;
         }
-        .share-button {
-            right: 200px;
+        .settings-button {
+            right: 150px;
         }
         .help-button {
             right: 100px;
         }
-        .settings-button {
-            right: 300px;
+        .share-button {
+            right: 200px;
         }
         .settings-button:hover, .help-button:hover, .share-button:hover {
             background: #45a29e;
@@ -291,7 +310,7 @@
             font-weight: bold;
             border-radius: 5px;
         }
-        .ship .upgrade-count {
+        .upgrade-count {
             position: absolute;
             top: 10px;
             left: 10px;
@@ -308,7 +327,7 @@
             cursor: pointer;
             transition: background 0.3s;
         }
-        .ship .upgrade-count:hover {
+        .upgrade-count:hover {
             background: #e0a800;
         }
 
@@ -353,15 +372,15 @@
             }
             .settings-button {
                 top: 50px;
-                right: 300px;
-            }
-            .share-button {
-                top: 50px;
-                right: 200px;
+                right: 150px;
             }
             .help-button {
                 top: 50px;
                 right: 100px;
+            }
+            .share-button {
+                top: 50px;
+                right: 200px;
             }
             .modal-content {
                 width: 95%;
@@ -419,16 +438,16 @@
     <a href="https://sites.google.com/view/staticquasar931" class="header-link">Made By Static</a>
 
     <!-- Play Game Here Link -->
-    <a href="https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader" class="header-link" style="top: 50px;">Play Game Here</a>
+    <a href="https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader" class="header-link play-game-link">Play Game Here</a>
 
     <!-- Share Button -->
     <button class="button share-button" onclick="shareGame()" title="Share the game and earn a bonus">🔗 Share Game</button>
 
     <!-- Settings Button -->
-    <button class="button settings-button" onclick="toggleSettings()" title="Open Settings">⚙️ Settings</button>
+    <button class="button settings-button" onclick="toggleSettings()" title="Open Settings">⚙️</button>
 
     <!-- Help Button -->
-    <button class="button help-button" onclick="toggleHelp()" title="Open Help">❓ Help</button>
+    <button class="button help-button" onclick="toggleHelp()" title="Open Help">❓</button>
 
     <!-- Buy Amount Toggle -->
     <div class="buy-toggle">
@@ -724,7 +743,6 @@
             if (!gameState.version || gameState.version !== VERSION) {
                 // Handle migration if needed
                 // Example: Initialize new properties for newer versions
-                // Ensure all necessary properties are initialized
                 if (!gameState.shareCooldown) {
                     gameState.shareCooldown = {
                         lastShareTime: 0,
@@ -737,16 +755,16 @@
                         cooldownDuration: 604800 // 7 days in seconds
                     };
                 }
-                if (gameState.securityProtection === undefined) {
-                    gameState.securityProtection = 0;
-                }
-                if (gameState.rebirthPoints === undefined) {
-                    gameState.rebirthPoints = 0;
+                if (gameState.version === "v1.62.07") {
+                    // Example migration step
                 }
                 // Update version
                 gameState.version = VERSION;
                 saveGame();
             }
+            // Ensure rebirthPoints and securityProtection are initialized
+            if (gameState.rebirthPoints === undefined) gameState.rebirthPoints = 0;
+            if (gameState.securityProtection === undefined) gameState.securityProtection = 0;
         }
 
         // ==================== HANDLE OFFLINE PROGRESS ====================
@@ -757,11 +775,15 @@
                 const rebirthBonus = gameState.rebirthPoints * 0.1; // 10% bonus per RP
                 const effectiveTime = offlineTime * 0.3 + rebirthBonus; // 0.3x effectiveness plus rebirth bonus
                 const tradesPossible = Math.floor(effectiveTime / 10); // Each trade takes 10 seconds
-                const totalProfit = tradesPossible * 50 * gameState.techLevel * gameState.ships.length * gameState.multiplier;
+                let totalProfit = 0;
+                for (let i = 0; i < tradesPossible; i++) {
+                    gameState.totalTrades += gameState.ships.length;
+                    const earnings = Math.floor(50 * gameState.techLevel * gameState.ships.length * gameState.multiplier);
+                    totalProfit += earnings;
+                }
                 gameState.credits += totalProfit;
                 gameState.totalCreditsEarned += totalProfit;
                 gameState.totalEarnings += totalProfit;
-                gameState.totalTrades += tradesPossible * gameState.ships.length;
                 if (tradesPossible > 0) {
                     logEvent(`⏰ You were offline for ${formatTime(offlineTime)} and earned ${formatNumberWithSuffix(totalProfit)} credits.`);
                     updateDisplay();
@@ -792,11 +814,11 @@
                 console.error("Tech level display element not found.");
             }
 
-            const rebirthPoints = document.getElementById('rebirth-points');
-            if (rebirthPoints) {
-                rebirthPoints.innerText = gameState.rebirthPoints;
+            const rebirthPointsDisplay = document.getElementById('rebirth-points');
+            if (rebirthPointsDisplay) {
+                rebirthPointsDisplay.innerText = gameState.rebirthPoints;
             } else {
-                console.error("Rebirth points element not found.");
+                console.error("Rebirth points display element not found.");
             }
 
             const buyAmountButton = document.getElementById('buy-amount-button');
@@ -808,24 +830,10 @@
 
             const versionNumber = document.getElementById('version-number');
             if (versionNumber) {
-                versionNumber.innerText = VERSION;
-            } else {
-                console.error("Version number element not found.");
+                versionNumber.innerText = gameState.version;
             }
 
             // Update upgrade buttons with dynamic costs and disable if not affordable
-            gameState.ships.forEach(ship => {
-                const upgradeButton = document.querySelector(`#ship-${ship.id} .upgrade-trader-button`);
-                if (upgradeButton) {
-                    const cost = Math.floor(10 * Math.pow(1.5, ship.upgrades));
-                    upgradeButton.innerText = `Upgrade Trader (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
-                    upgradeButton.disabled = gameState.credits < cost;
-                } else {
-                    logEvent(`⚠ Upgrade button for Ship ${ship.id} not found.`);
-                }
-            });
-
-            // Update other upgrade buttons in upgrade menu
             const upgradeMenu = document.getElementById('upgrade-menu');
             if (upgradeMenu) {
                 const automationButton = upgradeMenu.querySelector('button[onclick="buyAutomation()"]');
@@ -842,37 +850,31 @@
                     automationButton.innerText = `🤖 Buy Automation (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
                     automationButton.disabled = gameState.credits < cost;
                 }
-
                 if (multiplierButton) {
-                    const cost = Math.floor(10000 * Math.pow(1.5, gameState.techLevel - 1)); // Increased cost for multiplier
+                    const cost = Math.floor(10000 * Math.pow(1.5, gameState.techLevel - 1));
                     multiplierButton.innerText = `✖️ Buy Multiplier (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
                     multiplierButton.disabled = gameState.credits < cost;
                 }
-
                 if (hireStorageButton) {
-                    const cost = Math.floor(1000 * Math.pow(1.2, gameState.employees.storage.level));
-                    hireStorageButton.innerText = `📦 Hire Storage Employee (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
-                    hireStorageButton.disabled = gameState.credits < cost;
+                    const storageCost = Math.floor(gameState.employees.storage.cost * Math.pow(1.2, gameState.employees.storage.level));
+                    hireStorageButton.innerText = `📦 Hire Storage Employee (Cost: ${formatNumberWithSuffix(storageCost)} Credits)`;
+                    hireStorageButton.disabled = gameState.credits < storageCost;
                 }
-
                 if (hireEfficiencyButton) {
-                    const cost = Math.floor(1500 * Math.pow(1.2, gameState.employees.efficiency.level));
-                    hireEfficiencyButton.innerText = `⚙️ Hire Efficiency Employee (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
-                    hireEfficiencyButton.disabled = gameState.credits < cost;
+                    const efficiencyCost = Math.floor(gameState.employees.efficiency.cost * Math.pow(1.2, gameState.employees.efficiency.level));
+                    hireEfficiencyButton.innerText = `⚙️ Hire Efficiency Employee (Cost: ${formatNumberWithSuffix(efficiencyCost)} Credits)`;
+                    hireEfficiencyButton.disabled = gameState.credits < efficiencyCost;
                 }
-
                 if (hireSecurityButton) {
-                    const cost = Math.floor(2000 * Math.pow(1.2, gameState.employees.security.level));
-                    hireSecurityButton.innerText = `🛡️ Hire Security Employee (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
-                    hireSecurityButton.disabled = gameState.credits < cost;
+                    const securityCost = Math.floor(gameState.employees.security.cost * Math.pow(1.2, gameState.employees.security.level));
+                    hireSecurityButton.innerText = `🛡️ Hire Security Employee (Cost: ${formatNumberWithSuffix(securityCost)} Credits)`;
+                    hireSecurityButton.disabled = gameState.credits < securityCost;
                 }
-
                 if (bigUpgradeButton) {
                     const cost = Math.floor(5000 * Math.pow(1.2, gameState.techLevel - 1));
                     bigUpgradeButton.innerText = `🚀 Big Upgrade for Ship (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
                     bigUpgradeButton.disabled = gameState.credits < cost;
                 }
-
                 if (shipLimitUpgradeButton) {
                     const cost = calculateShipLimitUpgradeCost();
                     shipLimitUpgradeButton.innerText = `📈 Upgrade Ship Limit (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
@@ -880,13 +882,15 @@
                 }
             }
 
-            // Disable buttons if not affordable
-            const upgradeButtons = upgradeMenu ? upgradeMenu.querySelectorAll('.button') : [];
-            upgradeButtons.forEach(button => {
-                if (button.disabled) {
-                    button.style.opacity = '0.6';
+            // Update each ship's trader upgrade button and automation indicators
+            gameState.ships.forEach(ship => {
+                const upgradeButton = document.querySelector(`#ship-${ship.id} .upgrade-trader-button`);
+                if (upgradeButton) {
+                    const cost = Math.floor(10 * Math.pow(1.5, ship.upgrades));
+                    upgradeButton.innerText = `Upgrade Trader (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
+                    upgradeButton.disabled = gameState.credits < cost;
                 } else {
-                    button.style.opacity = '1';
+                    logEvent(`⚠ Upgrade button for Ship ${ship.id} not found.`);
                 }
             });
 
@@ -899,6 +903,8 @@
                     } else {
                         shipDiv.classList.remove('automation');
                     }
+                } else {
+                    logEvent(`⚠ Ship div for Ship ${ship.id} not found.`);
                 }
             });
         }
@@ -953,10 +959,10 @@
                 shipDiv.classList.add('automation');
             }
             shipDiv.innerHTML = `
-                <div class="upgrade-count" title="Number of Upgrades">🔼 ${upgrades}</div>
+                <div class="upgrade-count">🔼 ${upgrades}</div>
                 <span>🚀 Ship ${shipId}</span>
                 <p>Trader Level: <span id="trader-level-${shipId}">${traderLevel}</span></p>
-                <div class="progress-bar" title="Click to start trade">
+                <div class="progress-bar" title="Click anywhere on the ship to start trade">
                     <div class="progress" id="progress-${shipId}"></div>
                     <span class="progress-time" id="progress-time-${shipId}">10s</span>
                     <span class="progress-earnings" id="progress-earnings-${shipId}">0 💸</span>
@@ -973,11 +979,20 @@
                 }
             });
             // Append to Ship Container
-            document.getElementById('ship-container').appendChild(shipDiv);
+            const shipContainer = document.getElementById('ship-container');
+            if (shipContainer) {
+                shipContainer.appendChild(shipDiv);
+            } else {
+                console.error("Ship container not found.");
+            }
         }
 
         function renderShips() {
             const shipContainer = document.getElementById('ship-container');
+            if (!shipContainer) {
+                logEvent(`⚠ Ship container not found.`);
+                return;
+            }
             shipContainer.innerHTML = '';
             // Ensure ship 1 is always present
             const ship1 = gameState.ships.find(s => s.id === 1);
@@ -1108,7 +1123,7 @@
             let totalCost = 0;
             let achievableMultiplier = multiplier;
 
-            const costPerUpgrade = 80 * Math.pow(1.15, gameState.techLevel - 1);
+            const costPerUpgrade = 10 * Math.pow(1.5, gameState.techLevel - 1);
             if (multiplier === 'Max') {
                 achievableMultiplier = Math.floor(gameState.credits / (costPerUpgrade * gameState.ships.length));
                 totalCost = costPerUpgrade * achievableMultiplier * gameState.ships.length;
@@ -1284,15 +1299,11 @@
             let totalUpgrades = 0;
             for (let i = 0; i < buyAmount; i++) {
                 const cost = Math.floor(10 * Math.pow(1.5, ship.upgrades));
-                if (gameState.credits >= (totalCost + cost)) {
-                    totalCost += cost;
-                    totalUpgrades += 1;
-                } else {
-                    break;
-                }
+                totalCost += cost;
+                totalUpgrades += 1;
             }
 
-            if (totalUpgrades > 0) {
+            if (gameState.credits >= totalCost) {
                 gameState.credits -= totalCost;
                 ship.traderLevel += totalUpgrades;
                 ship.upgrades += totalUpgrades;
@@ -1302,7 +1313,7 @@
                 updateDisplay();
                 saveGame();
             } else {
-                logEvent(`⚠ Not enough credits to upgrade trader for Ship ${ship.id}!`);
+                logEvent(`⚠ Not enough credits to upgrade trader for Ship ${ship.id}! (Cost: ${formatNumberWithSuffix(totalCost)} Credits)`);
             }
         }
 
@@ -1558,41 +1569,7 @@
                 selectionDiv.appendChild(label);
                 selectionDiv.appendChild(br);
             });
-
-            // Update combine cost
-            updateCombineCost();
         }
-
-        function updateCombineCost() {
-            const selectedCheckboxes = Array.from(document.querySelectorAll('#combine-ship-selection input[type="checkbox"]:checked'));
-            const combineCostSpan = document.getElementById('combine-cost');
-            if (!combineCostSpan) {
-                logEvent(`⚠ Combine Cost element not found.`);
-                return;
-            }
-            if (selectedCheckboxes.length === 2) {
-                const shipId1 = parseInt(selectedCheckboxes[0].value);
-                const shipId2 = parseInt(selectedCheckboxes[1].value);
-                const ship1 = gameState.ships.find(s => s.id === shipId1);
-                const ship2 = gameState.ships.find(s => s.id === shipId2);
-                if (ship1 && ship2) {
-                    const totalUpgrades = ship1.upgrades + ship2.upgrades;
-                    const cost = Math.floor(totalUpgrades / 6); // Example scaling: 300 upgrades -> 50 credits
-                    combineCostSpan.innerText = `${formatNumberWithSuffix(cost)}`;
-                } else {
-                    combineCostSpan.innerText = `0`;
-                }
-            } else {
-                combineCostSpan.innerText = `0`;
-            }
-        }
-
-        // Listen for checkbox changes to update combine cost
-        document.addEventListener('change', function(event) {
-            if (event.target.matches('#combine-ship-selection input[type="checkbox"]')) {
-                updateCombineCost();
-            }
-        });
 
         function confirmCombineShips() {
             const selectedCheckboxes = Array.from(document.querySelectorAll('#combine-ship-selection input[type="checkbox"]:checked'));
@@ -1771,7 +1748,7 @@
                 if (buyAmountButton) {
                     buyAmountButton.innerText = `Buy: ${gameState.buyAmounts[gameState.currentBuyIndex]}`;
                 } else {
-                    logEvent(`⚠ Buy amount button not found.`);
+                    console.error("Buy amount button not found.");
                 }
                 saveGame();
             }
@@ -1810,7 +1787,7 @@
 
         // ==================== SETTINGS MENU ====================
         function toggleSettings() {
-            const settingsMenu = document.getElementById('settings-menu');
+            const settingsMenu = document.getElementById('upgrade-menu'); // Assuming settings is the same as upgrade menu
             if (settingsMenu) {
                 settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block';
             } else {
