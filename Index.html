@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interstellar Trader</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            overflow-x: hidden;
+        }
+        .ship {
+            transition: all 2s ease-in-out;
+        }
+        .button {
+            background-color: #00ff00;
+            color: black;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #007700;
+            color: white;
+        }
+        .event-log {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #333;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: left;
+            height: 200px;
+            overflow-y: auto;
+        }
+        .upgrade-menu {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #222;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: left;
+            color: #00ff00;
+        }
+        .rebirth-menu {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #444;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: left;
+            color: #ff9900;
+        }
+    </style>
+</head>
+<body>
+    <h1>✨ Interstellar Trader ✨</h1>
+    <h2>Your goal: Build an intergalactic trading empire!</h2>
+    
+    <div id="game-area">
+        <p>Credits: <span id="credits">100</span> 💸</p>
+        <p>Spaceships: <span id="spaceship-count">1</span> 🚀</p>
+        <button class="button" onclick="sendShip()">⚙ Send Ship to Trade</button>
+        <button class="button" onclick="buyShip()">⚖ Buy a New Ship (Cost: 100)</button>
+        <button class="button" onclick="researchTech()">⚛ Research Technology (Cost: 200)</button>
+        <button class="button" onclick="toggleUpgradeMenu()">🔧 Upgrade Menu</button>
+        <button class="button" onclick="toggleRebirthMenu()">♻️ Rebirth Menu</button>
+        <p><strong>Technology Level:</strong> <span id="tech-level">1</span> ✯</p>
+        <div id="event-log" class="event-log">
+            <p>Game log:</p>
+        </div>
+        <div id="upgrade-menu" class="upgrade-menu" style="display: none;">
+            <h3>Upgrade Menu</h3>
+            <button class="button" onclick="buyAutomation()">🤖 Buy Automation (Cost: 500)</button>
+            <button class="button" onclick="buyMultiplier()">✖ Buy Multiplier (Cost: 1000)</button>
+        </div>
+        <div id="rebirth-menu" class="rebirth-menu" style="display: none;">
+            <h3>Rebirth Menu</h3>
+            <p>Rebirth Points: <span id="rebirth-points">0</span> 🔄</p>
+            <button class="button" onclick="rebirth()">♻️ Rebirth (Requires 5000 Credits)</button>
+            <button class="button" onclick="spendRebirthPoints()">🔧 Spend Rebirth Points for Multiplier</button>
+        </div>
+    </div>
+
+    <script>
+        let credits = 100;
+        let spaceshipCount = 1;
+        let techLevel = 1;
+        let rebirthPoints = 0;
+        let automation = false;
+        const eventLog = document.getElementById('event-log');
+
+        function updateDisplay() {
+            document.getElementById('credits').innerText = credits;
+            document.getElementById('spaceship-count').innerText = spaceshipCount;
+            document.getElementById('tech-level').innerText = techLevel;
+            document.getElementById('rebirth-points').innerText = rebirthPoints;
+        }
+
+        function logEvent(message) {
+            const p = document.createElement('p');
+            p.innerText = message;
+            eventLog.appendChild(p);
+            eventLog.scrollTop = eventLog.scrollHeight;
+        }
+
+        function sendShip() {
+            let profit = Math.floor((Math.random() * 10 + 10) * techLevel);
+            credits += profit;
+            logEvent(`✨ One of your ships completed a trade mission and earned ${profit} credits!`);
+            updateDisplay();
+            randomEvent();
+        }
+
+        function buyShip() {
+            if (credits >= 100) {
+                spaceshipCount++;
+                credits -= 100;
+                logEvent(`🚀 You bought a new spaceship! Total spaceships: ${spaceshipCount}`);
+                updateDisplay();
+            } else {
+                logEvent(`⚠ Not enough credits to buy a new ship!`);
+            }
+        }
+
+        function researchTech() {
+            if (credits >= 200) {
+                techLevel++;
+                credits -= 200;
+                logEvent(`⚛ Your scientists have made technological advancements! Tech level increased to ${techLevel}.`);
+                updateDisplay();
+            } else {
+                logEvent(`⚠ Not enough credits to research new technology!`);
+            }
+        }
+
+        function toggleUpgradeMenu() {
+            const upgradeMenu = document.getElementById('upgrade-menu');
+            upgradeMenu.style.display = upgradeMenu.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function toggleRebirthMenu() {
+            const rebirthMenu = document.getElementById('rebirth-menu');
+            rebirthMenu.style.display = rebirthMenu.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function buyAutomation() {
+            if (credits >= 500 && !automation) {
+                credits -= 500;
+                automation = true;
+                logEvent(`🤖 Automation purchased! Your ships will now trade automatically.`);
+                updateDisplay();
+            } else {
+                logEvent(`⚠ Not enough credits or automation already purchased!`);
+            }
+        }
+
+        function buyMultiplier() {
+            if (credits >= 1000) {
+                credits -= 1000;
+                techLevel++;
+                logEvent(`✖ Multiplier purchased! Tech level increased to ${techLevel}.`);
+                updateDisplay();
+            } else {
+                logEvent(`⚠ Not enough credits to buy multiplier!`);
+            }
+        }
+
+        function rebirth() {
+            if (credits >= 5000) {
+                let pointsEarned = Math.floor(credits / 1000);
+                rebirthPoints += pointsEarned;
+                credits = 100;
+                spaceshipCount = 1;
+                techLevel = 1;
+                logEvent(`♻️ You have rebirthed! Earned ${pointsEarned} rebirth points.`);
+                updateDisplay();
+            } else {
+                logEvent(`⚠ Not enough credits to rebirth!`);
+            }
+        }
+
+        function spendRebirthPoints() {
+            if (rebirthPoints > 0) {
+                techLevel += rebirthPoints;
+                logEvent(`🔧 You spent ${rebirthPoints} rebirth points to increase tech level by ${rebirthPoints}.`);
+                rebirthPoints = 0;
+                updateDisplay();
+            } else {
+                logEvent(`⚠ No rebirth points to spend!`);
+            }
+        }
+
+        function randomEvent() {
+            let eventChance = Math.random();
+            if (eventChance < 0.2) {
+                let eventType = Math.floor(Math.random() * 3);
+                switch (eventType) {
+                    case 0:
+                        logEvent(`💥 An alien attack! You lost 50 credits to defend yourself.`);
+                        credits -= Math.min(50, credits);
+                        break;
+                    case 1:
+                        logEvent(`☄✨ Meteor shower! Your ships temporarily increase profit by 50% for the next mission.`);
+                        credits += Math.floor((Math.random() * 5 + 5) * techLevel);
+                        break;
+                    case 2:
+                        logEvent(`🎉 Galactic fair! You made a deal and earned 100 bonus credits.`);
+                        credits += 100;
+                        break;
+                }
+                updateDisplay();
+            }
+        }
+
+        setInterval(() => {
+            if (automation) {
+                sendShip();
+            }
+            credits += spaceshipCount * techLevel;
+            logEvent(`⚙ Your spaceships generated ${spaceshipCount * techLevel} credits from trading.`);
+            updateDisplay();
+        }, 5000);
+
+    </script>
+</body>
+</html>
