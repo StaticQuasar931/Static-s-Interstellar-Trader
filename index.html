@@ -44,8 +44,8 @@
         /* Play Game Here Link */
         a.play-game-link {
             position: absolute;
-            top: 50px;
-            left: 10px;
+            top: 10px;
+            left: 160px; /* Adjusted to avoid overlap with header-link */
             color: #66fcf1;
             text-decoration: none;
             font-size: 16px;
@@ -385,6 +385,9 @@
             .modal-content {
                 width: 95%;
                 max-width: 600px;
+            }
+            .event-log {
+                width: 95%;
             }
         }
 
@@ -755,9 +758,6 @@
                         cooldownDuration: 604800 // 7 days in seconds
                     };
                 }
-                if (gameState.version === "v1.62.07") {
-                    // Example migration step
-                }
                 // Update version
                 gameState.version = VERSION;
                 saveGame();
@@ -858,17 +858,17 @@
                 if (hireStorageButton) {
                     const storageCost = Math.floor(gameState.employees.storage.cost * Math.pow(1.2, gameState.employees.storage.level));
                     hireStorageButton.innerText = `📦 Hire Storage Employee (Cost: ${formatNumberWithSuffix(storageCost)} Credits)`;
-                    hireStorageButton.disabled = gameState.credits < storageCost;
+                    hireStorageButton.disabled = gameState.credits < storageCost || gameState.employees.storage.level >= 10;
                 }
                 if (hireEfficiencyButton) {
                     const efficiencyCost = Math.floor(gameState.employees.efficiency.cost * Math.pow(1.2, gameState.employees.efficiency.level));
                     hireEfficiencyButton.innerText = `⚙️ Hire Efficiency Employee (Cost: ${formatNumberWithSuffix(efficiencyCost)} Credits)`;
-                    hireEfficiencyButton.disabled = gameState.credits < efficiencyCost;
+                    hireEfficiencyButton.disabled = gameState.credits < efficiencyCost || gameState.employees.efficiency.level >= 10;
                 }
                 if (hireSecurityButton) {
                     const securityCost = Math.floor(gameState.employees.security.cost * Math.pow(1.2, gameState.employees.security.level));
                     hireSecurityButton.innerText = `🛡️ Hire Security Employee (Cost: ${formatNumberWithSuffix(securityCost)} Credits)`;
-                    hireSecurityButton.disabled = gameState.credits < securityCost;
+                    hireSecurityButton.disabled = gameState.credits < securityCost || gameState.employees.security.level >= 10;
                 }
                 if (bigUpgradeButton) {
                     const cost = Math.floor(5000 * Math.pow(1.2, gameState.techLevel - 1));
@@ -878,7 +878,7 @@
                 if (shipLimitUpgradeButton) {
                     const cost = calculateShipLimitUpgradeCost();
                     shipLimitUpgradeButton.innerText = `📈 Upgrade Ship Limit (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
-                    shipLimitUpgradeButton.disabled = gameState.credits < cost;
+                    shipLimitUpgradeButton.disabled = gameState.credits < cost || gameState.shipLimit >= 100; // Example max ship limit
                 }
             }
 
@@ -1031,12 +1031,17 @@
             ship.trading = true;
 
             let progress = 0;
-            let tradeDuration = 10; // seconds
-            // Decrease trade duration based on upgrades and efficiency employees
-            const efficiencyBonus = gameState.employees.efficiency.level * 1; // 1 second reduction per level
-            tradeDuration = Math.max(5, tradeDuration - Math.floor(ship.upgrades / 5) - efficiencyBonus); // Minimum 5 seconds
+            let tradeDuration = 10; // base trade duration in seconds
 
-            const intervalTime = 1000;
+            // Apply Efficiency Employee bonus: each level reduces duration by 1 second
+            const efficiencyBonus = gameState.employees.efficiency.level;
+            tradeDuration = Math.max(5, tradeDuration - efficiencyBonus);
+
+            // Apply Upgrades: every 5 upgrades reduce duration by 1 second
+            const upgradeBonus = Math.floor(ship.upgrades / 5);
+            tradeDuration = Math.max(5, tradeDuration - upgradeBonus);
+
+            const intervalTime = 1000; // 1 second intervals
 
             const progressInterval = setInterval(() => {
                 progress++;
@@ -1064,7 +1069,7 @@
                     if (ship.automation) {
                         setTimeout(() => {
                             sendShip(ship.id);
-                        }, 1000);
+                        }, 1000); // slight delay before starting next trade
                     }
                 }
             }, intervalTime);
@@ -1544,6 +1549,9 @@
             const combineModal = document.getElementById('combine-ships-modal');
             if (combineModal) {
                 combineModal.style.display = combineModal.style.display === 'block' ? 'none' : 'block';
+                if (combineModal.style.display === 'block') {
+                    populateCombineShips();
+                }
             } else {
                 logEvent(`⚠ Combine Ships Modal not found.`);
             }
@@ -1720,10 +1728,6 @@
 
         // ==================== KEY BINDINGS ====================
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'w' || e.key === 'W') {
-                // Prevent cycling buy amount on key press
-                // Removed based on new requirements
-            }
             if (e.key === 'Escape') {
                 closeAllModals();
             }
@@ -1787,7 +1791,7 @@
 
         // ==================== SETTINGS MENU ====================
         function toggleSettings() {
-            const settingsMenu = document.getElementById('upgrade-menu'); // Assuming settings is the same as upgrade menu
+            const settingsMenu = document.getElementById('settings-menu');
             if (settingsMenu) {
                 settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block';
             } else {
