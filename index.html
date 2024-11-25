@@ -4,662 +4,632 @@
     <meta charset="UTF-8">
     <title>Interstellar Trader</title>
     <style>
-        /* ==================== GENERAL STYLES ==================== */
+        /* ==================== BASIC STYLES ==================== */
         body {
-            background-color: #0b0c10;
-            color: #c5c6c7;
-            font-family: 'Arial', sans-serif;
-            text-align: center;
             margin: 0;
             padding: 0;
-            transition: background-color 0.5s, color 0.5s;
-            overflow-x: hidden;
-        }
-        body.light-theme {
-            background-color: #f5f5f5;
-            color: #1f2833;
-        }
-        body.blue-theme {
-            background-color: #1e3d59;
-            color: #f0f0f0;
-        }
-        a.header-link {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: #66fcf1;
-            text-decoration: none;
-            font-size: 16px;
-            transition: color 0.3s, background-color 0.3s;
-            padding: 8px 12px;
-            border-radius: 5px;
-            background-color: rgba(102, 252, 241, 0.2);
-            font-weight: bold;
-            z-index: 1000;
-        }
-        a.header-link:hover {
-            color: #0b0c10;
-            background-color: rgba(102, 252, 241, 0.4);
-        }
-        /* Play Game Here Link */
-        a.play-game-link {
-            position: absolute;
-            top: 10px;
-            left: 160px; /* Adjusted to avoid overlap with header-link */
-            color: #66fcf1;
-            text-decoration: none;
-            font-size: 16px;
-            transition: color 0.3s, background-color 0.3s;
-            padding: 8px 12px;
-            border-radius: 5px;
-            background-color: rgba(102, 252, 241, 0.2);
-            font-weight: bold;
-            z-index: 1000;
-        }
-        a.play-game-link:hover {
-            color: #0b0c10;
-            background-color: rgba(102, 252, 241, 0.4);
-        }
-        .version {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
+            font-family: Arial, sans-serif;
+            background-color: #1f2833;
             color: #c5c6c7;
-            font-size: 12px;
-            z-index: 1000;
-        }
-        h1 {
-            margin-top: 80px;
-            font-size: 48px;
-            color: #66fcf1;
-        }
-        h2 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #45a29e;
-        }
-
-        /* ==================== BUY AMOUNT TOGGLE ==================== */
-        .buy-toggle {
-            position: absolute;
-            top: 10px;
-            right: 250px;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 5px;
-            z-index: 1001;
-        }
-        .buy-toggle button {
-            background: #45a29e;
-            color: #0b0c10;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-            font-weight: bold;
-        }
-        .buy-toggle button:hover {
-            background: #66fcf1;
-            color: #0b0c10;
+            min-height: 100vh;
+            position: relative;
         }
 
-        /* ==================== SETTINGS, HELP & SHARE BUTTONS ==================== */
-        .settings-button, .help-button, .share-button {
-            position: absolute;
-            top: 10px;
-            background: #1f2833;
-            color: #c5c6c7;
-            border: none;
-            padding: 10px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-            font-size: 16px;
-            font-weight: bold;
-            z-index: 1001;
-        }
-        .settings-button {
-            right: 150px;
-        }
-        .help-button {
-            right: 100px;
-        }
-        .share-button {
-            right: 200px;
-        }
-        .settings-button:hover, .help-button:hover, .share-button:hover {
-            background: #45a29e;
-            color: #0b0c10;
-        }
-
-        /* ==================== BUTTON STYLES ==================== */
-        .button {
-            background-color: #66fcf1;
-            color: #0b0c10;
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 10px;
-            margin: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-            font-weight: bold;
-        }
-        .button:hover:not(:disabled) {
-            background-color: #45a29e;
-            color: #ffffff;
-        }
-        .button:disabled {
-            background-color: #c5c6c7;
-            color: #1f2833;
-            cursor: not-allowed;
-        }
-
-        /* ==================== EVENT LOG ==================== */
-        .event-log {
-            max-width: 800px;
-            margin: 20px auto;
-            background: #1f2833;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: left;
-            height: 200px;
-            overflow-y: auto;
-            color: #c5c6c7;
-            font-size: 14px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        header {
+            width: 100%;
+            background-color: #0b0c10;
+            padding: 10px 0;
+            display: flex;
+            justify-content: center;
+            position: fixed;
+            top: 0;
             z-index: 1000;
         }
-        .event-log p {
-            margin: 5px 0;
-        }
 
-        /* ==================== MODAL MENUS ==================== */
-        .modal-menu {
-            display: none; /* Hidden by default */
-            position: fixed;
-            z-index: 1002;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.8); /* Black with opacity */
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            width: 80%;
-            max-width: 800px; /* Increased max-width for wider help menu */
-            border-radius: 10px;
-            color: #000;
-            position: relative;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-            transition: background-color 0.5s, color 0.5s;
-        }
-        .modal-content h3 {
-            color: #66fcf1;
-            margin-bottom: 10px;
+        header h1 {
+            margin: 0;
             font-size: 24px;
-        }
-        body.light-theme .modal-content {
-            background-color: #f5f5f5;
-            color: #1f2833;
-        }
-        body.blue-theme .modal-content {
-            background-color: #1e3d59;
-            color: #f0f0f0;
-        }
-        .close-modal {
-            color: #aaa;
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .close-modal:hover,
-        .close-modal:focus {
-            color: black;
-            text-decoration: none;
+            color: #66fcf1;
         }
 
-        /* ==================== PROGRESS BAR ==================== */
-        .progress-bar {
-            width: 100%;
-            background-color: #c5c6c7;
-            border-radius: 5px;
-            margin: 10px 0;
-            height: 25px;
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-        }
-        body.light-theme .progress-bar {
-            background-color: #e0e0e0;
-        }
-        body.blue-theme .progress-bar {
-            background-color: #3b5998;
-        }
-        .progress {
-            height: 100%;
-            background-color: green;
-            width: 0;
-            transition: width 1s ease-in-out;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-        .progress-time, .progress-earnings {
-            margin: 0 10px;
-            color: #0b0c10;
-            font-weight: bold;
-            font-size: 14px;
-            z-index: 1;
-        }
-        .progress-earnings {
-            margin-left: auto;
-        }
-
-        /* ==================== SHIP MODULE ==================== */
-        .ship {
-            background: #0b0c10;
-            border: 2px solid #66fcf1;
-            border-radius: 10px;
-            padding: 10px;
-            width: 220px;
-            position: relative;
-            box-shadow: 0 0 10px rgba(102,252,241,0.5);
-            margin: 10px;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: transform 0.3s, background-color 0.5s, border-color 0.5s;
+        main {
+            margin-top: 60px; /* Space for fixed header */
+            width: 90%;
+            max-width: 1200px;
+            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        body.light-theme .ship {
-            background: #ffffff;
+
+        /* ==================== SHIP MODULE STYLES ==================== */
+        #ship-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .ship {
+            background-color: #0b0c10;
             border: 2px solid #66fcf1;
+            border-radius: 10px;
+            padding: 15px;
+            width: 250px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
         }
-        body.blue-theme .ship {
-            background: #1e3d59;
-            border: 2px solid #f0f0f0;
-        }
+
         .ship:hover {
             transform: scale(1.05);
         }
-        .ship p {
-            margin: 5px 0;
-            color: #66fcf1;
-            font-size: 14px;
+
+        .ship.automation {
+            border-color: #45a29e;
         }
-        body.light-theme .ship p {
-            color: #45a29e;
-        }
-        body.blue-theme .ship p {
-            color: #f0f0f0;
-        }
-        .ship button {
-            margin-top: 10px;
-            width: 100%;
-            padding: 5px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 5px;
-        }
+
         .upgrade-count {
             position: absolute;
             top: 10px;
-            left: 10px;
-            background: #ffb703;
-            color: #0b0c10;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
+            right: 10px;
+            background-color: #c5c6c7;
+            color: #1f2833;
+            padding: 5px 10px;
+            border-radius: 5px;
             font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        .upgrade-count:hover {
-            background: #e0a800;
+            font-size: 14px;
         }
 
-        /* ==================== AUTOMATION INDICATOR ==================== */
+        .ship h3 {
+            margin: 0 0 10px 0;
+            color: #66fcf1;
+            font-size: 20px;
+        }
+
+        .ship p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        .progress-bar {
+            background-color: #c5c6c7;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+            height: 20px;
+            margin: 10px 0;
+        }
+
+        .progress {
+            background-color: #45a29e;
+            height: 100%;
+            width: 0%;
+            transition: width 1s linear;
+        }
+
+        .progress-time, .progress-earnings {
+            position: absolute;
+            top: 0;
+            font-size: 12px;
+            color: #0b0c10;
+            padding: 2px 5px;
+        }
+
+        .progress-time {
+            left: 5px;
+        }
+
+        .progress-earnings {
+            right: 5px;
+        }
+
+        .ship button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #45a29e;
+            color: #0b0c10;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .ship button:hover:not(:disabled) {
+            background-color: #66fcf1;
+        }
+
+        .ship button:disabled {
+            background-color: #7f8c8d;
+            cursor: not-allowed;
+        }
+
         .automation-indicator {
             position: absolute;
-            top: 10px;
+            bottom: 10px;
             right: 10px;
-            color: #00ff00;
             font-size: 18px;
             display: none;
-            cursor: default;
         }
+
         .ship.automation .automation-indicator {
             display: block;
         }
 
-        /* ==================== SHIP CONTAINER ==================== */
-        .ship-container {
+        /* ==================== ACTION BUTTONS STYLES ==================== */
+        .action-buttons {
             display: flex;
             flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
             justify-content: center;
-            max-width: 1200px;
-            margin: 0 auto;
+            width: 100%;
+        }
+
+        .action-buttons button {
+            padding: 10px 20px;
+            background-color: #45a29e;
+            color: #0b0c10;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+
+        .action-buttons button:hover {
+            background-color: #66fcf1;
+        }
+
+        /* ==================== EVENT LOG STYLES ==================== */
+        #event-log {
+            width: 100%;
+            max-width: 800px;
+            height: 200px;
+            background-color: #0b0c10;
+            border: 2px solid #66fcf1;
+            border-radius: 10px;
+            padding: 10px;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+        }
+
+        #event-log p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #c5c6c7;
+        }
+
+        /* ==================== MODAL STYLES ==================== */
+        .modal-menu {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 2000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
+        }
+
+        .modal-content {
+            background-color: #1f2833;
+            margin: 10% auto; /* 10% from the top and centered */
+            padding: 20px;
+            border: 2px solid #66fcf1;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .modal-content.light-theme {
+            background-color: #e0e0e0;
+            color: #1f2833;
+        }
+
+        .modal-content.blue-theme {
+            background-color: #3b5998;
+            color: #f0f0f0;
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            color: #66fcf1;
+        }
+
+        .modal-content p {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .modal-content ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+
+        .modal-content button {
+            padding: 10px 20px;
+            margin: 10px 5px 0 0;
+            background-color: #45a29e;
+            color: #0b0c10;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .modal-content button:hover:not(:disabled) {
+            background-color: #66fcf1;
+        }
+
+        .modal-content button:disabled {
+            background-color: #7f8c8d;
+            cursor: not-allowed;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: #c5c6c7;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-modal:hover {
+            color: #66fcf1;
+        }
+
+        /* ==================== TOP RIGHT BUTTONS STYLES ==================== */
+        .top-right-buttons {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+            z-index: 1500;
+        }
+
+        .top-right-buttons button {
+            padding: 8px;
+            background-color: #45a29e;
+            color: #0b0c10;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+
+        .top-right-buttons button:hover {
+            background-color: #66fcf1;
+        }
+
+        /* ==================== SETTINGS MENU STYLES ==================== */
+        #settings-menu .modal-content button {
+            width: 100%;
+            margin: 10px 0 0 0;
+        }
+
+        /* ==================== BUY AMOUNT TOGGLE STYLES ==================== */
+        .buy-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1500;
+        }
+
+        .buy-toggle button {
+            padding: 10px;
+            background-color: #45a29e;
+            color: #0b0c10;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .buy-toggle button:hover {
+            background-color: #66fcf1;
         }
 
         /* ==================== RESPONSIVE DESIGN ==================== */
-        @media (max-width: 1200px) {
-            .ship {
-                width: 45%;
-            }
-        }
         @media (max-width: 768px) {
             .ship {
                 width: 90%;
-            }
-            .buy-toggle {
-                flex-direction: column;
-                align-items: flex-start;
-                right: 10px;
-                top: 50px;
-            }
-            .settings-button {
-                top: 50px;
-                right: 150px;
-            }
-            .help-button {
-                top: 50px;
-                right: 100px;
-            }
-            .share-button {
-                top: 50px;
-                right: 200px;
             }
             .modal-content {
                 width: 95%;
                 max-width: 600px;
             }
-            .event-log {
-                width: 95%;
+            .top-right-buttons {
+                flex-direction: column;
+                top: 60px;
+                right: 10px;
+            }
+            .buy-toggle {
+                bottom: 10px;
+                right: 10px;
+                flex-direction: row;
             }
         }
 
-        /* ==================== HIGHLIGHTED CREDITS ==================== */
-        #credits {
-            font-size: 24px;
-            font-weight: bold;
-            color: #66fcf1;
-            transition: color 0.5s;
+        /* ==================== THEME STYLES ==================== */
+        .light-theme body {
+            background-color: #e0e0e0;
+            color: #1f2833;
         }
-        body.light-theme #credits {
-            color: #45a29e;
+
+        .light-theme .modal-content {
+            background-color: #f0f0f0;
+            color: #1f2833;
+            border-color: #66fcf1;
         }
-        body.blue-theme #credits {
+
+        .light-theme .ship {
+            background-color: #ffffff;
+            border-color: #66fcf1;
+            color: #1f2833;
+        }
+
+        .light-theme .ship.automation {
+            border-color: #45a29e;
+        }
+
+        .light-theme #event-log {
+            background-color: #f0f0f0;
+            border-color: #66fcf1;
+            color: #1f2833;
+        }
+
+        .light-theme .progress-bar {
+            background-color: #d3d3d3;
+        }
+
+        .light-theme .progress {
+            background-color: #45a29e;
+        }
+
+        .light-theme .modal-content.light-theme {
+            background-color: #e0e0e0;
+            color: #1f2833;
+        }
+
+        .blue-theme body {
+            background-color: #3b5998;
             color: #f0f0f0;
         }
 
-        /* ==================== SPACESHIP CAP DISPLAY ==================== */
-        #spaceship-display {
-            font-size: 18px;
-            font-weight: bold;
-            margin-top: 5px;
-            color: #c5c6c7;
-            transition: color 0.5s;
+        .blue-theme .modal-content {
+            background-color: #2d4373;
+            color: #f0f0f0;
+            border-color: #66fcf1;
         }
-        body.light-theme #spaceship-display {
-            color: #1f2833;
-        }
-        body.blue-theme #spaceship-display {
+
+        .blue-theme .ship {
+            background-color: #2d4373;
+            border-color: #66fcf1;
             color: #f0f0f0;
         }
 
-        /* ==================== TECH LEVEL DISPLAY ==================== */
-        #tech-level-display {
-            font-size: 18px;
-            font-weight: bold;
-            margin-top: 5px;
-            color: #c5c6c7;
-            transition: color 0.5s;
+        .blue-theme .ship.automation {
+            border-color: #45a29e;
         }
-        body.light-theme #tech-level-display {
-            color: #1f2833;
+
+        .blue-theme #event-log {
+            background-color: #2d4373;
+            border-color: #66fcf1;
+            color: #f0f0f0;
         }
-        body.blue-theme #tech-level-display {
+
+        .blue-theme .progress-bar {
+            background-color: #4a90e2;
+        }
+
+        .blue-theme .progress {
+            background-color: #66fcf1;
+        }
+
+        .blue-theme .modal-content.blue-theme {
+            background-color: #2d4373;
             color: #f0f0f0;
         }
     </style>
 </head>
 <body>
-    <!-- Header Links -->
-    <a href="https://sites.google.com/view/staticquasar931" class="header-link">Made By Static</a>
+    <!-- ==================== HEADER ==================== -->
+    <header>
+        <h1>Interstellar Trader 🚀✨</h1>
+    </header>
 
-    <!-- Play Game Here Link -->
-    <a href="https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader" class="header-link play-game-link">Play Game Here</a>
-
-    <!-- Share Button -->
-    <button class="button share-button" onclick="shareGame()" title="Share the game and earn a bonus">🔗 Share Game</button>
-
-    <!-- Settings Button -->
-    <button class="button settings-button" onclick="toggleSettings()" title="Open Settings">⚙️</button>
-
-    <!-- Help Button -->
-    <button class="button help-button" onclick="toggleHelp()" title="Open Help">❓</button>
-
-    <!-- Buy Amount Toggle -->
-    <div class="buy-toggle">
-        <span>Buy Amount:</span>
-        <button class="button" id="buy-amount-button" title="Change Buy Amount">Buy: 1x</button>
+    <!-- ==================== TOP RIGHT BUTTONS ==================== -->
+    <div class="top-right-buttons">
+        <button onclick="toggleSettings()" title="Settings" aria-label="Settings">⚙️</button>
+        <button onclick="toggleHelp()" title="Help" aria-label="Help">❓</button>
+        <button onclick="shareGame()" title="Share the game and earn a bonus" aria-label="Share Game">🔗</button>
     </div>
 
-    <!-- Main Titles -->
-    <h1>✨ Interstellar Trader ✨</h1>
-    <h2>Your goal: Build an intergalactic trading empire!</h2>
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main>
+        <!-- ==================== SHIP MODULES ==================== -->
+        <div id="ship-container">
+            <!-- Ships will be dynamically added here -->
+        </div>
 
-    <!-- Game Area -->
-    <div id="game-area">
-        <p id="credits">100 💸</p>
-        <p id="spaceship-display">Spaceships: 1/10 🚀</p>
-        <p id="tech-level-display"><strong>Technology Level:</strong> 1 ✯</p>
+        <!-- ==================== ACTION BUTTONS ==================== -->
         <div class="action-buttons">
-            <button class="button" onclick="sendAllShips()" title="Send all ships to trade and earn credits">⚙️ Send All Ships to Trade</button>
-            <button class="button" onclick="buyShip()" title="Purchase a new spaceship">⚖️ Buy a New Ship</button>
-            <button class="button" onclick="buyUpgrade()" title="Purchase upgrades to increase your technology level">✚ Buy Upgrade</button>
-            <button class="button" onclick="upgradeAll()" title="Upgrade all ships based on the selected buy amount">🔼 Upgrade All</button>
-            <button class="button" onclick="toggleUpgradeMenu()" title="Open the Upgrade Menu">🔧 Upgrade Menu</button>
-            <button class="button" onclick="toggleRebirthMenu()" title="Open the Rebirth Menu">♻️ Rebirth Menu</button>
-            <button class="button" onclick="toggleCombineAllShipsModal()" title="Combine all ships into one">🔗 Combine All Ships</button>
+            <button onclick="buyShip()" title="Buy a new ship">🛒 Buy a New Ship</button>
+            <button onclick="toggleUpgradeMenu()" title="Open Upgrade Menu">🔼 Upgrades</button>
+            <button onclick="toggleEmployeeMenu()" title="Manage Employees">👨‍🚀 Employees</button>
+            <button onclick="toggleCombineShipsModal()" title="Combine Ships">🔗 Combine Ships</button>
+            <button onclick="toggleCombineAllShipsModal()" title="Combine All Ships">🔗 Combine All</button>
+            <button onclick="toggleRebirthMenu()" title="Rebirth and Reset Progress">♻️ Rebirth</button>
         </div>
-        <div id="event-log" class="event-log">
-            <p>Game log:</p>
+
+        <!-- ==================== EVENT LOG ==================== -->
+        <div id="event-log" aria-label="Event Log">
+            <!-- Event logs will appear here -->
         </div>
+    </main>
+
+    <!-- ==================== BUY AMOUNT TOGGLE ==================== -->
+    <div class="buy-toggle">
+        <button onclick="setBuyAmount(0)" title="Buy 1x Upgrades" aria-label="Buy 1x Upgrades">1x</button>
+        <button onclick="setBuyAmount(1)" title="Buy 10x Upgrades" aria-label="Buy 10x Upgrades">10x</button>
+        <button onclick="setBuyAmount(2)" title="Buy 15x Upgrades" aria-label="Buy 15x Upgrades">15x</button>
+        <button onclick="setBuyAmount(3)" title="Buy 30x Upgrades" aria-label="Buy 30x Upgrades">30x</button>
+        <button onclick="setBuyAmount(4)" title="Buy 50x Upgrades" aria-label="Buy 50x Upgrades">50x</button>
+        <button onclick="setBuyAmount(5)" title="Buy Max Upgrades" aria-label="Buy Max Upgrades">Max</button>
     </div>
 
-    <!-- Spaceship Progress Area -->
-    <div id="ship-area">
-        <h3>Spaceship Fleet</h3>
-        <div class="ship-container" id="ship-container"></div>
-    </div>
+    <!-- ==================== MODALS ==================== -->
 
-    <!-- Version Number -->
-    <div class="version" id="version-number">v1.62.08</div>
-
-    <!-- Modals -->
     <!-- Upgrade Menu Modal -->
-    <div id="upgrade-menu" class="modal-menu">
-        <div class="modal-content">
-            <span class="close-modal" onclick="toggleUpgradeMenu()">&times;</span>
-            <h3>Upgrade Menu</h3>
-            <button class="button" onclick="buyAutomation()" title="Unlock automation to send ships automatically">🤖 Buy Automation</button>
-            <button class="button" onclick="buyMultiplier()" title="Increase your technology level multiplier">✖️ Buy Multiplier</button>
-            <button class="button" onclick="toggleEmployeeMenu()" title="Hire specific types of employees">👨‍🚀 Hire Employee</button>
-            <button class="button" onclick="buyBigUpgrade()" title="Double the speed of a specific ship">🚀 Big Upgrade for Ship</button>
-            <button class="button" onclick="upgradeShipLimit()" title="Increase the number of ships you can own">📈 Upgrade Ship Limit</button>
-        </div>
-    </div>
-
-    <!-- Rebirth Menu Modal -->
-    <div id="rebirth-menu" class="modal-menu">
-        <div class="modal-content">
-            <span class="close-modal" onclick="toggleRebirthMenu()">&times;</span>
-            <h3>Rebirth Menu</h3>
-            <p>Rebirth Points (RP): <span id="rebirth-points">0</span> 🔄</p>
-            <button class="button" onclick="confirmRebirth()" title="Rebirth to reset progress and earn RP">♻️ Rebirth (Requires 100K Credits)</button>
-            <button class="button" onclick="spendRebirthPoints()" title="Spend RP to enhance your empire">🔧 Spend RP for Upgrades</button>
-        </div>
-    </div>
-
-    <!-- Help Menu Modal -->
-    <div id="help-menu" class="modal-menu">
-        <div class="modal-content" style="width: 90%; max-width: 800px;">
-            <span class="close-modal" onclick="toggleHelp()">&times;</span>
-            <h3>Help</h3>
-            <p>Welcome to Interstellar Trader! 🚀</p>
-            <p>📈 <strong>Objective:</strong> Build an intergalactic trading empire by sending your ships to trade goods between planets.</p>
-            <p>🛠️ <strong>Upgrades:</strong> Purchase upgrades to enhance your technology, increase profits, automate your trading operations, and more.</p>
-            <p>🔄 <strong>Rebirth:</strong> Reset your progress to gain Rebirth Points (RP) which can be spent on powerful upgrades.</p>
-            <p>🔍 <strong>Buttons and Upgrades Explained:</strong></p>
+    <div id="upgrade-menu" class="modal-menu" aria-hidden="true">
+        <div class="modal-content" aria-labelledby="upgrade-menu-title">
+            <span class="close-modal" onclick="closeUpgradeMenu()" aria-label="Close Upgrade Menu">&times;</span>
+            <h3 id="upgrade-menu-title">🔼 Upgrade Menu</h3>
+            <p>Select upgrades to enhance your trading capabilities:</p>
             <ul>
-                <li><strong>Send All Ships to Trade (⚙️):</strong> Initiates trade missions for all available ships simultaneously.</li>
-                <li><strong>Buy a New Ship (⚖️):</strong> Purchase additional ships to expand your trading fleet.</li>
-                <li><strong>Buy Upgrade (✚):</strong> Enhance your technology level, increasing earnings per trade.</li>
-                <li><strong>Upgrade All (🔼):</strong> Upgrade all ships based on the selected buy amount, prioritizing cheaper upgrades first.</li>
-                <li><strong>Upgrade Menu (🔧):</strong> Access various upgrade options including Automation, Multiplier, Employee Hiring, Big Upgrades, and Ship Limit enhancements.</li>
-                <li><strong>Rebirth Menu (♻️):</strong> Reset your progress to earn Rebirth Points, which can be used for significant upgrades.</li>
-                <li><strong>Share Game (🔗):</strong> Share the game link on different platforms to earn a small bonus.</li>
-                <li><strong>Combine All Ships (🔗):</strong> Merge all your ships into one powerful ship for enhanced trading capabilities.</li>
-            </ul>
-            <p><strong>Upgrade Options:</strong></p>
-            <ul>
-                <li><strong>Buy Automation (🤖):</strong> Unlock automation for your ships, allowing them to trade automatically without manual intervention.</li>
-                <li><strong>Buy Multiplier (✖️):</strong> Increase your technology level multiplier, significantly boosting earnings per trade.</li>
-                <li><strong>Hire Employee (👨‍🚀):</strong> Hire specific types of employees to assist with trading, each type offering unique benefits.</li>
+                <li><strong>Automate Trades (🤖):</strong> Enable automatic trading for your ships.</li>
+                <li><strong>Increase Multiplier (✖️):</strong> Enhance your trading multiplier for increased earnings.</li>
                 <li><strong>Big Upgrade for Ship (🚀):</strong> Apply a Big Upgrade to a specific ship, doubling its trader level and enhancing its trading speed.</li>
                 <li><strong>Upgrade Ship Limit (📈):</strong> Increase the maximum number of ships you can own, allowing for fleet expansion.</li>
             </ul>
-            <p><strong>Employee Types:</strong></p>
+            <h4>Upgrade Costs:</h4>
             <ul>
-                <li><strong>Storage Employee (📦):</strong> Increases your ship storage capacity, allowing you to own more ships.</li>
-                <li><strong>Efficiency Employee (⚙️):</strong> Enhances trade efficiency, reducing trade times and increasing earnings.</li>
-                <li><strong>Security Employee (🛡️):</strong> Protects your ships from random events that may cause credit loss.</li>
+                <li>🤖 Automation: Cost varies based on current automation levels.</li>
+                <li>✖️ Multiplier: Cost increases with each purchase.</li>
+                <li>🚀 Big Upgrade: Cost scales with technology level.</li>
+                <li>📈 Ship Limit: Cost scales with current ship limit.</li>
             </ul>
-            <p><strong>Tips:</strong></p>
-            <ul>
-                <li>Use the Buy Amount toggle to purchase multiple upgrades at once for faster progression.</li>
-                <li>Automate trading to continuously earn credits even when you're not actively playing.</li>
-                <li>Strategically rebirth to maximize your RP and accelerate growth.</li>
-                <li>Upgrade your traders to increase earnings per trade.</li>
-                <li>Apply Big Upgrades to specific ships for significant boosts in trading speed and earnings.</li>
-                <li>Hire employees to unlock new functionalities and enhance your fleet.</li>
-                <li>Combine all ships to merge their upgrades and create a more powerful trading unit.</li>
-                <li>Share the game on multiple platforms to earn bonuses and help grow your trading empire.</li>
-            </ul>
-            <button class="button" onclick="toggleHelp()" title="Close Help">❌ Close</button>
+            <button onclick="buyAutomation()" title="Purchase Automation">🤖 Buy Automation</button>
+            <button onclick="buyMultiplier()" title="Purchase Multiplier">✖️ Buy Multiplier</button>
+            <button onclick="buyBigUpgrade()" title="Purchase Big Upgrade">🚀 Buy Big Upgrade</button>
+            <button onclick="upgradeShipLimit()" title="Purchase Ship Limit Upgrade">📈 Upgrade Ship Limit</button>
         </div>
     </div>
 
     <!-- Combine Ships Modal -->
-    <div id="combine-ships-modal" class="modal-menu">
-        <div class="modal-content">
-            <span class="close-modal" onclick="toggleCombineShipsModal()">&times;</span>
-            <h3>Combine Ships</h3>
+    <div id="combine-ships-modal" class="modal-menu" aria-hidden="true">
+        <div class="modal-content" aria-labelledby="combine-ships-title">
+            <span class="close-modal" onclick="closeCombineShipsModal()" aria-label="Close Combine Ships Modal">&times;</span>
+            <h3 id="combine-ships-title">🔗 Combine Ships</h3>
             <p>Select two ships you want to combine:</p>
             <div id="combine-ship-selection">
                 <!-- Dynamic Ship Selection Checkboxes -->
             </div>
             <p>Combination Cost: <span id="combine-cost">0</span> 💸</p>
-            <button class="button" onclick="confirmCombineShips()" title="Confirm Combine Ships">✅ Confirm</button>
-            <button class="button" onclick="toggleCombineShipsModal()" title="Cancel Combine Ships">❌ Cancel</button>
+            <button onclick="confirmCombineShips()" title="Confirm Combine Ships">✅ Confirm</button>
+            <button onclick="closeCombineShipsModal()" title="Cancel Combine Ships">❌ Cancel</button>
         </div>
     </div>
 
     <!-- Combine All Ships Modal -->
-    <div id="combine-all-ships-modal" class="modal-menu">
-        <div class="modal-content">
-            <span class="close-modal" onclick="toggleCombineAllShipsModal()">&times;</span>
-            <h3>Combine All Ships</h3>
+    <div id="combine-all-ships-modal" class="modal-menu" aria-hidden="true">
+        <div class="modal-content" aria-labelledby="combine-all-ships-title">
+            <span class="close-modal" onclick="closeCombineAllShipsModal()" aria-label="Close Combine All Ships Modal">&times;</span>
+            <h3 id="combine-all-ships-title">🔗 Combine All Ships</h3>
             <p>Are you sure you want to combine all your ships into one powerful ship?</p>
             <p>Combination Cost: <span id="combine-all-cost">0</span> 💸</p>
-            <button class="button" onclick="confirmCombineAllShips()" title="Confirm Combine All Ships">✅ Confirm</button>
-            <button class="button" onclick="toggleCombineAllShipsModal()" title="Cancel Combine All Ships">❌ Cancel</button>
+            <button onclick="confirmCombineAllShips()" title="Confirm Combine All Ships">✅ Confirm</button>
+            <button onclick="closeCombineAllShipsModal()" title="Cancel Combine All Ships">❌ Cancel</button>
         </div>
     </div>
 
     <!-- Employee Menu Modal -->
-    <div id="employee-menu" class="modal-menu">
-        <div class="modal-content">
-            <span class="close-modal" onclick="toggleEmployeeMenu()">&times;</span>
-            <h3>Employee Menu</h3>
-            <button class="button" onclick="hireEmployee('storage')" title="Hire a Storage Employee">📦 Hire Storage Employee</button>
-            <button class="button" onclick="hireEmployee('efficiency')" title="Hire an Efficiency Employee">⚙️ Hire Efficiency Employee</button>
-            <button class="button" onclick="hireEmployee('security')" title="Hire a Security Employee">🛡️ Hire Security Employee</button>
+    <div id="employee-menu" class="modal-menu" aria-hidden="true">
+        <div class="modal-content" aria-labelledby="employee-menu-title">
+            <span class="close-modal" onclick="closeEmployeeMenu()" aria-label="Close Employee Menu">&times;</span>
+            <h3 id="employee-menu-title">👨‍🚀 Employee Menu</h3>
+            <button onclick="hireEmployee('storage')" title="Hire a Storage Employee">📦 Hire Storage Employee</button>
+            <button onclick="hireEmployee('efficiency')" title="Hire an Efficiency Employee">⚙️ Hire Efficiency Employee</button>
+            <button onclick="hireEmployee('security')" title="Hire a Security Employee">🛡️ Hire Security Employee</button>
         </div>
     </div>
 
     <!-- Rebirth Confirmation Modal -->
-    <div id="rebirth-modal-confirm" class="modal-menu">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeRebirthModal()">&times;</span>
-            <h3>Confirm Rebirth</h3>
+    <div id="rebirth-modal-confirm" class="modal-menu" aria-hidden="true">
+        <div class="modal-content" aria-labelledby="rebirth-modal-title">
+            <span class="close-modal" onclick="closeRebirthModal()" aria-label="Close Rebirth Confirmation Modal">&times;</span>
+            <h3 id="rebirth-modal-title">♻️ Confirm Rebirth</h3>
             <p>Are you sure you want to rebirth? This will reset all your progress but grant you <strong>0</strong> Rebirth Points (RP).</p>
-            <button class="button" onclick="rebirth()" title="Confirm Rebirth">✅ Confirm</button>
-            <button class="button" onclick="closeRebirthModal()" title="Cancel Rebirth">❌ Cancel</button>
+            <button onclick="rebirth()" title="Confirm Rebirth">✅ Confirm</button>
+            <button onclick="closeRebirthModal()" title="Cancel Rebirth">❌ Cancel</button>
         </div>
     </div>
 
     <!-- Reset Confirmation Modal -->
-    <div id="reset-modal" class="modal-menu">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeResetModal()">&times;</span>
-            <h3>Confirm Reset</h3>
-            <p>Are you sure you want to reset the game? This action cannot be undone.</p>
-            <button class="button" onclick="performReset()" title="Confirm Reset">✅ Confirm</button>
-            <button class="button" onclick="closeResetModal()" title="Cancel Reset">❌ Cancel</button>
+    <div id="reset-modal" class="modal-menu" aria-hidden="true">
+        <div class="modal-content" aria-labelledby="reset-modal-title">
+            <span class="close-modal" onclick="closeResetModal()" aria-label="Close Reset Confirmation Modal">&times;</span>
+            <h3 id="reset-modal-title">🗑️ Confirm Reset</h3>
+            <p>⚠️ Are you absolutely sure you want to reset the game? All progress will be lost. This action cannot be undone.</p>
+            <button onclick="performReset()" title="Confirm Reset">✅ Confirm</button>
+            <button onclick="closeResetModal()" title="Cancel Reset">❌ Cancel</button>
         </div>
     </div>
 
     <!-- Big Upgrade Modal -->
-    <div id="big-upgrade-modal" class="modal-menu">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeBigUpgradeModal()">&times;</span>
-            <h3>Select Ship for Big Upgrade</h3>
+    <div id="big-upgrade-modal" class="modal-menu" aria-hidden="true">
+        <div class="modal-content" aria-labelledby="big-upgrade-modal-title">
+            <span class="close-modal" onclick="closeBigUpgradeModal()" aria-label="Close Big Upgrade Modal">&times;</span>
+            <h3 id="big-upgrade-modal-title">🚀 Select Ship for Big Upgrade</h3>
             <p>Select the ship you want to apply the Big Upgrade to:</p>
-            <select id="big-upgrade-ship-select">
+            <select id="big-upgrade-ship-select" aria-label="Select Ship for Big Upgrade">
                 <!-- Options will be populated dynamically -->
             </select>
-            <button class="button" onclick="confirmBigUpgrade()" title="Confirm Big Upgrade">✅ Confirm</button>
-            <button class="button" onclick="closeBigUpgradeModal()" title="Cancel Big Upgrade">❌ Cancel</button>
+            <button onclick="confirmBigUpgrade()" title="Confirm Big Upgrade">✅ Confirm</button>
+            <button onclick="closeBigUpgradeModal()" title="Cancel Big Upgrade">❌ Cancel</button>
         </div>
     </div>
 
     <!-- Share Confirmation Modal -->
-    <div id="share-confirm-modal" class="modal-menu">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeShareConfirmModal()">&times;</span>
-            <h3>Share the Game</h3>
+    <div id="share-confirm-modal" class="modal-menu" aria-hidden="true">
+        <div class="modal-content" aria-labelledby="share-confirm-modal-title">
+            <span class="close-modal" onclick="closeShareConfirmModal()" aria-label="Close Share Confirmation Modal">&times;</span>
+            <h3 id="share-confirm-modal-title">📢 Share the Game</h3>
             <p>Share this link on your favorite platform to earn a bonus!</p>
-            <div style="margin-bottom: 10px;">
+            <div class="share-buttons" style="margin-bottom: 10px;">
                 <a href="https://twitter.com/intent/tweet?text=Join%20me%20in%20Interstellar%20Trader%20and%20build%20your%20own%20intergalactic%20trading%20empire!%20https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader" target="_blank" class="button" style="background-color: #1da1f2; margin-right: 5px;">🐦 Share on Twitter</a>
                 <a href="https://www.facebook.com/sharer/sharer.php?u=https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader" target="_blank" class="button" style="background-color: #4267B2; margin-right: 5px;">📘 Share on Facebook</a>
                 <a href="https://www.reddit.com/submit?url=https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader&title=Interstellar%20Trader%20-%20Build%20your%20intergalactic%20trading%20empire" target="_blank" class="button" style="background-color: #FF4500; margin-right: 5px;">👽 Share on Reddit</a>
                 <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader&title=Interstellar%20Trader&summary=Build%20your%20intergalactic%20trading%20empire!" target="_blank" class="button" style="background-color: #0077B5;">🔗 Share on LinkedIn</a>
             </div>
             <p>Or copy the link below:</p>
-            <input type="text" id="share-link" value="https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader" readonly style="width: 100%; padding: 10px; margin-bottom: 10px;">
-            <button class="button" onclick="copyShareLink()" title="Copy Share Link">📋 Copy Link</button>
-            <button class="button" onclick="closeShareConfirmModal()" title="Cancel Share">❌ Cancel</button>
+            <input type="text" id="share-link" value="https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader" readonly>
+            <button onclick="copyShareLink()" title="Copy Share Link">📋 Copy Link</button>
+            <button onclick="closeShareConfirmModal()" title="Cancel Share">❌ Cancel</button>
         </div>
     </div>
 
+    <!-- ==================== SETTINGS MENU ==================== -->
+    <div id="settings-menu" class="modal-menu" aria-hidden="true">
+        <div class="modal-content" aria-labelledby="settings-menu-title">
+            <span class="close-modal" onclick="closeSettingsMenu()" aria-label="Close Settings Menu">&times;</span>
+            <h3 id="settings-menu-title">⚙️ Settings</h3>
+            <button onclick="toggleTheme()" title="Toggle Theme">🌈 Toggle Theme</button>
+            <button onclick="saveGameManually()" title="Manually Save Game">💾 Save Game</button>
+            <button onclick="openResetModal()" title="Reset Game">🗑️ Reset Game</button>
+        </div>
+    </div>
+
+    <!-- ==================== SCRIPT ==================== -->
     <script>
         // ==================== GAME STATE ====================
         let gameState = {
@@ -715,6 +685,11 @@
         };
 
         const VERSION = "v1.62.08"; // Updated version
+        const MAX_TRADER_LEVEL = 100; // Example maximum trader level
+        const MAX_TECH_LEVEL = 100; // Example maximum tech level
+        const MAX_UPGRADES_PER_SHIP = 1000; // Example maximum upgrades per ship
+        const MAX_SHIP_LIMIT = 100; // Example maximum ship limit
+        const MAX_EARNINGS_PER_TRADE = 1000000; // Example maximum earnings per trade
 
         // ==================== SAVE & LOAD ====================
         function saveGame() {
@@ -734,11 +709,10 @@
                 migrateGameState();
                 handleOfflineProgress();
                 updateTheme();
-                updateDisplay();
                 renderShips();
+                updateDisplay();
                 populateCombineShips();
             } else {
-                addShip(1); // Initialize first ship with ID 1
                 saveGame();
             }
         }
@@ -798,92 +772,53 @@
 
         // ==================== UPDATE DISPLAY ====================
         function updateDisplay() {
-            const creditsElement = document.getElementById('credits');
-            if (creditsElement) {
-                creditsElement.innerText = `${formatNumberWithSuffix(gameState.credits)} 💸`;
-            } else {
-                console.error("Credits element not found.");
-            }
+            const creditsElement = document.getElementById('credits') || createDisplayElement('credits');
+            creditsElement.innerText = `${formatNumberWithSuffix(gameState.credits)} 💸`;
 
-            const spaceshipDisplay = document.getElementById('spaceship-display');
-            if (spaceshipDisplay) {
-                spaceshipDisplay.innerText = `Spaceships: ${gameState.ships.length}/${formatNumberWithSuffix(gameState.shipLimit)} 🚀`;
-            } else {
-                console.error("Spaceship display element not found.");
-            }
+            const spaceshipDisplay = document.getElementById('spaceship-display') || createDisplayElement('spaceship-display');
+            spaceshipDisplay.innerText = `🛸 Ships: ${gameState.ships.length}/${formatNumberWithSuffix(gameState.shipLimit)}`;
 
-            const techLevelDisplay = document.getElementById('tech-level-display');
-            if (techLevelDisplay) {
-                techLevelDisplay.innerHTML = `<strong>Technology Level:</strong> ${gameState.techLevel.toFixed(1)} ✯`;
-            } else {
-                console.error("Tech level display element not found.");
-            }
+            const techLevelDisplay = document.getElementById('tech-level-display') || createDisplayElement('tech-level-display');
+            techLevelDisplay.innerHTML = `<strong>Tech Level:</strong> ${Math.floor(gameState.techLevel)} ✯`;
 
-            const rebirthPointsDisplay = document.getElementById('rebirth-points');
-            if (rebirthPointsDisplay) {
-                rebirthPointsDisplay.innerText = gameState.rebirthPoints;
-            } else {
-                console.error("Rebirth points display element not found.");
-            }
-
-            const buyAmountButton = document.getElementById('buy-amount-button');
-            if (buyAmountButton) {
-                buyAmountButton.innerText = `Buy: ${gameState.buyAmounts[gameState.currentBuyIndex]}`;
-            } else {
-                console.error("Buy amount button not found.");
-            }
-
-            const versionNumber = document.getElementById('version-number');
-            if (versionNumber) {
-                versionNumber.innerText = gameState.version;
-            }
+            const rebirthPointsDisplay = document.getElementById('rebirth-points') || createDisplayElement('rebirth-points');
+            rebirthPointsDisplay.innerText = `♻️ Rebirth Points: ${gameState.rebirthPoints}`;
 
             // Update upgrade buttons with dynamic costs and disable if not affordable
             const upgradeMenu = document.getElementById('upgrade-menu');
             if (upgradeMenu) {
                 const automationButton = upgradeMenu.querySelector('button[onclick="buyAutomation()"]');
                 const multiplierButton = upgradeMenu.querySelector('button[onclick="buyMultiplier()"]');
-                const hireStorageButton = upgradeMenu.querySelector('button[onclick="hireEmployee(\'storage\')"]');
-                const hireEfficiencyButton = upgradeMenu.querySelector('button[onclick="hireEmployee(\'efficiency\')"]');
-                const hireSecurityButton = upgradeMenu.querySelector('button[onclick="hireEmployee(\'security\')"]');
                 const bigUpgradeButton = upgradeMenu.querySelector('button[onclick="buyBigUpgrade()"]');
                 const shipLimitUpgradeButton = upgradeMenu.querySelector('button[onclick="upgradeShipLimit()"]');
 
                 if (automationButton) {
                     const automationCount = gameState.ships.filter(s => s.automation).length;
-                    const cost = Math.floor(500 * Math.pow(1.2, automationCount));
+                    const cost = Math.ceil(500 * Math.pow(1.2, automationCount));
                     automationButton.innerText = `🤖 Buy Automation (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
-                    automationButton.disabled = gameState.credits < cost;
+                    automationButton.disabled = gameState.credits < cost || gameState.ships.length >= gameState.shipLimit;
+                    automationButton.title = gameState.ships.length >= gameState.shipLimit ? "Maximum ship limit reached." : "Enable automation for a ship.";
                 }
+
                 if (multiplierButton) {
-                    const cost = Math.floor(10000 * Math.pow(1.5, gameState.techLevel - 1));
+                    const cost = Math.ceil(10000 * Math.pow(1.5, gameState.multiplier - 1));
                     multiplierButton.innerText = `✖️ Buy Multiplier (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
-                    multiplierButton.disabled = gameState.credits < cost;
+                    multiplierButton.disabled = gameState.credits < cost || gameState.multiplier >= 10; // Example max multiplier
+                    multiplierButton.title = gameState.multiplier >= 10 ? "Maximum multiplier reached." : "Increase your trading multiplier.";
                 }
-                if (hireStorageButton) {
-                    const storageCost = Math.floor(gameState.employees.storage.cost * Math.pow(1.2, gameState.employees.storage.level));
-                    hireStorageButton.innerText = `📦 Hire Storage Employee (Cost: ${formatNumberWithSuffix(storageCost)} Credits)`;
-                    hireStorageButton.disabled = gameState.credits < storageCost || gameState.employees.storage.level >= 10;
-                }
-                if (hireEfficiencyButton) {
-                    const efficiencyCost = Math.floor(gameState.employees.efficiency.cost * Math.pow(1.2, gameState.employees.efficiency.level));
-                    hireEfficiencyButton.innerText = `⚙️ Hire Efficiency Employee (Cost: ${formatNumberWithSuffix(efficiencyCost)} Credits)`;
-                    hireEfficiencyButton.disabled = gameState.credits < efficiencyCost || gameState.employees.efficiency.level >= 10;
-                }
-                if (hireSecurityButton) {
-                    const securityCost = Math.floor(gameState.employees.security.cost * Math.pow(1.2, gameState.employees.security.level));
-                    hireSecurityButton.innerText = `🛡️ Hire Security Employee (Cost: ${formatNumberWithSuffix(securityCost)} Credits)`;
-                    hireSecurityButton.disabled = gameState.credits < securityCost || gameState.employees.security.level >= 10;
-                }
+
                 if (bigUpgradeButton) {
-                    const cost = Math.floor(5000 * Math.pow(1.2, gameState.techLevel - 1));
+                    const cost = Math.ceil(5000 * Math.pow(1.2, gameState.techLevel - 1));
                     bigUpgradeButton.innerText = `🚀 Big Upgrade for Ship (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
-                    bigUpgradeButton.disabled = gameState.credits < cost;
+                    bigUpgradeButton.disabled = gameState.credits < cost || gameState.ships.length === 0;
+                    bigUpgradeButton.title = gameState.ships.length === 0 ? "No ships available for upgrade." : "Double a ship's trader level.";
                 }
+
                 if (shipLimitUpgradeButton) {
                     const cost = calculateShipLimitUpgradeCost();
                     shipLimitUpgradeButton.innerText = `📈 Upgrade Ship Limit (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
-                    shipLimitUpgradeButton.disabled = gameState.credits < cost || gameState.shipLimit >= 100; // Example max ship limit
+                    shipLimitUpgradeButton.disabled = gameState.credits < cost || gameState.shipLimit >= MAX_SHIP_LIMIT;
+                    shipLimitUpgradeButton.title = gameState.shipLimit >= MAX_SHIP_LIMIT ? "Maximum ship limit reached." : "Increase your ship capacity.";
                 }
             }
 
@@ -891,16 +826,13 @@
             gameState.ships.forEach(ship => {
                 const upgradeButton = document.querySelector(`#ship-${ship.id} .upgrade-trader-button`);
                 if (upgradeButton) {
-                    const cost = Math.floor(10 * Math.pow(1.5, ship.upgrades));
+                    const cost = Math.ceil(10 * Math.pow(1.5, ship.upgrades));
                     upgradeButton.innerText = `Upgrade Trader (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
-                    upgradeButton.disabled = gameState.credits < cost;
-                } else {
-                    logEvent(`⚠ Upgrade button for Ship ${ship.id} not found.`);
+                    upgradeButton.disabled = gameState.credits < cost || ship.traderLevel >= MAX_TRADER_LEVEL;
+                    upgradeButton.title = ship.traderLevel >= MAX_TRADER_LEVEL ? "Maximum trader level reached." : "Enhance trader efficiency.";
                 }
-            });
 
-            // Update automation indicators
-            gameState.ships.forEach(ship => {
+                // Update automation indicator visibility
                 const shipDiv = document.getElementById(`ship-${ship.id}`);
                 if (shipDiv) {
                     if (ship.automation) {
@@ -908,10 +840,24 @@
                     } else {
                         shipDiv.classList.remove('automation');
                     }
-                } else {
-                    logEvent(`⚠ Ship div for Ship ${ship.id} not found.`);
                 }
             });
+
+            // Update share buttons based on cooldown
+            updateShareButtons();
+
+            // Update Rebirth Menu
+            updateRebirthMenu();
+        }
+
+        function createDisplayElement(id) {
+            const element = document.createElement('div');
+            element.id = id;
+            element.style.margin = "5px 0";
+            element.style.fontSize = "16px";
+            element.style.textAlign = "center";
+            main.appendChild(element);
+            return element;
         }
 
         function formatNumber(num) {
@@ -951,7 +897,7 @@
             eventLog.appendChild(p);
             
             // Limit to last 100 entries
-            if (eventLog.children.length > 100) {
+            while (eventLog.children.length > 100) {
                 eventLog.removeChild(eventLog.firstChild);
             }
             
@@ -959,6 +905,8 @@
         }
 
         // ==================== SHIP MANAGEMENT ====================
+        let shipIdCounter = 1; // Initialize ship ID counter
+
         function addShip(shipId, traderLevel = 1, upgrades = 0, automation = false) {
             const shipDiv = document.createElement('div');
             shipDiv.classList.add('ship');
@@ -966,26 +914,35 @@
             if (automation) {
                 shipDiv.classList.add('automation');
             }
+
+            // Apply current theme to the new ship
+            if (gameState.theme === 'light') {
+                shipDiv.classList.add('light-theme');
+            } else if (gameState.theme === 'blue') {
+                shipDiv.classList.add('blue-theme');
+            }
+
             shipDiv.innerHTML = `
                 <div class="upgrade-count">🔼 ${upgrades}</div>
-                <span>🚀 Ship ${shipId}</span>
+                <h3>🚀 Ship ${shipId}</h3>
                 <p>Trader Level: <span id="trader-level-${shipId}">${traderLevel}</span></p>
-                <div class="progress-bar" title="Click anywhere on the ship to start trade">
+                <div class="progress-bar" title="Trade Progress">
                     <div class="progress" id="progress-${shipId}"></div>
                     <span class="progress-time" id="progress-time-${shipId}">10s</span>
                     <span class="progress-earnings" id="progress-earnings-${shipId}">0 💸</span>
                 </div>
-                <button class="button upgrade-trader-button" onclick="buyBetterTrader(${shipId})" title="Enhance trader efficiency">Upgrade Trader</button>
+                <button class="upgrade-trader-button" onclick="buyBetterTrader(${shipId})" title="Enhance trader efficiency">Upgrade Trader</button>
                 <div class="automation-indicator" title="Automated Trading">🤖</div>
             `;
+
             // Event Listener for clicking the ship area to start trade
-            const shipClickableArea = shipDiv;
-            shipClickableArea.addEventListener('click', function(event) {
-                // Prevent triggering when clicking on the upgrade button
-                if (event.target.tagName.toLowerCase() !== 'button' && !event.target.classList.contains('upgrade-trader-button')) {
+            shipDiv.addEventListener('click', function(event) {
+                const interactiveElements = ['button', 'input', 'select', 'textarea'];
+                if (!interactiveElements.includes(event.target.tagName.toLowerCase()) && !event.target.classList.contains('automation-indicator')) {
                     startTrade(shipId);
                 }
             });
+
             // Append to Ship Container
             const shipContainer = document.getElementById('ship-container');
             if (shipContainer) {
@@ -1002,22 +959,12 @@
                 return;
             }
             shipContainer.innerHTML = '';
-            // Ensure ship 1 is always present
-            const ship1 = gameState.ships.find(s => s.id === 1);
-            if (!ship1) {
-                gameState.ships.unshift({
-                    id: 1,
-                    upgrades: 0,
-                    traderLevel: 1,
-                    trading: false,
-                    automation: false,
-                    intervalId: null
-                });
-                addShip(1);
-            }
+            shipIdCounter = 1; // Reset ship ID counter
+
             // Render all ships
             gameState.ships.sort((a, b) => a.id - b.id).forEach(ship => {
                 addShip(ship.id, ship.traderLevel, ship.upgrades, ship.automation);
+                shipIdCounter = Math.max(shipIdCounter, ship.id + 1);
             });
         }
 
@@ -1043,11 +990,14 @@
 
             // Apply Efficiency Employee bonus: each level reduces duration by 1 second
             const efficiencyBonus = gameState.employees.efficiency.level;
-            tradeDuration = Math.max(5, tradeDuration - efficiencyBonus);
+            tradeDuration -= efficiencyBonus;
 
             // Apply Upgrades: every 5 upgrades reduce duration by 1 second
             const upgradeBonus = Math.floor(ship.upgrades / 5);
-            tradeDuration = Math.max(5, tradeDuration - upgradeBonus);
+            tradeDuration -= upgradeBonus;
+
+            // Enforce minimum trade duration
+            tradeDuration = Math.max(5, tradeDuration);
 
             const intervalTime = 1000; // 1 second intervals
 
@@ -1106,10 +1056,10 @@
                 logEvent(`⚠ You've reached the maximum number of ships (${formatNumberWithSuffix(gameState.shipLimit)}). Upgrade to add more.`);
                 return;
             }
-            const cost = Math.floor(80 * Math.pow(1.15, gameState.ships.length));
+            const cost = Math.ceil(80 * Math.pow(1.15, gameState.ships.length));
             if (gameState.credits >= cost) {
                 gameState.credits -= cost;
-                const newShipId = gameState.ships.length > 0 ? Math.max(...gameState.ships.map(s => s.id)) + 1 : 1;
+                const newShipId = shipIdCounter++;
                 gameState.ships.push({
                     id: newShipId,
                     upgrades: 0,
@@ -1119,7 +1069,7 @@
                     intervalId: null
                 });
                 addShip(newShipId);
-                logEvent(`🚀 You bought a new spaceship! Total spaceships: ${gameState.ships.length}`);
+                logEvent(`🛸 You bought a new spaceship! Total ships: ${gameState.ships.length}`);
                 updateDisplay();
                 saveGame();
                 populateCombineShips();
@@ -1129,6 +1079,22 @@
         }
 
         // ==================== UPGRADE MANAGEMENT ====================
+        function toggleUpgradeMenu() {
+            const upgradeMenu = document.getElementById('upgrade-menu');
+            if (upgradeMenu) {
+                upgradeMenu.style.display = upgradeMenu.style.display === 'block' ? 'none' : 'block';
+            } else {
+                logEvent(`⚠ Upgrade Menu not found.`);
+            }
+        }
+
+        function closeUpgradeMenu() {
+            const upgradeMenu = document.getElementById('upgrade-menu');
+            if (upgradeMenu) {
+                upgradeMenu.style.display = 'none';
+            }
+        }
+
         function buyUpgrade() {
             let multiplier = gameState.buyAmounts[gameState.currentBuyIndex];
             multiplier = multiplier === 'Max' ? 'max' : parseInt(multiplier.replace('x', ''));
@@ -1136,7 +1102,7 @@
             let totalCost = 0;
             let achievableMultiplier = multiplier;
 
-            const costPerUpgrade = 10 * Math.pow(1.5, gameState.techLevel - 1);
+            const costPerUpgrade = Math.ceil(10 * Math.pow(1.5, gameState.techLevel - 1));
             if (multiplier === 'Max') {
                 achievableMultiplier = Math.floor(gameState.credits / (costPerUpgrade * gameState.ships.length));
                 totalCost = costPerUpgrade * achievableMultiplier * gameState.ships.length;
@@ -1148,119 +1114,11 @@
                 gameState.credits -= totalCost;
                 gameState.techLevel += achievableMultiplier;
                 gameState.totalUpgrades += achievableMultiplier;
-                logEvent(`✚ Bought upgrade x${achievableMultiplier}! Tech level increased to ${gameState.techLevel}.`);
+                logEvent(`✚ Bought upgrade x${achievableMultiplier}! Tech level increased to ${Math.floor(gameState.techLevel)}.`);
                 updateDisplay();
                 saveGame();
             } else {
                 logEvent(`⚠ Not enough credits to buy upgrade!`);
-            }
-        }
-
-        function toggleUpgradeMenu() {
-            const upgradeMenu = document.getElementById('upgrade-menu');
-            if (upgradeMenu) {
-                upgradeMenu.style.display = upgradeMenu.style.display === 'block' ? 'none' : 'block';
-            } else {
-                logEvent(`⚠ Upgrade Menu not found.`);
-            }
-        }
-
-        function buyAutomation() {
-            // Buy automation for the first ship without automation
-            const nextShip = gameState.ships.find(ship => !ship.automation);
-            if (!nextShip) {
-                logEvent(`⚠ All ships already have automation.`);
-                return;
-            }
-            const automationCount = gameState.ships.filter(s => s.automation).length;
-            const cost = Math.floor(500 * Math.pow(1.2, automationCount));
-            if (gameState.credits >= cost) {
-                gameState.credits -= cost;
-                nextShip.automation = true;
-                logEvent(`🤖 Automation purchased for Ship ${nextShip.id}!`);
-                updateDisplay();
-                saveGame();
-                // Start automation if ship is not trading
-                if (!nextShip.trading) {
-                    sendShip(nextShip.id);
-                }
-            } else {
-                logEvent(`⚠ Not enough credits to buy automation! (Cost: ${formatNumberWithSuffix(cost)} Credits)`);
-            }
-        }
-
-        function buyMultiplier() {
-            const cost = Math.floor(10000 * Math.pow(1.5, gameState.techLevel - 1));
-            if (gameState.credits >= cost) {
-                gameState.credits -= cost;
-                gameState.multiplier += 1;
-                gameState.totalUpgrades += 1;
-                logEvent(`✖️ Multiplier purchased! Technology multiplier increased to x${gameState.multiplier}.`);
-                updateDisplay();
-                saveGame();
-            } else {
-                logEvent(`⚠ Not enough credits to buy multiplier! (Cost: ${formatNumberWithSuffix(cost)} Credits)`);
-            }
-        }
-
-        function toggleEmployeeMenu() {
-            const employeeMenu = document.getElementById('employee-menu');
-            if (employeeMenu) {
-                employeeMenu.style.display = employeeMenu.style.display === 'block' ? 'none' : 'block';
-            } else {
-                logEvent(`⚠ Employee Menu not found.`);
-            }
-        }
-
-        function hireEmployee(type) {
-            const employee = gameState.employees[type];
-            if (!employee) {
-                logEvent(`⚠ Invalid employee type: ${type}.`);
-                return;
-            }
-            const cost = Math.floor(employee.cost * Math.pow(1.2, employee.level));
-            const maxLevel = 10; // Example maximum level
-            if (employee.level >= maxLevel) {
-                logEvent(`⚠ You have reached the maximum level for ${capitalize(type)} Employees.`);
-                return;
-            }
-            if (gameState.credits >= cost) {
-                gameState.credits -= cost;
-                gameState.employees[type].level += 1;
-                logEvent(`👨‍🚀 Hired a Level ${gameState.employees[type].level} ${capitalize(type)} Employee!`);
-                // Apply employee-specific benefits
-                switch(type) {
-                    case 'storage':
-                        const shipsToAdd = 2; // Each level adds 2 ships
-                        gameState.shipLimit += shipsToAdd;
-                        logEvent(`📦 Storage Employee increased ship limit by ${formatNumberWithSuffix(shipsToAdd)} ships to ${formatNumberWithSuffix(gameState.shipLimit)}.`);
-                        break;
-                    case 'efficiency':
-                        // One-time increase in tech level multiplier
-                        gameState.multiplier += 0.5; // Example: each Efficiency Employee increases multiplier by 0.5
-                        logEvent(`⚙️ Efficiency Employee improved trade efficiency. Tech multiplier increased to x${gameState.multiplier.toFixed(1)}.`);
-                        break;
-                    case 'security':
-                        // One-time increase in protection against random events
-                        gameState.securityProtection += 10; // Each Security Employee increases protection by 10%
-                        logEvent(`🛡️ Security Employee increased protection against random events by 10%. Current Protection: ${gameState.securityProtection}%`);
-                        break;
-                    default:
-                        break;
-                }
-                updateDisplay();
-                saveGame();
-            } else {
-                logEvent(`⚠ Not enough credits to hire ${capitalize(type)} employee! (Cost: ${formatNumberWithSuffix(cost)} Credits)`);
-            }
-        }
-
-        function buyBigUpgrade() {
-            const cost = Math.floor(5000 * Math.pow(1.2, gameState.techLevel - 1));
-            if (gameState.credits >= cost) {
-                openBigUpgradeModal();
-            } else {
-                logEvent(`⚠ Not enough credits to buy Big Upgrade! (Cost: ${formatNumberWithSuffix(cost)} Credits)`);
             }
         }
 
@@ -1276,7 +1134,7 @@
                 let maxUpgrades = 0;
                 let totalCost = 0;
                 while (true) {
-                    const cost = Math.floor(10 * Math.pow(1.5, ship.upgrades + maxUpgrades));
+                    const cost = Math.ceil(10 * Math.pow(1.5, ship.upgrades + maxUpgrades));
                     if (gameState.credits >= (totalCost + cost)) {
                         totalCost += cost;
                         maxUpgrades += 1;
@@ -1311,12 +1169,16 @@
             let totalCost = 0;
             let totalUpgrades = 0;
             for (let i = 0; i < buyAmount; i++) {
-                const cost = Math.floor(10 * Math.pow(1.5, ship.upgrades));
-                totalCost += cost;
-                totalUpgrades += 1;
+                const cost = Math.ceil(10 * Math.pow(1.5, ship.upgrades));
+                if (gameState.credits >= (totalCost + cost)) {
+                    totalCost += cost;
+                    totalUpgrades += 1;
+                } else {
+                    break;
+                }
             }
 
-            if (gameState.credits >= totalCost) {
+            if (totalUpgrades > 0) {
                 gameState.credits -= totalCost;
                 ship.traderLevel += totalUpgrades;
                 ship.upgrades += totalUpgrades;
@@ -1326,51 +1188,77 @@
                 updateDisplay();
                 saveGame();
             } else {
-                logEvent(`⚠ Not enough credits to upgrade trader for Ship ${ship.id}! (Cost: ${formatNumberWithSuffix(totalCost)} Credits)`);
+                logEvent(`⚠ Not enough credits to upgrade trader for Ship ${ship.id}!`);
             }
         }
 
-        // ==================== UPGRADE ALL ====================
-        function upgradeAll() {
-            let multiplier = gameState.buyAmounts[gameState.currentBuyIndex];
-            multiplier = multiplier === 'Max' ? 'max' : parseInt(multiplier.replace('x', ''));
-
-            if (multiplier === 'Max') {
-                // Upgrade all ships as much as possible, prioritizing cheaper upgrades
-                gameState.ships.sort((a, b) => Math.floor(10 * Math.pow(1.5, a.upgrades)) - Math.floor(10 * Math.pow(1.5, b.upgrades))).forEach(ship => {
-                    while (true) {
-                        const cost = Math.floor(10 * Math.pow(1.5, ship.upgrades));
-                        if (gameState.credits >= cost) {
-                            gameState.credits -= cost;
-                            ship.traderLevel += 1;
-                            ship.upgrades += 1;
-                            gameState.techLevel += 0.1; // Increment tech level slightly for each upgrade
-                            gameState.totalUpgrades += 1;
-                            logEvent(`🔼 Ship ${ship.id} trader level increased to ${ship.traderLevel}.`);
-                        } else {
-                            break;
-                        }
-                    }
-                });
-            } else {
-                // Upgrade all ships based on multiplier
-                for (let i = 0; i < multiplier; i++) {
-                    gameState.ships.sort((a, b) => Math.floor(10 * Math.pow(1.5, a.upgrades)) - Math.floor(10 * Math.pow(1.5, b.upgrades))).forEach(ship => {
-                        const cost = Math.floor(10 * Math.pow(1.5, ship.upgrades));
-                        if (gameState.credits >= cost) {
-                            gameState.credits -= cost;
-                            ship.traderLevel += 1;
-                            ship.upgrades += 1;
-                            gameState.techLevel += 0.1; // Increment tech level slightly for each upgrade
-                            gameState.totalUpgrades += 1;
-                            logEvent(`🔼 Ship ${ship.id} trader level increased to ${ship.traderLevel}.`);
-                        }
-                    });
-                }
+        function buyAutomation() {
+            // Buy automation for the first ship without automation
+            const nextShip = gameState.ships.find(ship => !ship.automation);
+            if (!nextShip) {
+                logEvent(`⚠ All ships already have automation or ship limit reached.`);
+                return;
             }
+            const automationCount = gameState.ships.filter(s => s.automation).length;
+            const cost = Math.ceil(500 * Math.pow(1.2, automationCount));
+            if (gameState.credits >= cost && gameState.ships.length < gameState.shipLimit) {
+                gameState.credits -= cost;
+                nextShip.automation = true;
+                logEvent(`🤖 Automation purchased for Ship ${nextShip.id}!`);
+                updateDisplay();
+                saveGame();
+                // Start automation if ship is not trading
+                if (!nextShip.trading) {
+                    sendShip(nextShip.id);
+                }
+            } else {
+                logEvent(`⚠ Not enough credits to buy automation or ship limit reached! (Cost: ${formatNumberWithSuffix(cost)} Credits)`);
+            }
+        }
 
-            updateDisplay();
-            saveGame();
+        function buyMultiplier() {
+            const cost = Math.ceil(10000 * Math.pow(1.5, gameState.multiplier - 1));
+            if (gameState.credits >= cost && gameState.multiplier < 10) { // Example max multiplier
+                gameState.credits -= cost;
+                gameState.multiplier += 1;
+                gameState.totalUpgrades += 1;
+                logEvent(`✖️ Multiplier purchased! Technology multiplier increased to x${gameState.multiplier}.`);
+                updateDisplay();
+                saveGame();
+            } else {
+                logEvent(`⚠ Not enough credits to buy multiplier or maximum multiplier reached! (Cost: ${formatNumberWithSuffix(cost)} Credits)`);
+            }
+        }
+
+        function buyBigUpgrade() {
+            const cost = Math.ceil(5000 * Math.pow(1.2, gameState.techLevel - 1));
+            if (gameState.credits >= cost && gameState.ships.length > 0) {
+                openBigUpgradeModal();
+            } else {
+                logEvent(`⚠ Not enough credits to buy Big Upgrade or no ships available! (Cost: ${formatNumberWithSuffix(cost)} Credits)`);
+            }
+        }
+
+        function upgradeShipLimit() {
+            const cost = calculateShipLimitUpgradeCost();
+            if (gameState.credits >= cost && gameState.shipLimit < MAX_SHIP_LIMIT) {
+                gameState.credits -= cost;
+                gameState.shipLimit += 10; // Example increment
+                logEvent(`📈 Ship limit increased by 10 to ${formatNumberWithSuffix(gameState.shipLimit)}.`);
+                updateDisplay();
+                saveGame();
+            } else {
+                logEvent(`⚠ Not enough credits to upgrade ship limit or maximum ship limit reached! (Cost: ${formatNumberWithSuffix(cost)} Credits)`);
+            }
+        }
+
+        function calculateShipLimitUpgradeCost() {
+            // Exponential scaling: 500 * 1.5^(shipLimit - initialLimit)
+            const initialLimit = 10;
+            if (gameState.shipLimit <= initialLimit) {
+                return Math.ceil(500 * Math.pow(1.5, 0));
+            }
+            return Math.ceil(500 * Math.pow(1.5, gameState.shipLimit - initialLimit));
         }
 
         // ==================== REBIRTH SYSTEM ====================
@@ -1380,6 +1268,37 @@
                 rebirthMenu.style.display = rebirthMenu.style.display === 'block' ? 'none' : 'block';
             } else {
                 logEvent(`⚠ Rebirth Menu not found.`);
+            }
+        }
+
+        function updateRebirthMenu() {
+            const rebirthMenu = document.getElementById('rebirth-menu');
+            if (rebirthMenu) {
+                const cooldownElement = rebirthMenu.querySelector('.rebirth-cooldown');
+                const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+                const elapsed = currentTime - gameState.rebirthCooldown.lastRebirthTime;
+                if (elapsed < gameState.rebirthCooldown.cooldownDuration) {
+                    const remaining = gameState.rebirthCooldown.cooldownDuration - elapsed;
+                    rebirthMenu.querySelector('button[onclick="confirmRebirth()"]').disabled = true;
+                    rebirthMenu.querySelector('button[onclick="confirmRebirth()"]').innerText = `♻️ Rebirth (Cooldown: ${formatTime(remaining)})`;
+                } else {
+                    rebirthMenu.querySelector('button[onclick="confirmRebirth()"]').disabled = false;
+                    rebirthMenu.querySelector('button[onclick="confirmRebirth()"]').innerText = `♻️ Rebirth (Requires 100K Credits)`;
+                }
+            }
+        }
+
+        function toggleRebirthMenuVisibility() {
+            const rebirthMenu = document.getElementById('rebirth-menu');
+            if (rebirthMenu) {
+                rebirthMenu.style.display = rebirthMenu.style.display === 'block' ? 'none' : 'block';
+                if (rebirthMenu.style.display === 'block') {
+                    const pointsEarned = Math.floor(gameState.totalCreditsEarned / 100000);
+                    rebirthMenu.querySelector('p').innerHTML = pointsEarned > 0 
+                        ? `Are you sure you want to rebirth? This will reset all your progress but grant you <strong>${pointsEarned}</strong> Rebirth Points (RP).`
+                        : `⚠ You do not have enough total credits to rebirth! (Requires at least 100K credits)`;
+                    rebirthMenu.querySelector('button[onclick="confirmRebirth()"]').disabled = pointsEarned < 1;
+                }
             }
         }
 
@@ -1408,6 +1327,9 @@
                     logEvent(`⚠ Not enough total credits to rebirth!`);
                     return;
                 }
+
+                // Set rebirth cooldown immediately to prevent multiple rebirths
+                gameState.rebirthCooldown.lastRebirthTime = currentTime;
 
                 gameState.rebirthPoints += pointsEarned;
                 // Reset game state but keep rebirth points and certain upgrades
@@ -1441,9 +1363,6 @@
                 // Clear all intervals before resetting ships
                 clearAllIntervals();
 
-                // Set rebirth cooldown
-                gameState.rebirthCooldown.lastRebirthTime = currentTime;
-
                 logEvent(`♻️ You have rebirthed! Earned ${pointsEarned} Rebirth Points.`);
                 updateDisplay();
                 closeRebirthModalConfirm();
@@ -1455,16 +1374,42 @@
 
         function spendRebirthPoints() {
             if (gameState.rebirthPoints > 0) {
-                // Example: Each RP increases tech level by 1
-                gameState.techLevel += gameState.rebirthPoints;
-                gameState.totalUpgrades += gameState.rebirthPoints;
-                logEvent(`🔧 You spent ${gameState.rebirthPoints} Rebirth Points to increase tech level by ${gameState.rebirthPoints}.`);
-                gameState.rebirthPoints = 0;
+                const maxSpendableRP = Math.min(gameState.rebirthPoints, MAX_TECH_LEVEL - Math.floor(gameState.techLevel));
+                if (maxSpendableRP <= 0) {
+                    logEvent(`⚠ Tech level is already at maximum. Cannot spend Rebirth Points.`);
+                    return;
+                }
+                gameState.techLevel += maxSpendableRP;
+                gameState.totalUpgrades += maxSpendableRP;
+                gameState.rebirthPoints -= maxSpendableRP;
+                logEvent(`🔧 You spent ${maxSpendableRP} Rebirth Points to increase tech level to ${Math.floor(gameState.techLevel)}.`);
                 updateDisplay();
                 saveGame();
             } else {
                 logEvent(`⚠ No Rebirth Points to spend!`);
             }
+        }
+
+        function openRebirthModalConfirm() {
+            const rebirthConfirmModal = document.getElementById('rebirth-modal-confirm');
+            if (rebirthConfirmModal) {
+                const pointsEarned = Math.floor(gameState.totalCreditsEarned / 100000);
+                rebirthConfirmModal.querySelector('p').innerHTML = `Are you sure you want to rebirth? This will reset all your progress but grant you <strong>${pointsEarned}</strong> Rebirth Points (RP).`;
+                rebirthConfirmModal.style.display = 'block';
+            } else {
+                logEvent(`⚠ Rebirth Confirmation Modal not found.`);
+            }
+        }
+
+        function closeRebirthModalConfirm() {
+            const rebirthConfirmModal = document.getElementById('rebirth-modal-confirm');
+            if (rebirthConfirmModal) {
+                rebirthConfirmModal.style.display = 'none';
+            }
+        }
+
+        function rebirthCompleted() {
+            // Placeholder for any post-rebirth actions
         }
 
         // ==================== RANDOM EVENTS ====================
@@ -1474,14 +1419,15 @@
                 let eventType = Math.floor(Math.random() * 3);
                 switch (eventType) {
                     case 0:
-                        // Check security protection
+                        // Alien attack with security protection
                         const protection = gameState.securityProtection || 0;
                         if (Math.random() * 100 < (100 - protection)) {
-                            logEvent(`💥 An alien attack! You lost 50 credits to defend yourself.`);
-                            gameState.credits -= Math.min(50, gameState.credits);
-                            gameState.totalEarnings -= 50;
+                            const loss = 50;
+                            gameState.credits -= Math.min(loss, gameState.credits);
+                            gameState.totalEarnings = Math.max(0, gameState.totalEarnings - loss);
+                            logEvent(`💥 An alien attack! You lost ${formatNumberWithSuffix(loss)} credits to defend yourself.`);
                         } else {
-                            logEvent(`🛡️ Security Employee protected you from an alien attack! No credits lost.`);
+                            logEvent(`🛡️ Security Employees protected you from an alien attack! No credits lost.`);
                         }
                         break;
                     case 1:
@@ -1512,7 +1458,7 @@
                 logEvent(`⚠ Big Upgrade Ship Select element not found.`);
                 return;
             }
-            select.innerHTML = gameState.ships.map(ship => `<option value="${ship.id}">Ship ${ship.id}</option>`).join('');
+            select.innerHTML = gameState.ships.map(ship => `<option value="${ship.id}">Ship ${ship.id} (Trader Level: ${ship.traderLevel})</option>`).join('');
             modal.style.display = 'block';
         }
 
@@ -1535,10 +1481,10 @@
                 logEvent(`⚠ Ship ${shipId} not found for Big Upgrade.`);
                 return;
             }
-            const cost = Math.floor(5000 * Math.pow(1.2, gameState.techLevel - 1));
+            const cost = Math.ceil(5000 * Math.pow(1.2, gameState.techLevel - 1));
             if (gameState.credits >= cost && ship) {
                 gameState.credits -= cost;
-                // Example: Double the trader level for the selected ship
+                // Double the trader level for the selected ship
                 ship.traderLevel *= 2;
                 ship.upgrades += 1;
                 gameState.totalUpgrades += 1;
@@ -1562,6 +1508,13 @@
                 }
             } else {
                 logEvent(`⚠ Combine Ships Modal not found.`);
+            }
+        }
+
+        function closeCombineShipsModal() {
+            const combineModal = document.getElementById('combine-ships-modal');
+            if (combineModal) {
+                combineModal.style.display = 'none';
             }
         }
 
@@ -1603,19 +1556,19 @@
             }
             const totalUpgrades = ship1.upgrades + ship2.upgrades;
             const newTraderLevel = ship1.traderLevel + ship2.traderLevel;
-            const newShipId = Math.max(ship1.id, ship2.id) + 1;
-            const mergeCost = Math.floor(totalUpgrades / 6); // Example scaling: 300 upgrades -> 50 credits
+            const newShipId = shipIdCounter++;
+            const mergeCost = Math.max(Math.ceil(totalUpgrades / 6), 10); // Minimum cost of 10 credits
 
             if (gameState.credits >= mergeCost) {
                 // Remove the old ships
                 gameState.ships = gameState.ships.filter(s => s.id !== shipId1 && s.id !== shipId2);
-                // Add the new combined ship
+                // Add the new combined ship, preserving automation if either ship had it
                 gameState.ships.push({
                     id: newShipId,
                     upgrades: 0,
                     traderLevel: newTraderLevel,
                     trading: false,
-                    automation: false,
+                    automation: ship1.automation || ship2.automation,
                     intervalId: null
                 });
                 gameState.credits -= mergeCost;
@@ -1630,7 +1583,6 @@
             }
         }
 
-        // ==================== COMBINE ALL SHIPS ====================
         function toggleCombineAllShipsModal() {
             const combineAllModal = document.getElementById('combine-all-ships-modal');
             const combineAllCostSpan = document.getElementById('combine-all-cost');
@@ -1639,16 +1591,23 @@
                 return;
             }
             const totalUpgrades = gameState.ships.reduce((acc, ship) => acc + ship.upgrades, 0);
-            const combineAllCost = Math.floor(totalUpgrades / 4); // Example scaling
+            const combineAllCost = Math.max(Math.ceil(totalUpgrades / 4), 20); // Minimum cost of 20 credits
             combineAllCostSpan.innerText = `${formatNumberWithSuffix(combineAllCost)}`;
             combineAllModal.style.display = combineAllModal.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function closeCombineAllShipsModal() {
+            const combineAllModal = document.getElementById('combine-all-ships-modal');
+            if (combineAllModal) {
+                combineAllModal.style.display = 'none';
+            }
         }
 
         function confirmCombineAllShips() {
             const totalUpgrades = gameState.ships.reduce((acc, ship) => acc + ship.upgrades, 0);
             const newTraderLevel = gameState.ships.reduce((acc, ship) => acc + ship.traderLevel, 0);
-            const newShipId = Math.max(...gameState.ships.map(s => s.id)) + 1;
-            const mergeCost = Math.floor(totalUpgrades / 4); // Example scaling
+            const newShipId = shipIdCounter++;
+            const mergeCost = Math.max(Math.ceil(totalUpgrades / 4), 20); // Minimum cost of 20 credits
 
             if (gameState.credits >= mergeCost && gameState.ships.length > 1) {
                 // Remove all existing ships
@@ -1675,7 +1634,65 @@
         }
 
         // ==================== EMPLOYEE MANAGEMENT ====================
-        // Already handled with separate employee menu and hireEmployee function
+        function toggleEmployeeMenu() {
+            const employeeMenu = document.getElementById('employee-menu');
+            if (employeeMenu) {
+                employeeMenu.style.display = employeeMenu.style.display === 'block' ? 'none' : 'block';
+            } else {
+                logEvent(`⚠ Employee Menu not found.`);
+            }
+        }
+
+        function closeEmployeeMenu() {
+            const employeeMenu = document.getElementById('employee-menu');
+            if (employeeMenu) {
+                employeeMenu.style.display = 'none';
+            }
+        }
+
+        function hireEmployee(type) {
+            const employee = gameState.employees[type];
+            if (!employee) {
+                logEvent(`⚠ Invalid employee type: ${type}.`);
+                return;
+            }
+            const cost = Math.ceil(employee.cost * Math.pow(1.2, employee.level));
+            const maxLevel = 10; // Example maximum level
+            if (employee.level >= maxLevel) {
+                logEvent(`⚠ You have reached the maximum level for ${capitalize(type)} Employees.`);
+                alert(`You have reached the maximum level for ${capitalize(type)} Employees.`);
+                return;
+            }
+            if (gameState.credits >= cost) {
+                gameState.credits -= cost;
+                gameState.employees[type].level += 1;
+                logEvent(`👨‍🚀 Hired a Level ${gameState.employees[type].level} ${capitalize(type)} Employee!`);
+                // Apply employee-specific benefits
+                switch(type) {
+                    case 'storage':
+                        const shipsToAdd = 2; // Each level adds 2 ships
+                        gameState.shipLimit += shipsToAdd;
+                        logEvent(`📦 Storage Employee increased ship limit by ${formatNumberWithSuffix(shipsToAdd)} ships to ${formatNumberWithSuffix(gameState.shipLimit)}.`);
+                        break;
+                    case 'efficiency':
+                        // Each Efficiency Employee increases multiplier by 0.5
+                        gameState.multiplier = Math.min(gameState.multiplier + 0.5, 10); // Cap multiplier
+                        logEvent(`⚙️ Efficiency Employee improved trade efficiency. Tech multiplier increased to x${gameState.multiplier.toFixed(1)}.`);
+                        break;
+                    case 'security':
+                        // Each Security Employee increases protection by 10%
+                        gameState.securityProtection = Math.min(gameState.securityProtection + 10, 100); // Cap protection at 100%
+                        logEvent(`🛡️ Security Employee increased protection against random events by 10%. Current Protection: ${gameState.securityProtection}%`);
+                        break;
+                    default:
+                        break;
+                }
+                updateDisplay();
+                saveGame();
+            } else {
+                logEvent(`⚠ Not enough credits to hire ${capitalize(type)} employee! (Cost: ${formatNumberWithSuffix(cost)} Credits)`);
+            }
+        }
 
         // ==================== SHARE FEATURE ====================
         function shareGame() {
@@ -1683,6 +1700,7 @@
             if (currentTime - gameState.shareCooldown.lastShareTime < gameState.shareCooldown.cooldownDuration) {
                 const remaining = gameState.shareCooldown.cooldownDuration - (currentTime - gameState.shareCooldown.lastShareTime);
                 logEvent(`⚠ Share bonus is on cooldown. Please wait ${formatTime(remaining)} before sharing again.`);
+                alert(`Share bonus is on cooldown. Please wait ${formatTime(remaining)} before sharing again.`);
                 return;
             }
             const shareModal = document.getElementById('share-confirm-modal');
@@ -1712,27 +1730,54 @@
             try {
                 const successful = document.execCommand('copy');
                 if (successful) {
-                    logEvent(`📋 Game link copied to clipboard! You earned a 500 Credits bonus.`);
-                    gameState.credits += 500;
-                    gameState.totalCreditsEarned += 500;
-                    gameState.totalEarnings += 500;
-                    // Update share cooldown
-                    gameState.shareCooldown.lastShareTime = Math.floor(Date.now() / 1000);
-                    updateDisplay();
-                    saveGame();
+                    grantShareReward();
                 } else {
-                    logEvent(`⚠ Failed to copy the game link.`);
+                    throw new Error('Copy command unsuccessful');
                 }
             } catch (err) {
                 console.error('Failed to copy:', err);
-                logEvent(`⚠ Failed to copy the game link.`);
+                logEvent(`⚠ Failed to copy the game link. Please manually copy the link below:`);
+                alert("Failed to copy the link. Please manually copy it.");
+                shareLink.focus();
+                shareLink.select();
             }
 
             closeShareConfirmModal();
         }
 
-        // ==================== UPGRADE COUNT ====================
-        // Already handled within ship modules
+        function grantShareReward() {
+            const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+            gameState.credits += 500;
+            gameState.totalCreditsEarned += 500;
+            gameState.totalEarnings += 500;
+            gameState.shareCooldown.lastShareTime = currentTime;
+            logEvent(`📋 Share successful! Earned 500 Credits.`);
+            updateDisplay();
+            saveGame();
+            alert("🎉 Share successful! Earned 500 Credits.");
+        }
+
+        function updateShareButtons() {
+            const shareButtons = document.querySelectorAll('.share-confirm-modal .button');
+            const currentTime = Math.floor(Date.now() / 1000);
+            const elapsed = currentTime - gameState.shareCooldown.lastShareTime;
+            if (elapsed < gameState.shareCooldown.cooldownDuration) {
+                shareButtons.forEach(button => {
+                    button.disabled = true;
+                    button.style.opacity = 0.5;
+                    button.style.cursor = 'not-allowed';
+                });
+            } else {
+                shareButtons.forEach(button => {
+                    button.disabled = false;
+                    button.style.opacity = 1;
+                    button.style.cursor = 'pointer';
+                });
+            }
+        }
+
+        // ==================== COMBINE SHIPS ====================
+        // Already implemented above
 
         // ==================== KEY BINDINGS ====================
         document.addEventListener('keydown', function(e) {
@@ -1740,30 +1785,47 @@
                 closeAllModals();
             }
             if (e.key === 'Control') {
-                setBuyMode(4); // 50x
+                setBuyAmount(4); // 50x
             }
             if (e.key === 'Shift') {
-                setBuyMode(1); // 10x
+                setBuyAmount(1); // 10x
             }
         });
 
         document.addEventListener('keyup', function(e) {
             if (e.key === 'Control' || e.key === 'Shift') {
-                setBuyMode(0); // Reset to 1x
+                setBuyAmount(0); // Reset to 1x
             }
         });
 
-        function setBuyMode(modeIndex) {
-            if (modeIndex >=0 && modeIndex < gameState.buyAmounts.length) {
-                gameState.currentBuyIndex = modeIndex;
-                const buyAmountButton = document.getElementById('buy-amount-button');
-                if (buyAmountButton) {
-                    buyAmountButton.innerText = `Buy: ${gameState.buyAmounts[gameState.currentBuyIndex]}`;
-                } else {
-                    console.error("Buy amount button not found.");
-                }
+        function setBuyAmount(index) {
+            if (index >=0 && index < gameState.buyAmounts.length) {
+                gameState.currentBuyIndex = index;
+                updateBuyToggleButtons();
+                updateDisplay();
                 saveGame();
             }
+        }
+
+        function getBuyAmountMultiplier() {
+            const multiplierText = gameState.buyAmounts[gameState.currentBuyIndex];
+            if (multiplierText === 'Max') {
+                return 'Max';
+            }
+            return parseInt(multiplierText.replace('x', ''));
+        }
+
+        function updateBuyToggleButtons() {
+            const buyToggleButtons = document.querySelectorAll('.buy-toggle button');
+            buyToggleButtons.forEach((button, index) => {
+                if (index === gameState.currentBuyIndex) {
+                    button.style.backgroundColor = '#66fcf1';
+                    button.style.color = '#0b0c10';
+                } else {
+                    button.style.backgroundColor = '#45a29e';
+                    button.style.color = '#0b0c10';
+                }
+            });
         }
 
         // ==================== THEME TOGGLE ====================
@@ -1776,6 +1838,7 @@
                 gameState.theme = 'dark';
             }
             updateTheme();
+            updateDisplay();
             saveGame();
         }
 
@@ -1786,6 +1849,7 @@
             } else if (gameState.theme === 'blue') {
                 document.body.classList.add('blue-theme');
             }
+
             // Update modal themes
             document.querySelectorAll('.modal-content').forEach(modal => {
                 modal.classList.remove('light-theme', 'blue-theme');
@@ -1795,15 +1859,35 @@
                     modal.classList.add('blue-theme');
                 }
             });
+
+            // Update ship themes
+            gameState.ships.forEach(ship => {
+                const shipDiv = document.getElementById(`ship-${ship.id}`);
+                if (shipDiv) {
+                    shipDiv.classList.remove('light-theme', 'blue-theme');
+                    if (gameState.theme === 'light') {
+                        shipDiv.classList.add('light-theme');
+                    } else if (gameState.theme === 'blue') {
+                        shipDiv.classList.add('blue-theme');
+                    }
+                }
+            });
         }
 
         // ==================== SETTINGS MENU ====================
-        function toggleSettings() {
+        function toggleSettingsMenu() {
             const settingsMenu = document.getElementById('settings-menu');
             if (settingsMenu) {
                 settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block';
             } else {
                 logEvent(`⚠ Settings Menu not found.`);
+            }
+        }
+
+        function closeSettingsMenu() {
+            const settingsMenu = document.getElementById('settings-menu');
+            if (settingsMenu) {
+                settingsMenu.style.display = 'none';
             }
         }
 
@@ -1827,53 +1911,52 @@
             if (helpMenu) {
                 helpMenu.style.display = helpMenu.style.display === 'block' ? 'none' : 'block';
             } else {
-                logEvent(`⚠ Help Menu not found.`);
+                // Create Help Menu if it doesn't exist
+                createHelpMenu();
             }
         }
 
-        // ==================== MODALS ====================
-        function openRebirthModalConfirm() {
-            const rebirthConfirmModal = document.getElementById('rebirth-modal-confirm');
-            if (rebirthConfirmModal) {
-                const pointsEarned = Math.floor(gameState.totalCreditsEarned / 100000);
-                rebirthConfirmModal.querySelector('p').innerHTML = `Are you sure you want to rebirth? This will reset all your progress but grant you <strong>${pointsEarned}</strong> Rebirth Points (RP).`;
-                rebirthConfirmModal.style.display = 'block';
-            } else {
-                logEvent(`⚠ Rebirth Confirmation Modal not found.`);
+        function createHelpMenu() {
+            const helpMenu = document.createElement('div');
+            helpMenu.id = 'help-menu';
+            helpMenu.classList.add('modal-menu');
+            helpMenu.setAttribute('aria-hidden', 'true');
+            helpMenu.innerHTML = `
+                <div class="modal-content" aria-labelledby="help-menu-title">
+                    <span class="close-modal" onclick="toggleHelp()" aria-label="Close Help Menu">&times;</span>
+                    <h3 id="help-menu-title">❓ Help</h3>
+                    <p>Welcome to <strong>Interstellar Trader</strong>! Here's how to get started:</p>
+                    <ul>
+                        <li><strong>Buying Ships:</strong> Click "🛒 Buy a New Ship" to purchase additional ships. Each ship can trade independently.</li>
+                        <li><strong>Upgrading Traders:</strong> Access the "🔼 Upgrades" menu to enhance your traders. Choose the number of upgrades to buy using the buy amount toggle.</li>
+                        <li><strong>Automation:</strong> Hire storage, efficiency, or security employees from the "👨‍🚀 Employees" menu to automate trades, increase efficiency, or protect your assets.</li>
+                        <li><strong>Combining Ships:</strong> Use "🔗 Combine Ships" to merge two ships into a more powerful one, or "🔗 Combine All Ships" to consolidate your fleet.</li>
+                        <li><strong>Rebirth:</strong> Accumulate enough credits to rebirth and earn Rebirth Points (RP), which can be spent to further enhance your tech level.</li>
+                        <li><strong>Sharing:</strong> Share the game on social platforms to earn bonus credits. Shares have a cooldown period.</li>
+                        <li><strong>Random Events:</strong> Occasionally, random events will occur that can either benefit or challenge your trading empire.</li>
+                    </ul>
+                    <p>For more detailed information, hover over buttons or check the event log for updates.</p>
+                    <button onclick="closeHelp()" title="Close Help">❌ Close</button>
+                </div>
+            `;
+            document.body.appendChild(helpMenu);
+            toggleHelp();
+        }
+
+        function closeHelp() {
+            const helpMenu = document.getElementById('help-menu');
+            if (helpMenu) {
+                helpMenu.style.display = 'none';
             }
         }
 
-        function closeRebirthModal() {
-            const rebirthConfirmModal = document.getElementById('rebirth-modal-confirm');
-            if (rebirthConfirmModal) {
-                rebirthConfirmModal.style.display = 'none';
-            }
-        }
-
-        function openResetModal() {
-            const resetModal = document.getElementById('reset-modal');
-            if (resetModal) {
-                resetModal.style.display = 'block';
-            } else {
-                logEvent(`⚠ Reset Modal not found.`);
-            }
-        }
-
-        function closeResetModal() {
-            const resetModal = document.getElementById('reset-modal');
-            if (resetModal) {
-                resetModal.style.display = 'none';
-            }
-        }
-
+        // ==================== MODAL HANDLING ====================
         function closeAllModals() {
-            const modals = document.querySelectorAll('.modal-menu');
-            modals.forEach(modal => {
+            document.querySelectorAll('.modal-menu').forEach(modal => {
                 modal.style.display = 'none';
             });
         }
 
-        // Close modals when clicking outside of them
         window.onclick = function(event) {
             const modals = document.querySelectorAll('.modal-menu');
             modals.forEach(modal => {
@@ -1887,6 +1970,7 @@
         function initialize() {
             loadGame();
             updateDisplay();
+            updateBuyToggleButtons();
             // Start time played counter only when tab is active
             document.addEventListener('visibilitychange', function() {
                 if (document.visibilityState === 'visible') {
@@ -1904,8 +1988,7 @@
             if (!timeCounterInterval) {
                 timeCounterInterval = setInterval(() => {
                     gameState.timePlayed += 1;
-                    // If using separate displays in settings, update here
-                    // document.getElementById('time-played').innerText = formatTime(gameState.timePlayed);
+                    // Update time played display if exists
                 }, 1000);
             }
         }
@@ -1927,64 +2010,71 @@
                     ship.intervalId = null;
                 }
             });
-            // No employee intervals implemented, but placeholder if added in future
         }
 
-        // ==================== SHARE FEATURE ====================
-        // Already implemented with shareGame(), copyShareLink(), and share-confirm-modal
-
-        // ==================== COMBINE SHIPS ====================
-        // Already implemented with dedicated modal and functions
-
-        // ==================== EMPLOYEE MANAGEMENT ====================
-        // Already handled with separate employee menu and hireEmployee function
-
-        // ==================== EMPLOYEE MENU ====================
-        // Already implemented with toggleEmployeeMenu() and hireEmployee(type)
-
         // ==================== EMPLOYEE TYPES ====================
-        // Already handled in hireEmployee() function with specific benefits
+        // Already handled within hireEmployee function with specific benefits
 
         // ==================== HELPER FUNCTIONS ====================
         function capitalize(str) {
             return str.charAt(0).toUpperCase() + str.slice(1);
         }
 
-        function calculateShipLimitUpgradeCost() {
-            // Example: Each ship limit upgrade costs 500 * current ship limit
-            return Math.floor(500 * gameState.shipLimit);
-        }
-
-        function getBuyAmountMultiplier() {
-            const multiplierText = gameState.buyAmounts[gameState.currentBuyIndex];
-            if (multiplierText === 'Max') {
-                return 'Max';
-            }
-            return parseInt(multiplierText.replace('x', ''));
-        }
+        // ==================== SHARE FEATURE ====================
+        // Already implemented above
 
         // ==================== COMBINE SHIPS ====================
-        // Already implemented with toggleCombineShipsModal(), populateCombineShips(), confirmCombineShips()
+        // Already implemented above
 
-        // ==================== SHARE GAME FUNCTION ====================
-        // Already implemented with shareGame(), copyShareLink(), and share-confirm-modal
+        // ==================== UPGRADES TOGGLE BUTTONS ====================
+        function updateBuyToggleButtons() {
+            const buyToggleButtons = document.querySelectorAll('.buy-toggle button');
+            buyToggleButtons.forEach((button, index) => {
+                if (index === gameState.currentBuyIndex) {
+                    button.style.backgroundColor = '#66fcf1';
+                    button.style.color = '#0b0c10';
+                } else {
+                    button.style.backgroundColor = '#45a29e';
+                    button.style.color = '#0b0c10';
+                }
+            });
+        }
 
-        // ==================== HELP MENU ====================
-        // Already implemented with toggleHelp() and detailed explanations
+        // ==================== REBIRTH MENU ====================
+        function openRebirthMenu() {
+            const rebirthMenu = document.getElementById('rebirth-menu');
+            if (!rebirthMenu) {
+                // Create Rebirth Menu if it doesn't exist
+                createRebirthMenu();
+            }
+            toggleRebirthMenuVisibility();
+        }
 
-        // ==================== HIGHLIGHT CREDITS ====================
-        // Already handled in updateDisplay()
+        function createRebirthMenu() {
+            const rebirthMenu = document.createElement('div');
+            rebirthMenu.id = 'rebirth-menu';
+            rebirthMenu.classList.add('modal-menu');
+            rebirthMenu.setAttribute('aria-hidden', 'true');
+            rebirthMenu.innerHTML = `
+                <div class="modal-content" aria-labelledby="rebirth-menu-title">
+                    <span class="close-modal" onclick="closeRebirthModal()" aria-label="Close Rebirth Menu">&times;</span>
+                    <h3 id="rebirth-menu-title">♻️ Rebirth</h3>
+                    <p>Earn Rebirth Points (RP) by rebirthing your progress.</p>
+                    <button onclick="confirmRebirth()" title="Initiate Rebirth">♻️ Rebirth Now</button>
+                    <button onclick="spendRebirthPoints()" title="Spend Rebirth Points">Spend RP</button>
+                    <p id="rebirth-status" class="rebirth-cooldown"></p>
+                </div>
+            `;
+            document.body.appendChild(rebirthMenu);
+        }
+
+        // ==================== RESET GAME ====================
+        // Already implemented above
+
+        // ==================== HELPER FUNCTIONS ====================
+        // Already implemented above
+
+        // ==================== COMPLETED ====================
     </script>
-
-    <!-- Settings Menu Modal -->
-    <div id="settings-menu" class="modal-menu">
-        <div class="modal-content">
-            <span class="close-modal" onclick="toggleSettings()">&times;</span>
-            <h3>Settings</h3>
-            <button class="button" onclick="toggleTheme()" title="Toggle Theme">🌙 Toggle Theme</button>
-            <button class="button" onclick="saveGameManually()" title="Manually Save Game">💾 Save Game</button>
-            <button class="button" onclick="resetGame()" title="Reset Game">🗑️ Reset Game</button>
-        </div>
-    </div>
 </body>
 </html>
