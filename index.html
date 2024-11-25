@@ -279,6 +279,9 @@
             cursor: pointer;
             flex-shrink: 0;
             transition: transform 0.3s, background-color 0.5s, border-color 0.5s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         body.light-theme .ship {
             background: #ffffff;
@@ -558,7 +561,7 @@
                 <li>Apply Big Upgrades to specific ships for significant boosts in trading speed and earnings.</li>
                 <li>Hire employees to unlock new functionalities and enhance your fleet.</li>
                 <li>Combine all ships to merge their upgrades and create a more powerful trading unit.</li>
-                <li>Share the game to earn a small bonus and help grow the trading empire.</li>
+                <li>Share the game on multiple platforms to earn bonuses and help grow your trading empire.</li>
             </ul>
             <button class="button" onclick="toggleHelp()" title="Close Help">❌ Close</button>
         </div>
@@ -646,7 +649,9 @@
             <p>Share this link on your favorite platform to earn a bonus!</p>
             <div style="margin-bottom: 10px;">
                 <a href="https://twitter.com/intent/tweet?text=Join%20me%20in%20Interstellar%20Trader%20and%20build%20your%20own%20intergalactic%20trading%20empire!%20https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader" target="_blank" class="button" style="background-color: #1da1f2; margin-right: 5px;">🐦 Share on Twitter</a>
-                <a href="https://www.facebook.com/sharer/sharer.php?u=https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader" target="_blank" class="button" style="background-color: #4267B2;">📘 Share on Facebook</a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u=https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader" target="_blank" class="button" style="background-color: #4267B2; margin-right: 5px;">📘 Share on Facebook</a>
+                <a href="https://www.reddit.com/submit?url=https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader&title=Interstellar%20Trader%20-%20Build%20your%20intergalactic%20trading%20empire" target="_blank" class="button" style="background-color: #FF4500; margin-right: 5px;">👽 Share on Reddit</a>
+                <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader&title=Interstellar%20Trader&summary=Build%20your%20intergalactic%20trading%20empire!" target="_blank" class="button" style="background-color: #0077B5;">🔗 Share on LinkedIn</a>
             </div>
             <p>Or copy the link below:</p>
             <input type="text" id="share-link" value="https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader" readonly style="width: 100%; padding: 10px; margin-bottom: 10px;">
@@ -699,7 +704,7 @@
             },
             shareCooldown: {
                 lastShareTime: 0,
-                cooldownDuration: 86400 // 24 hours in seconds
+                cooldownDuration: 1920 // 32 minutes in seconds
             },
             rebirthCooldown: {
                 lastRebirthTime: 0,
@@ -749,7 +754,7 @@
                 if (!gameState.shareCooldown) {
                     gameState.shareCooldown = {
                         lastShareTime: 0,
-                        cooldownDuration: 86400 // 24 hours in seconds
+                        cooldownDuration: 1920 // 32 minutes in seconds
                     };
                 }
                 if (!gameState.rebirthCooldown) {
@@ -914,6 +919,9 @@
         }
 
         function formatNumberWithSuffix(num) {
+            if (num >= 1e12) {
+                return (num / 1e12).toFixed(2).replace(/\.00$/, '') + 'T';
+            }
             if (num >= 1e9) {
                 return (num / 1e9).toFixed(2).replace(/\.00$/, '') + 'B';
             }
@@ -970,11 +978,11 @@
                 <button class="button upgrade-trader-button" onclick="buyBetterTrader(${shipId})" title="Enhance trader efficiency">Upgrade Trader</button>
                 <div class="automation-indicator" title="Automated Trading">🤖</div>
             `;
-            // Event Listener for clicking the progress bar to start trade
-            const progressBar = shipDiv.querySelector('.progress-bar');
-            progressBar.addEventListener('click', function(event) {
+            // Event Listener for clicking the ship area to start trade
+            const shipClickableArea = shipDiv;
+            shipClickableArea.addEventListener('click', function(event) {
                 // Prevent triggering when clicking on the upgrade button
-                if (event.target.tagName.toLowerCase() !== 'button') {
+                if (event.target.tagName.toLowerCase() !== 'button' && !event.target.classList.contains('upgrade-trader-button')) {
                     startTrade(shipId);
                 }
             });
@@ -1182,7 +1190,7 @@
         }
 
         function buyMultiplier() {
-            const cost = Math.floor(10000 * Math.pow(1.5, gameState.techLevel - 1)); // Increased cost for multiplier
+            const cost = Math.floor(10000 * Math.pow(1.5, gameState.techLevel - 1));
             if (gameState.credits >= cost) {
                 gameState.credits -= cost;
                 gameState.multiplier += 1;
@@ -1328,15 +1336,15 @@
             multiplier = multiplier === 'Max' ? 'max' : parseInt(multiplier.replace('x', ''));
 
             if (multiplier === 'Max') {
-                // Upgrade all ships as much as possible
-                gameState.ships.forEach(ship => {
+                // Upgrade all ships as much as possible, prioritizing cheaper upgrades
+                gameState.ships.sort((a, b) => Math.floor(10 * Math.pow(1.5, a.upgrades)) - Math.floor(10 * Math.pow(1.5, b.upgrades))).forEach(ship => {
                     while (true) {
                         const cost = Math.floor(10 * Math.pow(1.5, ship.upgrades));
                         if (gameState.credits >= cost) {
                             gameState.credits -= cost;
                             ship.traderLevel += 1;
                             ship.upgrades += 1;
-                            gameState.techLevel += 1; // Assuming techLevel increases with upgrades
+                            gameState.techLevel += 0.1; // Increment tech level slightly for each upgrade
                             gameState.totalUpgrades += 1;
                             logEvent(`🔼 Ship ${ship.id} trader level increased to ${ship.traderLevel}.`);
                         } else {
@@ -1347,13 +1355,13 @@
             } else {
                 // Upgrade all ships based on multiplier
                 for (let i = 0; i < multiplier; i++) {
-                    gameState.ships.forEach(ship => {
+                    gameState.ships.sort((a, b) => Math.floor(10 * Math.pow(1.5, a.upgrades)) - Math.floor(10 * Math.pow(1.5, b.upgrades))).forEach(ship => {
                         const cost = Math.floor(10 * Math.pow(1.5, ship.upgrades));
                         if (gameState.credits >= cost) {
                             gameState.credits -= cost;
                             ship.traderLevel += 1;
                             ship.upgrades += 1;
-                            gameState.techLevel += 1; // Assuming techLevel increases with upgrades
+                            gameState.techLevel += 0.1; // Increment tech level slightly for each upgrade
                             gameState.totalUpgrades += 1;
                             logEvent(`🔼 Ship ${ship.id} trader level increased to ${ship.traderLevel}.`);
                         }
@@ -1967,5 +1975,16 @@
         // ==================== HIGHLIGHT CREDITS ====================
         // Already handled in updateDisplay()
     </script>
+
+    <!-- Settings Menu Modal -->
+    <div id="settings-menu" class="modal-menu">
+        <div class="modal-content">
+            <span class="close-modal" onclick="toggleSettings()">&times;</span>
+            <h3>Settings</h3>
+            <button class="button" onclick="toggleTheme()" title="Toggle Theme">🌙 Toggle Theme</button>
+            <button class="button" onclick="saveGameManually()" title="Manually Save Game">💾 Save Game</button>
+            <button class="button" onclick="resetGame()" title="Reset Game">🗑️ Reset Game</button>
+        </div>
+    </div>
 </body>
 </html>
