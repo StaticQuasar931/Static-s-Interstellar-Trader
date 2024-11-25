@@ -205,20 +205,22 @@
         }
         .progress {
             height: 100%;
-            background-color: green; /* Initial color for fastest trades */
+            background-color: green; /* Consistent color */
             width: 0;
-            transition: width 1s ease-in-out, background-color 0.5s;
+            transition: width 1s ease-in-out;
             position: absolute;
             top: 0;
             left: 0;
         }
-        .progress-time {
-            margin-left: auto;
-            margin-right: 10px;
+        .progress-time, .progress-earnings {
             color: #0b0c10;
             font-weight: bold;
             font-size: 14px;
             z-index: 1;
+            margin: 0 10px;
+        }
+        .progress-time {
+            margin-left: auto;
         }
 
         /* ==================== COLUMNS FOR SHIPS ==================== */
@@ -230,6 +232,8 @@
             width: 100%;
             max-width: 1200px;
             margin: 20px auto;
+            height: calc(100vh - 400px);
+            overflow-y: auto;
         }
 
         /* ==================== SHIP MODULE ==================== */
@@ -300,8 +304,8 @@
         /* ==================== AUTOMATION INDICATOR ==================== */
         .automation-indicator {
             position: absolute;
-            bottom: 10px;
-            left: 10px;
+            top: 10px;
+            right: 10px;
             background: #00ff00;
             color: #0b0c10;
             border-radius: 5px;
@@ -565,10 +569,11 @@
             buyAmounts: ['1x', '10x', '100x', 'Max'],
             currentBuyIndex: 0, // Starts at 1x
             theme: 'dark', // or 'light', 'blue'
-            shipLimit: 6, // Initial ship limit
+            shipLimit: 10, // Updated ship limit
             totalTrades: 0,
             totalEarnings: 0,
             totalUpgrades: 0,
+            totalMergeUpgrades: 0, // To track upgrades for merging
             lastSaveTime: Date.now()
         };
 
@@ -614,7 +619,7 @@
             const currentTime = Date.now();
             const offlineTime = (currentTime - gameState.lastSaveTime) / 1000; // in seconds
             if (offlineTime > 0) {
-                const effectiveTime = offlineTime * 0.3; // 0.3x effectiveness
+                const effectiveTime = offlineTime * (0.3 + (gameState.rebirthPoints * 0.05)); // Enhanced with RP
                 const tradesPossible = Math.floor(effectiveTime / 10); // Each trade takes 10 seconds
                 for (let i = 0; i < tradesPossible; i++) {
                     completeTradeOffline();
@@ -661,11 +666,11 @@
             });
 
             // Update other upgrade buttons in upgrade menu
-            const automationCost = Math.floor(500 * (gameState.shipLimit / 6) * Math.pow(1.15, gameState.automation ? 1 : 0));
+            const automationCost = Math.floor(500 * Math.pow(1.15, gameState.totalUpgrades));
             const multiplierCost = Math.floor(1000 * Math.pow(1.15, gameState.techLevel - 1));
             const employeeCost = Math.floor(800 * Math.pow(1.15, gameState.employee ? 1 : 0));
             const bigUpgradeCost = Math.floor(5000 * Math.pow(1.15, gameState.techLevel - 1));
-            const shipLimitUpgradeCost = Math.floor(10000 * Math.pow(1.15, (gameState.shipLimit / 6) - 1));
+            const shipLimitUpgradeCost = Math.floor(10000 * Math.pow(1.15, (gameState.shipLimit / 10) - 1));
 
             document.querySelector('#upgrade-menu button[onclick="buyAutomation()"]').innerText = `🤖 Buy Automation (Cost: ${formatNumber(automationCost)} Credits)`;
             document.querySelector('#upgrade-menu button[onclick="buyMultiplier()"]').innerText = `✖️ Buy Multiplier (Cost: ${formatNumber(multiplierCost)} Credits)`;
@@ -720,11 +725,11 @@
                 <span>🚀 Ship ${shipId}</span>
                 <p>Trader Level: <span id="trader-level-${shipId}">${ship.traderLevel}</span></p>
                 <div class="progress-bar" title="Click anywhere on the ship to start trade">
-                    <div class="progress" id="progress-${shipId}"></div>
-                    <span class="progress-time" id="progress-time-${shipId}">0s</span>
-                    <span class="progress-earnings" id="progress-earnings-${shipId}">0 💸</span>
+                    <div class="progress" id="progress-${ship.id}"></div>
+                    <span class="progress-time" id="progress-time-${ship.id}">0s</span>
+                    <span class="progress-earnings" id="progress-earnings-${ship.id}">0 💸</span>
                 </div>
-                <button class="button" onclick="buyBetterTrader(${shipId})" title="Enhance trader efficiency">Upgrade Trader (Cost: ${formatNumber(2000 * ship.traderLevel)} Credits)</button>
+                <button class="button" onclick="buyBetterTrader(${ship.id})" title="Enhance trader efficiency">Upgrade Trader (Cost: ${formatNumber(2000 * ship.traderLevel)} Credits)</button>
                 <div class="automation-indicator" title="Automated Trading">🤖</div>
             `;
             // Event Listener for clicking the progress bar to start trade
@@ -765,10 +770,6 @@
             let progress = 0;
             const totalTime = 10; // seconds
             const intervalTime = 1000;
-
-            // Change progress bar color based on trade duration
-            const progressColor = totalTime <= 5 ? 'green' : 'red';
-            progressBar.style.backgroundColor = progressColor;
 
             const progressInterval = setInterval(() => {
                 progress++;
@@ -864,6 +865,7 @@
                 gameState.credits -= totalCost;
                 gameState.techLevel += achievableMultiplier;
                 gameState.totalUpgrades += achievableMultiplier;
+                gameState.totalMergeUpgrades += achievableMultiplier;
                 logEvent(`✚ Bought upgrade x${achievableMultiplier}! Tech level increased to ${gameState.techLevel}.`);
                 updateDisplay();
                 saveGame();
@@ -884,7 +886,7 @@
                 logEvent(`⚠ All ships already have automation.`);
                 return;
             }
-            const cost = Math.floor(500 * Math.pow(1.15, nextShip.id - 1));
+            const cost = Math.floor(500 * Math.pow(1.15, gameState.totalMergeUpgrades));
             if (gameState.credits >= cost) {
                 gameState.credits -= cost;
                 nextShip.automation = true;
@@ -921,7 +923,7 @@
             if (gameState.credits >= cost && !gameState.employee) {
                 gameState.credits -= cost;
                 gameState.employee = true;
-                logEvent(`👨‍🚀 Employee hired! They will help auto-send ships every 8 seconds.`);
+                logEvent(`👨‍🚀 Employee hired! They will help auto-send ships.`);
                 updateDisplay();
                 saveGame();
                 // Start employee automation
@@ -982,6 +984,7 @@
                 gameState.credits -= totalCost;
                 gameState.techLevel += achievableMultiplier;
                 gameState.totalUpgrades += achievableMultiplier;
+                gameState.totalMergeUpgrades += achievableMultiplier;
                 logEvent(`🔼 Tech level increased by x${achievableMultiplier} to ${gameState.techLevel}.`);
                 updateDisplay();
                 saveGame();
@@ -1010,13 +1013,11 @@
                 }
 
                 gameState.rebirthPoints += pointsEarned;
-                // Reset game state
+                // Reset game state except automation
                 gameState.credits = 100;
                 gameState.spaceshipCount = 1;
                 gameState.techLevel = 1;
                 gameState.totalCreditsEarned = 100;
-                gameState.automation = false;
-                gameState.employee = false;
                 gameState.multiplier = 1;
                 gameState.ships = [{
                     id: 1,
@@ -1026,10 +1027,11 @@
                     automation: false,
                     intervalId: null
                 }];
-                gameState.shipLimit = 6;
+                gameState.shipLimit = 10;
                 gameState.totalTrades = 0;
                 gameState.totalEarnings = 0;
                 gameState.totalUpgrades = 0;
+                gameState.totalMergeUpgrades = 0;
                 gameState.currentBuyIndex = 0; // Reset buy amount to 1x
 
                 // Clear UI and re-render
@@ -1048,7 +1050,7 @@
 
         function spendRebirthPoints() {
             if (gameState.rebirthPoints > 0) {
-                // Example: Each RP increases tech level by 1
+                // Each RP increases tech level by 1
                 gameState.techLevel += gameState.rebirthPoints;
                 gameState.totalUpgrades += gameState.rebirthPoints;
                 logEvent(`🔧 You spent ${gameState.rebirthPoints} Rebirth Points to increase tech level by ${gameState.rebirthPoints}.`);
@@ -1062,33 +1064,8 @@
 
         // ==================== RANDOM EVENTS ====================
         function randomEvent() {
-            let eventChance = Math.random();
-            if (eventChance < 0.2) { // 20% chance
-                let eventType = Math.floor(Math.random() * 3);
-                switch (eventType) {
-                    case 0:
-                        logEvent(`💥 An alien attack! You lost 50 credits to defend yourself.`);
-                        gameState.credits -= Math.min(50, gameState.credits);
-                        gameState.totalEarnings -= 50;
-                        break;
-                    case 1:
-                        logEvent(`☄️✨ Meteor shower! Your ships earned a bonus of 25 credits per trade.`);
-                        const bonus = Math.floor(25 * gameState.techLevel); // Example bonus
-                        gameState.credits += bonus;
-                        gameState.totalCreditsEarned += bonus;
-                        gameState.totalEarnings += bonus;
-                        logEvent(`✨ Bonus: Earned an extra ${formatNumber(bonus)} credits from meteor shower.`);
-                        break;
-                    case 2:
-                        logEvent(`🎉 Galactic fair! You made a deal and earned 100 bonus credits.`);
-                        gameState.credits += 100;
-                        gameState.totalCreditsEarned += 100;
-                        gameState.totalEarnings += 100;
-                        break;
-                }
-                updateDisplay();
-                saveGame();
-            }
+            // Disabled as per user instruction
+            // Placeholder if needed in future
         }
 
         // ==================== BIG UPGRADE ====================
@@ -1110,7 +1087,7 @@
             const cost = Math.floor(5000 * Math.pow(1.15, gameState.techLevel - 1));
             if (gameState.credits >= cost && ship) {
                 gameState.credits -= cost;
-                // Example: Double the trader level for the selected ship
+                // Double the trader level for the selected ship
                 ship.traderLevel *= 2;
                 gameState.totalUpgrades += 1;
                 document.getElementById(`trader-level-${ship.id}`).innerText = ship.traderLevel;
@@ -1123,9 +1100,44 @@
             }
         }
 
+        // ==================== COMBINE SHIPS ====================
+        function combineShips(shipId1, shipId2) {
+            const ship1 = gameState.ships.find(s => s.id === shipId1);
+            const ship2 = gameState.ships.find(s => s.id === shipId2);
+            if (ship1 && ship2 && ship1.id !== ship2.id) {
+                // Define combination logic
+                const newTraderLevel = ship1.traderLevel + ship2.traderLevel;
+                const newShipId = Math.max(ship1.id, ship2.id) + 1;
+                const totalUpgradesSpent = ship1.upgrades + ship2.upgrades;
+                const mergeCost = Math.floor(totalUpgradesSpent / 6); // Example scaling
+                if (gameState.credits >= mergeCost) {
+                    // Remove the old ships
+                    gameState.ships = gameState.ships.filter(s => s.id !== shipId1 && s.id !== shipId2);
+                    // Add the new combined ship
+                    gameState.ships.push({
+                        id: newShipId,
+                        upgrades: 0,
+                        traderLevel: newTraderLevel,
+                        trading: false,
+                        automation: false,
+                        intervalId: null
+                    });
+                    gameState.credits -= mergeCost;
+                    logEvent(`🔗 Combined Ship ${shipId1} and Ship ${shipId2} into Ship ${newShipId} with Trader Level ${newTraderLevel}. (Cost: ${formatNumber(mergeCost)} Credits)`);
+                    updateDisplay();
+                    renderShips();
+                    saveGame();
+                } else {
+                    logEvent(`⚠ Not enough credits to combine ships! (Cost: ${formatNumber(mergeCost)} Credits)`);
+                }
+            } else {
+                logEvent(`⚠ Invalid ships selected for combination.`);
+            }
+        }
+
         // ==================== LIMITING SHIPS ====================
         function upgradeShipLimit() {
-            const cost = Math.floor(10000 * Math.pow(1.15, (gameState.shipLimit / 6) - 1));
+            const cost = Math.floor(10000 * Math.pow(1.15, (gameState.shipLimit / 10) - 1));
             if (gameState.credits >= cost) {
                 gameState.credits -= cost;
                 gameState.shipLimit += 6;
@@ -1292,9 +1304,10 @@
                 // Define combination logic
                 const newTraderLevel = ship1.traderLevel + ship2.traderLevel;
                 const newShipId = Math.max(ship1.id, ship2.id) + 1;
-                const cost = Math.floor(10000 * Math.pow(1.15, gameState.techLevel - 1)); // Example cost
+                const totalUpgradesSpent = ship1.upgrades + ship2.upgrades;
+                const mergeCost = Math.floor(totalUpgradesSpent / 6); // Scaled cost
 
-                if (gameState.credits >= cost) {
+                if (gameState.credits >= mergeCost) {
                     // Remove the old ships
                     gameState.ships = gameState.ships.filter(s => s.id !== shipId1 && s.id !== shipId2);
                     // Add the new combined ship
@@ -1306,13 +1319,13 @@
                         automation: false,
                         intervalId: null
                     });
-                    gameState.credits -= cost;
-                    logEvent(`🔗 Combined Ship ${shipId1} and Ship ${shipId2} into Ship ${newShipId} with Trader Level ${newTraderLevel}.`);
+                    gameState.credits -= mergeCost;
+                    logEvent(`🔗 Combined Ship ${shipId1} and Ship ${shipId2} into Ship ${newShipId} with Trader Level ${newTraderLevel}. (Cost: ${formatNumber(mergeCost)} Credits)`);
                     updateDisplay();
                     renderShips();
                     saveGame();
                 } else {
-                    logEvent(`⚠ Not enough credits to combine ships! (Cost: ${formatNumber(cost)} Credits)`);
+                    logEvent(`⚠ Not enough credits to combine ships! (Cost: ${formatNumber(mergeCost)} Credits)`);
                 }
             } else {
                 logEvent(`⚠ Invalid ships selected for combination.`);
@@ -1332,10 +1345,6 @@
                 gameState.employeeIntervalId = null;
             }
         }
-
-        // ==================== REMOVE GREEN BORDER ON BUTTONS ====================
-        // Already achieved by removing any border styles and ensuring buttons have clean CSS
-
     </script>
 </body>
 </html>
