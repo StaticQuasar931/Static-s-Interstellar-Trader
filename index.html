@@ -213,7 +213,8 @@
             left: 0;
         }
         .progress-time {
-            margin-left: 10px;
+            margin-left: auto;
+            margin-right: 10px;
             color: #0b0c10;
             font-weight: bold;
             font-size: 14px;
@@ -237,7 +238,7 @@
             border: 2px solid #66fcf1;
             border-radius: 10px;
             padding: 15px;
-            width: 180px;
+            width: 220px;
             position: relative;
             box-shadow: 0 0 10px rgba(102,252,241,0.5);
             transition: transform 0.3s, background-color 0.5s, border-color 0.5s;
@@ -307,16 +308,11 @@
             padding: 2px 5px;
             font-size: 12px;
             display: none;
+            cursor: default;
         }
         .ship.automation .automation-indicator {
             display: block;
         }
-
-        /* ==================== HIDDEN SHIPS ==================== */
-        /* Completely removed hide ships feature */
-
-        /* ==================== BIG UPGRADE MODAL ==================== */
-        /* Included below in modals section */
 
         /* ==================== MODALS ==================== */
         .modal {
@@ -457,6 +453,7 @@
             <button class="button" onclick="buyEmployee()" title="Hire an employee to assist with trading">👨‍🚀 Hire Employee (Cost: 800 Credits)</button>
             <button class="button" onclick="buyBigUpgrade()" title="Double the speed of a specific ship">🚀 Big Upgrade for Ship (Cost: 5000 Credits)</button>
             <button class="button" onclick="buyBetterTrader()" title="Enhance trader efficiency">🔼 Buy Better Trader (Cost: 2000 Credits)</button>
+            <button class="button" onclick="upgradeShipLimit()" title="Increase the number of ships you can own">📈 Upgrade Ship Limit (Cost: 10000 Credits)</button>
             <p>Price per Trade: <span id="price-per-trade">50</span> 💸</p>
         </div>
         <!-- Rebirth Menu -->
@@ -484,7 +481,7 @@
             <h3>Help</h3>
             <p>Welcome to Interstellar Trader! 🚀</p>
             <p>📈 <strong>Objective:</strong> Build an intergalactic trading empire by sending your ships to trade goods between planets.</p>
-            <p>🛠️ <strong>Upgrades:</strong> Purchase upgrades to enhance your technology, increase profits, and automate your trading operations.</p>
+            <p>🛠️ <strong>Upgrades:</strong> Purchase upgrades to enhance your technology, increase profits, automate your trading operations, and more.</p>
             <p>🔄 <strong>Rebirth:</strong> Reset your progress to gain Rebirth Points (RP) which can be spent on powerful upgrades.</p>
             <p>🔍 <strong>Tips:</strong></p>
             <ul>
@@ -493,6 +490,8 @@
                 <li>Strategically rebirth to maximize your RP and accelerate growth.</li>
                 <li>Upgrade your traders to increase earnings per trade.</li>
                 <li>Apply big upgrades to specific ships for significant boosts.</li>
+                <li>Combine ships to create faster and more profitable ones.</li>
+                <li>Purchase better ships to start with enhanced capabilities.</li>
             </ul>
             <button class="button" onclick="toggleHelp()" title="Close Help">❌ Close</button>
         </div>
@@ -505,7 +504,7 @@
     </div>
 
     <!-- Version Number -->
-    <div class="version" id="version-number">v1.4.0</div>
+    <div class="version" id="version-number">v1.5.0</div>
 
     <!-- Modals -->
     <!-- Rebirth Confirmation Modal -->
@@ -559,7 +558,8 @@
                     upgrades: 0,
                     traderLevel: 1,
                     trading: false,
-                    automation: false
+                    automation: false,
+                    intervalId: null // To track automation intervals
                 }
             ],
             buyAmounts: ['1x', '10x', '100x', 'Max'],
@@ -572,7 +572,7 @@
             lastSaveTime: Date.now()
         };
 
-        const VERSION = "v1.4.0"; // Update this manually for versioning
+        const VERSION = "v1.5.0"; // Update this manually for versioning
 
         // ==================== SAVE & LOAD ====================
         function saveGame() {
@@ -665,17 +665,20 @@
             const multiplierCost = Math.floor(1000 * Math.pow(1.15, gameState.techLevel - 1));
             const employeeCost = Math.floor(800 * Math.pow(1.15, gameState.employee ? 1 : 0));
             const bigUpgradeCost = Math.floor(5000 * Math.pow(1.15, gameState.techLevel - 1));
+            const shipLimitUpgradeCost = Math.floor(10000 * Math.pow(1.15, (gameState.shipLimit / 6) - 1));
 
             document.querySelector('#upgrade-menu button[onclick="buyAutomation()"]').innerText = `🤖 Buy Automation (Cost: ${formatNumber(automationCost)} Credits)`;
             document.querySelector('#upgrade-menu button[onclick="buyMultiplier()"]').innerText = `✖️ Buy Multiplier (Cost: ${formatNumber(multiplierCost)} Credits)`;
             document.querySelector('#upgrade-menu button[onclick="buyEmployee()"]').innerText = `👨‍🚀 Hire Employee (Cost: ${formatNumber(employeeCost)} Credits)`;
             document.querySelector('#upgrade-menu button[onclick="buyBigUpgrade()"]').innerText = `🚀 Big Upgrade for Ship (Cost: ${formatNumber(bigUpgradeCost)} Credits)`;
+            document.querySelector('#upgrade-menu button[onclick="upgradeShipLimit()"]').innerText = `📈 Upgrade Ship Limit (Cost: ${formatNumber(shipLimitUpgradeCost)} Credits)`;
 
             // Disable buttons if not affordable
             document.querySelector('#upgrade-menu button[onclick="buyAutomation()"]').disabled = gameState.credits < automationCost;
             document.querySelector('#upgrade-menu button[onclick="buyMultiplier()"]').disabled = gameState.credits < multiplierCost;
             document.querySelector('#upgrade-menu button[onclick="buyEmployee()"]').disabled = gameState.credits < employeeCost || gameState.employee;
             document.querySelector('#upgrade-menu button[onclick="buyBigUpgrade()"]').disabled = gameState.credits < bigUpgradeCost;
+            document.querySelector('#upgrade-menu button[onclick="upgradeShipLimit()"]').disabled = gameState.credits < shipLimitUpgradeCost;
 
             // Update buttons in upgrade menu
             document.querySelectorAll('.upgrade-menu .button').forEach(button => {
@@ -688,11 +691,7 @@
         }
 
         function formatNumber(num) {
-            if (num >= 1e12) return (num / 1e12).toFixed(2) + "T";
-            if (num >= 1e9) return (num / 1e9).toFixed(2) + "B";
-            if (num >= 1e6) return (num / 1e6).toFixed(2) + "M";
-            if (num >= 1e3) return (num / 1e3).toFixed(2) + "K";
-            return num.toString();
+            return Math.round(num).toString();
         }
 
         // ==================== LOG EVENTS ====================
@@ -723,9 +722,10 @@
                 <div class="progress-bar" title="Click anywhere on the ship to start trade">
                     <div class="progress" id="progress-${shipId}"></div>
                     <span class="progress-time" id="progress-time-${shipId}">0s</span>
+                    <span class="progress-earnings" id="progress-earnings-${shipId}">0 💸</span>
                 </div>
                 <button class="button" onclick="buyBetterTrader(${shipId})" title="Enhance trader efficiency">Upgrade Trader (Cost: ${formatNumber(2000 * ship.traderLevel)} Credits)</button>
-                <div class="automation-indicator">🤖</div>
+                <div class="automation-indicator" title="Automated Trading">🤖</div>
             `;
             // Event Listener for clicking the progress bar to start trade
             shipDiv.addEventListener('click', function(event) {
@@ -752,8 +752,10 @@
 
             const progressBar = document.getElementById(`progress-${ship.id}`);
             const progressTime = document.getElementById(`progress-time-${ship.id}`);
+            const progressEarnings = document.getElementById(`progress-earnings-${ship.id}`);
             progressBar.style.width = '0%';
             progressTime.innerText = '0s';
+            progressEarnings.innerText = '0 💸';
             ship.trading = true;
 
             // Visual feedback: add trading animation
@@ -773,19 +775,21 @@
                 const percentage = (progress / totalTime) * 100;
                 progressBar.style.width = percentage + '%';
                 progressTime.innerText = `${totalTime - progress}s`;
+                const earnings = Math.floor(50 * gameState.techLevel * ship.traderLevel);
+                progressEarnings.innerText = `${earnings} 💸`;
 
                 if (progress >= totalTime) {
                     clearInterval(progressInterval);
-                    const profit = Math.floor(50 * gameState.techLevel * ship.traderLevel);
-                    gameState.credits += profit;
-                    gameState.totalCreditsEarned += profit;
-                    gameState.totalEarnings += profit;
+                    gameState.credits += earnings;
+                    gameState.totalCreditsEarned += earnings;
+                    gameState.totalEarnings += earnings;
                     gameState.totalTrades += 1;
-                    logEvent(`✨ Ship ${ship.id} completed a trade mission and earned ${formatNumber(profit)} credits!`);
+                    logEvent(`✨ Ship ${ship.id} completed a trade mission and earned ${formatNumber(earnings)} credits!`);
                     updateDisplay();
                     randomEvent();
                     progressBar.style.width = '0%'; // Reset progress bar
                     progressTime.innerText = '0s';
+                    progressEarnings.innerText = '0 💸';
                     ship.trading = false;
                     // Remove trading animation
                     shipDiv.classList.remove('trading');
@@ -826,7 +830,8 @@
                     upgrades: 0,
                     traderLevel: 1,
                     trading: false,
-                    automation: false
+                    automation: false,
+                    intervalId: null
                 });
                 addShip(newShipId);
                 logEvent(`🚀 You bought a new spaceship! Total spaceships: ${gameState.ships.length}`);
@@ -873,11 +878,7 @@
         }
 
         function buyAutomation() {
-            if (gameState.shipLimit < 6) {
-                logEvent(`⚠ You need to upgrade your ship limit before buying automation.`);
-                return;
-            }
-            // Buy automation for the next ship in order
+            // Buy automation for the first ship without automation
             const nextShip = gameState.ships.find(ship => !ship.automation);
             if (!nextShip) {
                 logEvent(`⚠ All ships already have automation.`);
@@ -891,7 +892,7 @@
                 updateDisplay();
                 saveGame();
                 // Start automation interval
-                setInterval(() => {
+                nextShip.intervalId = setInterval(() => {
                     if (nextShip.automation && !nextShip.trading) {
                         sendShip(nextShip.id);
                     }
@@ -924,7 +925,7 @@
                 updateDisplay();
                 saveGame();
                 // Start employee automation
-                setInterval(() => {
+                gameState.employeeIntervalId = setInterval(() => {
                     if (gameState.employee) {
                         sendAllShips();
                     }
@@ -981,11 +982,7 @@
                 gameState.credits -= totalCost;
                 gameState.techLevel += achievableMultiplier;
                 gameState.totalUpgrades += achievableMultiplier;
-                gameState.ships.forEach(ship => {
-                    ship.upgrades += achievableMultiplier;
-                    document.getElementById(`upgrade-count-${ship.id}`).innerText = ship.upgrades;
-                });
-                logEvent(`🔼 All ships upgraded by x${achievableMultiplier}! Tech level increased to ${gameState.techLevel}.`);
+                logEvent(`🔼 Tech level increased by x${achievableMultiplier} to ${gameState.techLevel}.`);
                 updateDisplay();
                 saveGame();
             } else {
@@ -1026,7 +1023,8 @@
                     upgrades: 0,
                     traderLevel: 1,
                     trading: false,
-                    automation: false
+                    automation: false,
+                    intervalId: null
                 }];
                 gameState.shipLimit = 6;
                 gameState.totalTrades = 0;
@@ -1040,6 +1038,9 @@
                 updateDisplay();
                 closeRebirthModal();
                 saveGame();
+
+                // Clear all automation and employee intervals
+                clearAllIntervals();
             } else {
                 logEvent(`⚠ Not enough credits to rebirth! (Requires ${formatNumber(requiredCredits)} Credits)`);
             }
@@ -1107,7 +1108,7 @@
             const shipId = parseInt(document.getElementById('big-upgrade-ship-select').value);
             const ship = gameState.ships.find(s => s.id === shipId);
             const cost = Math.floor(5000 * Math.pow(1.15, gameState.techLevel - 1));
-            if (gameState.credits >= cost) {
+            if (gameState.credits >= cost && ship) {
                 gameState.credits -= cost;
                 // Example: Double the trader level for the selected ship
                 ship.traderLevel *= 2;
@@ -1124,7 +1125,7 @@
 
         // ==================== LIMITING SHIPS ====================
         function upgradeShipLimit() {
-            const cost = Math.floor(10000 * Math.pow(1.15, gameState.shipLimit / 6 - 1));
+            const cost = Math.floor(10000 * Math.pow(1.15, (gameState.shipLimit / 6) - 1));
             if (gameState.credits >= cost) {
                 gameState.credits -= cost;
                 gameState.shipLimit += 6;
@@ -1135,9 +1136,6 @@
                 logEvent(`⚠ Not enough credits to upgrade ship limit! (Cost: ${formatNumber(cost)} Credits)`);
             }
         }
-
-        // ==================== UPGRADE MENU BUTTONS ====================
-        // You can add a button in the Upgrade Menu to upgrade ship limit if desired
 
         // ==================== KEY BINDINGS ====================
         document.addEventListener('keydown', function(e) {
@@ -1161,6 +1159,12 @@
                 document.getElementById('buy-amount-button').innerText = `Buy: ${gameState.buyAmounts[gameState.currentBuyIndex]}`;
                 saveGame();
             }
+        }
+
+        function cycleBuyAmount() {
+            gameState.currentBuyIndex = (gameState.currentBuyIndex + 1) % gameState.buyAmounts.length;
+            document.getElementById('buy-amount-button').innerText = `Buy: ${gameState.buyAmounts[gameState.currentBuyIndex]}`;
+            saveGame();
         }
 
         // ==================== THEME TOGGLE ====================
@@ -1230,6 +1234,17 @@
             resetModal.style.display = 'none';
         }
 
+        // Big Upgrade Modal
+        const bigUpgradeModal = document.getElementById('big-upgrade-modal');
+        function openBigUpgradeModal() {
+            const select = document.getElementById('big-upgrade-ship-select');
+            select.innerHTML = gameState.ships.map(ship => `<option value="${ship.id}">Ship ${ship.id}</option>`).join('');
+            bigUpgradeModal.style.display = 'block';
+        }
+        function closeBigUpgradeModal() {
+            bigUpgradeModal.style.display = 'none';
+        }
+
         // Close modals when clicking outside of them
         window.onclick = function(event) {
             if (event.target == rebirthModal) {
@@ -1238,7 +1253,7 @@
             if (event.target == resetModal) {
                 resetModal.style.display = 'none';
             }
-            if (event.target == document.getElementById('big-upgrade-modal')) {
+            if (event.target == bigUpgradeModal) {
                 closeBigUpgradeModal();
             }
         }
@@ -1249,8 +1264,8 @@
             updateDisplay();
             // Start automation intervals for ships with automation
             gameState.ships.forEach(ship => {
-                if (ship.automation) {
-                    setInterval(() => {
+                if (ship.automation && !ship.intervalId) {
+                    ship.intervalId = setInterval(() => {
                         if (ship.automation && !ship.trading) {
                             sendShip(ship.id);
                         }
@@ -1258,18 +1273,68 @@
                 }
             });
             // Start employee interval if hired
-            if (gameState.employee) {
-                setInterval(() => {
+            if (gameState.employee && !gameState.employeeIntervalId) {
+                gameState.employeeIntervalId = setInterval(() => {
                     if (gameState.employee) {
                         sendAllShips();
                     }
                 }, 8000);
             }
-
-            // Ensure at least one ship is always visible (already handled by ship limit)
         }
 
         window.onload = initialize;
+
+        // ==================== COMBINE SHIPS ====================
+        function combineShips(shipId1, shipId2) {
+            const ship1 = gameState.ships.find(s => s.id === shipId1);
+            const ship2 = gameState.ships.find(s => s.id === shipId2);
+            if (ship1 && ship2 && ship1.id !== ship2.id) {
+                // Define combination logic
+                const newTraderLevel = ship1.traderLevel + ship2.traderLevel;
+                const newShipId = Math.max(ship1.id, ship2.id) + 1;
+                const cost = Math.floor(10000 * Math.pow(1.15, gameState.techLevel - 1)); // Example cost
+
+                if (gameState.credits >= cost) {
+                    // Remove the old ships
+                    gameState.ships = gameState.ships.filter(s => s.id !== shipId1 && s.id !== shipId2);
+                    // Add the new combined ship
+                    gameState.ships.push({
+                        id: newShipId,
+                        upgrades: 0,
+                        traderLevel: newTraderLevel,
+                        trading: false,
+                        automation: false,
+                        intervalId: null
+                    });
+                    gameState.credits -= cost;
+                    logEvent(`🔗 Combined Ship ${shipId1} and Ship ${shipId2} into Ship ${newShipId} with Trader Level ${newTraderLevel}.`);
+                    updateDisplay();
+                    renderShips();
+                    saveGame();
+                } else {
+                    logEvent(`⚠ Not enough credits to combine ships! (Cost: ${formatNumber(cost)} Credits)`);
+                }
+            } else {
+                logEvent(`⚠ Invalid ships selected for combination.`);
+            }
+        }
+
+        // ==================== CLEAR ALL INTERVALS ====================
+        function clearAllIntervals() {
+            gameState.ships.forEach(ship => {
+                if (ship.intervalId) {
+                    clearInterval(ship.intervalId);
+                    ship.intervalId = null;
+                }
+            });
+            if (gameState.employeeIntervalId) {
+                clearInterval(gameState.employeeIntervalId);
+                gameState.employeeIntervalId = null;
+            }
+        }
+
+        // ==================== REMOVE GREEN BORDER ON BUTTONS ====================
+        // Already achieved by removing any border styles and ensuring buttons have clean CSS
 
     </script>
 </body>
