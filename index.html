@@ -435,7 +435,7 @@
     <!-- Buy Amount Toggle -->
     <div class="buy-toggle">
         <span>Buy Amount:</span>
-        <button class="button" id="buy-amount-button" onclick="cycleBuyAmount()" title="Change Buy Amount">Buy: 1x</button>
+        <button class="button" id="buy-amount-button" title="Change Buy Amount">Buy: 1x</button>
     </div>
 
     <!-- Main Titles -->
@@ -454,6 +454,7 @@
             <button class="button" onclick="upgradeAll()" title="Upgrade all ships based on the selected buy amount">🔼 Upgrade All</button>
             <button class="button" onclick="toggleUpgradeMenu()" title="Open the Upgrade Menu">🔧 Upgrade Menu</button>
             <button class="button" onclick="toggleRebirthMenu()" title="Open the Rebirth Menu">♻️ Rebirth Menu</button>
+            <button class="button" onclick="toggleCombineAllShipsModal()" title="Combine all ships into one">🔗 Combine All Ships</button>
         </div>
         <div id="event-log" class="event-log">
             <p>Game log:</p>
@@ -480,7 +481,6 @@
             <button class="button" onclick="toggleEmployeeMenu()" title="Hire specific types of employees">👨‍🚀 Hire Employee</button>
             <button class="button" onclick="buyBigUpgrade()" title="Double the speed of a specific ship">🚀 Big Upgrade for Ship</button>
             <button class="button" onclick="upgradeShipLimit()" title="Increase the number of ships you can own">📈 Upgrade Ship Limit</button>
-            <p>Price per Trade: <span id="price-per-trade">50</span> 💸</p>
         </div>
     </div>
 
@@ -513,6 +513,7 @@
                 <li><strong>Upgrade Menu (🔧):</strong> Access various upgrade options including Automation, Multiplier, Employee Hiring, Big Upgrades, and Ship Limit enhancements.</li>
                 <li><strong>Rebirth Menu (♻️):</strong> Reset your progress to earn Rebirth Points, which can be used for significant upgrades.</li>
                 <li><strong>Share Game (🔗):</strong> Share the game link on different platforms to earn a small bonus.</li>
+                <li><strong>Combine All Ships (🔗):</strong> Merge all your ships into one powerful ship for enhanced trading capabilities.</li>
             </ul>
             <p><strong>Upgrade Options:</strong></p>
             <ul>
@@ -536,7 +537,7 @@
                 <li>Upgrade your traders to increase earnings per trade.</li>
                 <li>Apply Big Upgrades to specific ships for significant boosts in trading speed and earnings.</li>
                 <li>Hire employees to unlock new functionalities and enhance your fleet.</li>
-                <li>Combine ships to merge their upgrades and create more powerful trading units.</li>
+                <li>Combine all ships to merge their upgrades and create a more powerful trading unit.</li>
                 <li>Share the game to earn a small bonus and help grow the trading empire.</li>
             </ul>
             <button class="button" onclick="toggleHelp()" title="Close Help">❌ Close</button>
@@ -586,7 +587,7 @@
         <div class="modal-content">
             <span class="close-modal" onclick="closeRebirthModal()">&times;</span>
             <h3>Confirm Rebirth</h3>
-            <p>Are you sure you want to rebirth? This will reset all your progress but grant you Rebirth Points (RP).</p>
+            <p>Are you sure you want to rebirth? This will reset all your progress but grant you <strong>0</strong> Rebirth Points (RP).</p>
             <button class="button" onclick="rebirth()" title="Confirm Rebirth">✅ Confirm</button>
             <button class="button" onclick="closeRebirthModal()" title="Cancel Rebirth">❌ Cancel</button>
         </div>
@@ -642,7 +643,6 @@
             techLevel: 1,
             rebirthPoints: 0,
             totalCreditsEarned: 100, // For rebirth calculation
-            automation: false,
             multiplier: 1,
             ships: [
                 {
@@ -676,12 +676,16 @@
                     level: 0,
                     cost: 2000 // Initial cost for security employee
                 }
-                // Additional employee types can be added here
             },
             shareCooldown: {
                 lastShareTime: 0,
                 cooldownDuration: 86400 // 24 hours in seconds
             },
+            rebirthCooldown: {
+                lastRebirthTime: 0,
+                cooldownDuration: 604800 // 7 days in seconds
+            },
+            securityProtection: 0, // Percentage protection against random events
             version: "v1.62.08" // Updated version
         };
 
@@ -748,7 +752,7 @@
                 gameState.totalEarnings += totalProfit;
                 gameState.totalTrades += tradesPossible * gameState.ships.length;
                 if (tradesPossible > 0) {
-                    logEvent(`⏰ You were offline for ${offlineTime} seconds and earned ${formatNumberWithSuffix(totalProfit)} credits.`);
+                    logEvent(`⏰ You were offline for ${formatTime(offlineTime)} and earned ${formatNumberWithSuffix(totalProfit)} credits.`);
                     updateDisplay();
                 }
             }
@@ -758,17 +762,10 @@
         function updateDisplay() {
             document.getElementById('credits').innerText = `${formatNumberWithSuffix(gameState.credits)} 💸`;
             document.getElementById('spaceship-display').innerText = `Spaceships: ${gameState.ships.length}/${formatNumberWithSuffix(gameState.shipLimit)} 🚀`;
-            document.getElementById('tech-level-display').innerText = `<strong>Technology Level:</strong> ${gameState.techLevel.toFixed(1)} ✯`;
+            document.getElementById('tech-level-display').innerHTML = `<strong>Technology Level:</strong> ${gameState.techLevel.toFixed(1)} ✯`;
             document.getElementById('rebirth-points').innerText = gameState.rebirthPoints;
             document.getElementById('buy-amount-button').innerText = `Buy: ${gameState.buyAmounts[gameState.currentBuyIndex]}`;
-            document.getElementById('price-per-trade').innerText = `${formatNumberWithSuffix(50 * gameState.techLevel * gameState.multiplier)}`; // Price scales with multiplier
             document.getElementById('version-number').innerText = VERSION;
-
-            // Update stats in settings (if any)
-            // document.getElementById('total-trades').innerText = formatNumberWithSuffix(gameState.totalTrades);
-            // document.getElementById('total-earnings').innerText = formatNumberWithSuffix(gameState.totalEarnings);
-            // document.getElementById('total-upgrades').innerText = formatNumberWithSuffix(gameState.totalUpgrades);
-            // document.getElementById('time-played').innerText = formatTime(gameState.timePlayed);
 
             // Update upgrade buttons with dynamic costs and disable if not affordable
             gameState.ships.forEach(ship => {
@@ -791,25 +788,49 @@
             const bigUpgradeCost = Math.floor(5000 * Math.pow(1.2, gameState.techLevel - 1));
             const shipLimitUpgradeCost = calculateShipLimitUpgradeCost();
 
-            document.querySelector('#upgrade-menu button[onclick="buyAutomation()"]').innerText = `🤖 Buy Automation (Cost: ${formatNumberWithSuffix(automationCost)} Credits)`;
-            document.querySelector('#upgrade-menu button[onclick="buyMultiplier()"]').innerText = `✖️ Buy Multiplier (Cost: ${formatNumberWithSuffix(multiplierCost)} Credits)`;
-            document.querySelector('#upgrade-menu button[onclick="hireEmployee(\'storage\')"]').innerText = `📦 Hire Storage Employee (Cost: ${formatNumberWithSuffix(employeeCost.storage)} Credits)`;
-            document.querySelector('#upgrade-menu button[onclick="hireEmployee(\'efficiency\')"]').innerText = `⚙️ Hire Efficiency Employee (Cost: ${formatNumberWithSuffix(employeeCost.efficiency)} Credits)`;
-            document.querySelector('#upgrade-menu button[onclick="hireEmployee(\'security\')"]').innerText = `🛡️ Hire Security Employee (Cost: ${formatNumberWithSuffix(employeeCost.security)} Credits)`;
-            document.querySelector('#upgrade-menu button[onclick="buyBigUpgrade()"]').innerText = `🚀 Big Upgrade for Ship (Cost: ${formatNumberWithSuffix(bigUpgradeCost)} Credits)`;
-            document.querySelector('#upgrade-menu button[onclick="upgradeShipLimit()"]').innerText = `📈 Upgrade Ship Limit (Cost: ${formatNumberWithSuffix(shipLimitUpgradeCost)} Credits)`;
+            const upgradeMenu = document.getElementById('upgrade-menu');
+            if (upgradeMenu) {
+                const automationButton = upgradeMenu.querySelector('button[onclick="buyAutomation()"]');
+                const multiplierButton = upgradeMenu.querySelector('button[onclick="buyMultiplier()"]');
+                const hireStorageButton = upgradeMenu.querySelector('button[onclick="hireEmployee(\'storage\')"]');
+                const hireEfficiencyButton = upgradeMenu.querySelector('button[onclick="hireEmployee(\'efficiency\')"]');
+                const hireSecurityButton = upgradeMenu.querySelector('button[onclick="hireEmployee(\'security\')"]');
+                const bigUpgradeButton = upgradeMenu.querySelector('button[onclick="buyBigUpgrade()"]');
+                const shipLimitUpgradeButton = upgradeMenu.querySelector('button[onclick="upgradeShipLimit()"]');
+
+                if (automationButton) {
+                    automationButton.innerText = `🤖 Buy Automation (Cost: ${formatNumberWithSuffix(automationCost)} Credits)`;
+                    automationButton.disabled = gameState.credits < automationCost;
+                }
+                if (multiplierButton) {
+                    multiplierButton.innerText = `✖️ Buy Multiplier (Cost: ${formatNumberWithSuffix(multiplierCost)} Credits)`;
+                    multiplierButton.disabled = gameState.credits < multiplierCost;
+                }
+                if (hireStorageButton) {
+                    hireStorageButton.innerText = `📦 Hire Storage Employee (Cost: ${formatNumberWithSuffix(employeeCost.storage)} Credits)`;
+                    hireStorageButton.disabled = gameState.credits < employeeCost.storage;
+                }
+                if (hireEfficiencyButton) {
+                    hireEfficiencyButton.innerText = `⚙️ Hire Efficiency Employee (Cost: ${formatNumberWithSuffix(employeeCost.efficiency)} Credits)`;
+                    hireEfficiencyButton.disabled = gameState.credits < employeeCost.efficiency;
+                }
+                if (hireSecurityButton) {
+                    hireSecurityButton.innerText = `🛡️ Hire Security Employee (Cost: ${formatNumberWithSuffix(employeeCost.security)} Credits)`;
+                    hireSecurityButton.disabled = gameState.credits < employeeCost.security;
+                }
+                if (bigUpgradeButton) {
+                    bigUpgradeButton.innerText = `🚀 Big Upgrade for Ship (Cost: ${formatNumberWithSuffix(bigUpgradeCost)} Credits)`;
+                    bigUpgradeButton.disabled = gameState.credits < bigUpgradeCost;
+                }
+                if (shipLimitUpgradeButton) {
+                    shipLimitUpgradeButton.innerText = `📈 Upgrade Ship Limit (Cost: ${formatNumberWithSuffix(shipLimitUpgradeCost)} Credits)`;
+                    shipLimitUpgradeButton.disabled = gameState.credits < shipLimitUpgradeCost;
+                }
+            }
 
             // Disable buttons if not affordable
-            document.querySelector('#upgrade-menu button[onclick="buyAutomation()"]').disabled = gameState.credits < automationCost;
-            document.querySelector('#upgrade-menu button[onclick="buyMultiplier()"]').disabled = gameState.credits < multiplierCost;
-            document.querySelector('#upgrade-menu button[onclick="hireEmployee(\'storage\')"]').disabled = gameState.credits < employeeCost.storage;
-            document.querySelector('#upgrade-menu button[onclick="hireEmployee(\'efficiency\')"]').disabled = gameState.credits < employeeCost.efficiency;
-            document.querySelector('#upgrade-menu button[onclick="hireEmployee(\'security\')"]').disabled = gameState.credits < employeeCost.security;
-            document.querySelector('#upgrade-menu button[onclick="buyBigUpgrade()"]').disabled = gameState.credits < bigUpgradeCost;
-            document.querySelector('#upgrade-menu button[onclick="upgradeShipLimit()"]').disabled = gameState.credits < shipLimitUpgradeCost;
-
-            // Update buttons in upgrade menu
-            document.querySelectorAll('#upgrade-menu .button').forEach(button => {
+            const upgradeButtons = upgradeMenu ? upgradeMenu.querySelectorAll('.button') : [];
+            upgradeButtons.forEach(button => {
                 if (button.disabled) {
                     button.style.opacity = '0.6';
                 } else {
@@ -820,10 +841,12 @@
             // Update automation indicators
             gameState.ships.forEach(ship => {
                 const shipDiv = document.getElementById(`ship-${ship.id}`);
-                if (ship.automation) {
-                    shipDiv.classList.add('automation');
-                } else {
-                    shipDiv.classList.remove('automation');
+                if (shipDiv) {
+                    if (ship.automation) {
+                        shipDiv.classList.add('automation');
+                    } else {
+                        shipDiv.classList.remove('automation');
+                    }
                 }
             });
         }
@@ -860,6 +883,12 @@
             const timestamp = new Date().toLocaleTimeString();
             p.innerText = `[${timestamp}] ${message}`;
             eventLog.appendChild(p);
+            
+            // Limit to last 100 entries
+            if (eventLog.children.length > 100) {
+                eventLog.removeChild(eventLog.firstChild);
+            }
+            
             eventLog.scrollTop = eventLog.scrollHeight;
         }
 
@@ -876,9 +905,9 @@
                 <span>🚀 Ship ${shipId}</span>
                 <p>Trader Level: <span id="trader-level-${shipId}">${traderLevel}</span></p>
                 <div class="progress-bar" title="Click anywhere on the ship to start trade">
-                    <div class="progress" id="progress-${ship.id}"></div>
-                    <span class="progress-time" id="progress-time-${ship.id}">10s</span>
-                    <span class="progress-earnings" id="progress-earnings-${ship.id}">0 💸</span>
+                    <div class="progress" id="progress-${shipId}"></div>
+                    <span class="progress-time" id="progress-time-${shipId}">10s</span>
+                    <span class="progress-earnings" id="progress-earnings-${shipId}">0 💸</span>
                 </div>
                 <button class="button upgrade-trader-button" onclick="buyBetterTrader(${shipId})" title="Enhance trader efficiency">Upgrade Trader</button>
                 <div class="automation-indicator" title="Automated Trading">🤖</div>
@@ -898,6 +927,20 @@
         function renderShips() {
             const shipContainer = document.getElementById('ship-container');
             shipContainer.innerHTML = '';
+            // Ensure ship 1 is always present
+            const ship1 = gameState.ships.find(s => s.id === 1);
+            if (!ship1) {
+                gameState.ships.unshift({
+                    id: 1,
+                    upgrades: 0,
+                    traderLevel: 1,
+                    trading: false,
+                    automation: false,
+                    intervalId: null
+                });
+                addShip(1);
+            }
+            // Render all ships
             gameState.ships.sort((a, b) => a.id - b.id).forEach(ship => {
                 addShip(ship.id, ship.traderLevel, ship.upgrades, ship.automation);
             });
@@ -910,6 +953,11 @@
             const progressBar = document.getElementById(`progress-${ship.id}`);
             const progressTime = document.getElementById(`progress-time-${ship.id}`);
             const progressEarnings = document.getElementById(`progress-earnings-${ship.id}`);
+            if (!progressBar || !progressTime || !progressEarnings) {
+                logEvent(`⚠ Unable to start trade for Ship ${ship.id}.`);
+                return;
+            }
+
             progressBar.style.width = '0%';
             progressTime.innerText = '10s';
             progressEarnings.innerText = `0 💸`;
@@ -918,7 +966,7 @@
             let progress = 0;
             let tradeDuration = 10; // seconds
             // Decrease trade duration based on upgrades and efficiency employees
-            const efficiencyBonus = Math.floor(gameState.employees.efficiency.level * 1); // 1 second reduction per level
+            const efficiencyBonus = gameState.employees.efficiency.level * 1; // 1 second reduction per level
             tradeDuration = Math.max(5, tradeDuration - Math.floor(ship.upgrades / 5) - efficiencyBonus); // Minimum 5 seconds
 
             const intervalTime = 1000;
@@ -981,7 +1029,7 @@
             const cost = Math.floor(80 * Math.pow(1.15, gameState.ships.length));
             if (gameState.credits >= cost) {
                 gameState.credits -= cost;
-                const newShipId = gameState.ships.length > 0 ? gameState.ships[gameState.ships.length - 1].id + 1 : 1;
+                const newShipId = gameState.ships.length > 0 ? Math.max(...gameState.ships.map(s => s.id)) + 1 : 1;
                 gameState.ships.push({
                     id: newShipId,
                     upgrades: 0,
@@ -1030,7 +1078,11 @@
 
         function toggleUpgradeMenu() {
             const upgradeMenu = document.getElementById('upgrade-menu');
-            upgradeMenu.style.display = upgradeMenu.style.display === 'block' ? 'none' : 'block';
+            if (upgradeMenu) {
+                upgradeMenu.style.display = upgradeMenu.style.display === 'block' ? 'none' : 'block';
+            } else {
+                logEvent(`⚠ Upgrade Menu not found.`);
+            }
         }
 
         function buyAutomation() {
@@ -1073,12 +1125,25 @@
 
         function toggleEmployeeMenu() {
             const employeeMenu = document.getElementById('employee-menu');
-            employeeMenu.style.display = employeeMenu.style.display === 'block' ? 'none' : 'block';
+            if (employeeMenu) {
+                employeeMenu.style.display = employeeMenu.style.display === 'block' ? 'none' : 'block';
+            } else {
+                logEvent(`⚠ Employee Menu not found.`);
+            }
         }
 
         function hireEmployee(type) {
             const employee = gameState.employees[type];
+            if (!employee) {
+                logEvent(`⚠ Invalid employee type: ${type}.`);
+                return;
+            }
             const cost = Math.floor(employee.cost * Math.pow(1.2, employee.level));
+            const maxLevel = 10; // Example maximum level
+            if (employee.level >= maxLevel) {
+                logEvent(`⚠ You have reached the maximum level for ${capitalize(type)} Employees.`);
+                return;
+            }
             if (gameState.credits >= cost) {
                 gameState.credits -= cost;
                 gameState.employees[type].level += 1;
@@ -1096,9 +1161,8 @@
                         logEvent(`⚙️ Efficiency Employee improved trade efficiency. Tech multiplier increased to x${gameState.multiplier.toFixed(1)}.`);
                         break;
                     case 'security':
-                        // One-time decrease in chance of random credit loss
-                        // Assuming a mechanic where security reduces credit loss by 10% per level
-                        gameState.securityProtection += 10; // New property to track protection percentage
+                        // One-time increase in protection against random events
+                        gameState.securityProtection += 10; // Each Security Employee increases protection by 10%
                         logEvent(`🛡️ Security Employee increased protection against random events by 10%. Current Protection: ${gameState.securityProtection}%`);
                         break;
                     default:
@@ -1125,6 +1189,10 @@
             if (buyAmount === 'Max') {
                 // Calculate maximum possible upgrades
                 const ship = gameState.ships.find(s => s.id === shipId);
+                if (!ship) {
+                    logEvent(`⚠ Ship ${shipId} not found.`);
+                    return;
+                }
                 let maxUpgrades = 0;
                 let totalCost = 0;
                 while (true) {
@@ -1155,7 +1223,10 @@
 
         function buyBetterTraderBulk(shipId, buyAmount) {
             const ship = gameState.ships.find(s => s.id === shipId);
-            if (!ship) return;
+            if (!ship) {
+                logEvent(`⚠ Ship ${shipId} not found.`);
+                return;
+            }
 
             let totalCost = 0;
             let totalUpgrades = 0;
@@ -1225,7 +1296,11 @@
         // ==================== REBIRTH SYSTEM ====================
         function toggleRebirthMenu() {
             const rebirthMenu = document.getElementById('rebirth-menu');
-            rebirthMenu.style.display = rebirthMenu.style.display === 'block' ? 'none' : 'block';
+            if (rebirthMenu) {
+                rebirthMenu.style.display = rebirthMenu.style.display === 'block' ? 'none' : 'block';
+            } else {
+                logEvent(`⚠ Rebirth Menu not found.`);
+            }
         }
 
         function confirmRebirth() {
@@ -1239,6 +1314,14 @@
         function rebirth() {
             const requiredCredits = 100000;
             if (gameState.credits >= requiredCredits) {
+                // Check rebirth cooldown
+                const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+                if (currentTime - gameState.rebirthCooldown.lastRebirthTime < gameState.rebirthCooldown.cooldownDuration) {
+                    const remaining = gameState.rebirthCooldown.cooldownDuration - (currentTime - gameState.rebirthCooldown.lastRebirthTime);
+                    logEvent(`⚠ Rebirth is on cooldown. Please wait ${formatTime(remaining)} before rebirthing again.`);
+                    return;
+                }
+
                 // Calculate Rebirth Points based on totalCreditsEarned
                 const pointsEarned = Math.floor(gameState.totalCreditsEarned / 100000); // 100K credits = 1 RP
                 if (pointsEarned < 1) {
@@ -1246,30 +1329,12 @@
                     return;
                 }
 
-                // Implement cooldown check
-                const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-                if (currentTime - gameState.shareCooldown.lastShareTime < gameState.shareCooldown.cooldownDuration) {
-                    const remaining = gameState.shareCooldown.cooldownDuration - (currentTime - gameState.shareCooldown.lastShareTime);
-                    logEvent(`⚠ Rebirth is on cooldown. Please wait ${formatTime(remaining)} before rebirthing again.`);
-                    return;
-                }
-
                 gameState.rebirthPoints += pointsEarned;
-                // Reset game state but keep automation and rebirth points
+                // Reset game state but keep rebirth points and certain upgrades
                 gameState.credits = 100;
-                gameState.spaceshipCount = 1;
                 gameState.techLevel = 1;
                 gameState.totalCreditsEarned = 100;
                 gameState.multiplier = 1;
-                const automationShips = gameState.ships.filter(s => s.automation);
-                gameState.ships = [{
-                    id: 1,
-                    upgrades: 0,
-                    traderLevel: 1,
-                    trading: false,
-                    automation: automationShips.some(s => s.id === 1),
-                    intervalId: null
-                }];
                 gameState.shipLimit = 10;
                 gameState.totalTrades = 0;
                 gameState.totalEarnings = 0;
@@ -1280,14 +1345,28 @@
                     efficiency: { level: 0, cost: 1500 },
                     security: { level: 0, cost: 2000 }
                 };
-                gameState.securityProtection = gameState.securityProtection || 0; // Initialize if not present
+                gameState.securityProtection = 0;
+
+                // Reset ships to only ship 1
+                gameState.ships = [{
+                    id: 1,
+                    upgrades: 0,
+                    traderLevel: 1,
+                    trading: false,
+                    automation: false,
+                    intervalId: null
+                }];
+                renderShips();
 
                 // Clear all intervals before resetting ships
                 clearAllIntervals();
 
-                // Clear UI and re-render
-                renderShips();
-                populateCombineShips();
+                // Update share cooldown if necessary
+                // Not resetting share cooldown to allow rebirth independent of sharing
+
+                // Set rebirth cooldown
+                gameState.rebirthCooldown.lastRebirthTime = currentTime;
+
                 logEvent(`♻️ You have rebirthed! Earned ${pointsEarned} Rebirth Points.`);
                 updateDisplay();
                 closeRebirthModalConfirm();
@@ -1352,18 +1431,33 @@
         function openBigUpgradeModal() {
             const modal = document.getElementById('big-upgrade-modal');
             const select = document.getElementById('big-upgrade-ship-select');
+            if (!select) {
+                logEvent(`⚠ Big Upgrade Ship Select element not found.`);
+                return;
+            }
             select.innerHTML = gameState.ships.map(ship => `<option value="${ship.id}">Ship ${ship.id}</option>`).join('');
             modal.style.display = 'block';
         }
 
         function closeBigUpgradeModal() {
             const modal = document.getElementById('big-upgrade-modal');
-            modal.style.display = 'none';
+            if (modal) {
+                modal.style.display = 'none';
+            }
         }
 
         function confirmBigUpgrade() {
-            const shipId = parseInt(document.getElementById('big-upgrade-ship-select').value);
+            const select = document.getElementById('big-upgrade-ship-select');
+            if (!select) {
+                logEvent(`⚠ Big Upgrade Ship Select element not found.`);
+                return;
+            }
+            const shipId = parseInt(select.value);
             const ship = gameState.ships.find(s => s.id === shipId);
+            if (!ship) {
+                logEvent(`⚠ Ship ${shipId} not found for Big Upgrade.`);
+                return;
+            }
             const cost = Math.floor(5000 * Math.pow(1.2, gameState.techLevel - 1));
             if (gameState.credits >= cost && ship) {
                 gameState.credits -= cost;
@@ -1384,11 +1478,19 @@
         // ==================== COMBINE SHIPS ====================
         function toggleCombineShipsModal() {
             const combineModal = document.getElementById('combine-ships-modal');
-            combineModal.style.display = combineModal.style.display === 'block' ? 'none' : 'block';
+            if (combineModal) {
+                combineModal.style.display = combineModal.style.display === 'block' ? 'none' : 'block';
+            } else {
+                logEvent(`⚠ Combine Ships Modal not found.`);
+            }
         }
 
         function populateCombineShips() {
             const selectionDiv = document.getElementById('combine-ship-selection');
+            if (!selectionDiv) {
+                logEvent(`⚠ Combine Ship Selection element not found.`);
+                return;
+            }
             selectionDiv.innerHTML = '';
             gameState.ships.forEach(ship => {
                 const checkbox = document.createElement('input');
@@ -1452,6 +1554,10 @@
         function toggleCombineAllShipsModal() {
             const combineAllModal = document.getElementById('combine-all-ships-modal');
             const combineAllCostSpan = document.getElementById('combine-all-cost');
+            if (!combineAllCostSpan) {
+                logEvent(`⚠ Combine All Cost element not found.`);
+                return;
+            }
             const totalUpgrades = gameState.ships.reduce((acc, ship) => acc + ship.upgrades, 0);
             const combineAllCost = Math.floor(totalUpgrades / 4); // Example scaling
             combineAllCostSpan.innerText = `${formatNumberWithSuffix(combineAllCost)}`;
@@ -1500,29 +1606,43 @@
                 return;
             }
             const shareModal = document.getElementById('share-confirm-modal');
-            shareModal.style.display = 'block';
+            if (shareModal) {
+                shareModal.style.display = 'block';
+            } else {
+                logEvent(`⚠ Share Confirmation Modal not found.`);
+            }
         }
 
         function closeShareConfirmModal() {
             const shareModal = document.getElementById('share-confirm-modal');
-            shareModal.style.display = 'none';
+            if (shareModal) {
+                shareModal.style.display = 'none';
+            }
         }
 
         function copyShareLink() {
             const shareLink = document.getElementById('share-link');
+            if (!shareLink) {
+                logEvent(`⚠ Share Link element not found.`);
+                return;
+            }
             shareLink.select();
             shareLink.setSelectionRange(0, 99999); // For mobile devices
 
             try {
-                document.execCommand('copy');
-                logEvent(`📋 Game link copied to clipboard! You earned a 500 Credits bonus.`);
-                gameState.credits += 500;
-                gameState.totalCreditsEarned += 500;
-                gameState.totalEarnings += 500;
-                // Update share cooldown
-                gameState.shareCooldown.lastShareTime = Math.floor(Date.now() / 1000);
-                updateDisplay();
-                saveGame();
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    logEvent(`📋 Game link copied to clipboard! You earned a 500 Credits bonus.`);
+                    gameState.credits += 500;
+                    gameState.totalCreditsEarned += 500;
+                    gameState.totalEarnings += 500;
+                    // Update share cooldown
+                    gameState.shareCooldown.lastShareTime = Math.floor(Date.now() / 1000);
+                    updateDisplay();
+                    saveGame();
+                } else {
+                    logEvent(`⚠ Failed to copy the game link.`);
+                }
             } catch (err) {
                 console.error('Failed to copy:', err);
                 logEvent(`⚠ Failed to copy the game link.`);
@@ -1603,7 +1723,11 @@
         // ==================== SETTINGS MENU ====================
         function toggleSettings() {
             const settingsMenu = document.getElementById('settings-menu');
-            settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block';
+            if (settingsMenu) {
+                settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block';
+            } else {
+                logEvent(`⚠ Settings Menu not found.`);
+            }
         }
 
         function resetGame() {
@@ -1623,28 +1747,46 @@
         // ==================== HELP MENU ====================
         function toggleHelp() {
             const helpMenu = document.getElementById('help-menu');
-            helpMenu.style.display = helpMenu.style.display === 'block' ? 'none' : 'block';
+            if (helpMenu) {
+                helpMenu.style.display = helpMenu.style.display === 'block' ? 'none' : 'block';
+            } else {
+                logEvent(`⚠ Help Menu not found.`);
+            }
         }
 
         // ==================== MODALS ====================
         function openRebirthModalConfirm() {
             const rebirthConfirmModal = document.getElementById('rebirth-modal-confirm');
-            rebirthConfirmModal.style.display = 'block';
+            if (rebirthConfirmModal) {
+                const pointsEarned = Math.floor(gameState.totalCreditsEarned / 100000);
+                rebirthConfirmModal.querySelector('p').innerHTML = `Are you sure you want to rebirth? This will reset all your progress but grant you <strong>${pointsEarned}</strong> Rebirth Points (RP).`;
+                rebirthConfirmModal.style.display = 'block';
+            } else {
+                logEvent(`⚠ Rebirth Confirmation Modal not found.`);
+            }
         }
 
         function closeRebirthModal() {
             const rebirthConfirmModal = document.getElementById('rebirth-modal-confirm');
-            rebirthConfirmModal.style.display = 'none';
+            if (rebirthConfirmModal) {
+                rebirthConfirmModal.style.display = 'none';
+            }
         }
 
         function openResetModal() {
             const resetModal = document.getElementById('reset-modal');
-            resetModal.style.display = 'block';
+            if (resetModal) {
+                resetModal.style.display = 'block';
+            } else {
+                logEvent(`⚠ Reset Modal not found.`);
+            }
         }
 
         function closeResetModal() {
             const resetModal = document.getElementById('reset-modal');
-            resetModal.style.display = 'none';
+            if (resetModal) {
+                resetModal.style.display = 'none';
+            }
         }
 
         function closeAllModals() {
@@ -1755,7 +1897,6 @@
 
         // ==================== HIGHLIGHT CREDITS ====================
         // Already handled in updateDisplay()
-
     </script>
 </body>
 </html>
