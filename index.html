@@ -344,7 +344,7 @@
         }
         .modal-content {
             background-color: #fefefe;
-            margin: 15% auto; /* 15% from the top and centered */
+            margin: 10% auto; /* 10% from the top and centered */
             padding: 20px;
             border: 1px solid #888;
             width: 80%; /* Could be more or less, depending on screen size */
@@ -435,7 +435,7 @@
         <!-- Settings Menu -->
         <div id="settings-menu" class="upgrade-menu">
             <h3>Settings</h3>
-            <button class="button" onclick="resetGame()" title="Reset the game">🔄 Reset Game</button>
+            <button class="button" onclick="openResetModal()" title="Reset the game">🔄 Reset Game</button>
             <button class="button" onclick="saveGameManually()" title="Save the game manually">💾 Save Game</button>
             <button class="button" onclick="toggleTheme()" title="Toggle between Light, Dark, and Blue themes">🎨 Toggle Theme</button>
         </div>
@@ -451,6 +451,9 @@
                 <li>Use the Buy Amount toggle to purchase multiple upgrades at once.</li>
                 <li>Automate trading to continuously earn credits even when you're not actively playing.</li>
                 <li>Strategically rebirth to maximize your RP and accelerate growth.</li>
+                <li>Ensure you always have at least one ship visible for continuous trading.</li>
+                <li>Upgrade your traders to increase earnings per trade.</li>
+                <li>Hide ships that are not in use to keep the interface clean.</li>
             </ul>
             <button class="button" onclick="toggleHelp()" title="Close Help">❌ Close</button>
         </div>
@@ -475,7 +478,7 @@
     </div>
 
     <!-- Version Number -->
-    <div class="version" id="version-number">v1.2.0</div>
+    <div class="version" id="version-number">v1.3.0</div>
 
     <!-- Modals -->
     <!-- Rebirth Confirmation Modal -->
@@ -525,7 +528,7 @@
             theme: 'dark' // or 'light', 'blue'
         };
 
-        const VERSION = "v1.2.0"; // Update this manually for versioning
+        const VERSION = "v1.3.0"; // Update this manually for versioning
 
         // ==================== SAVE & LOAD ====================
         function saveGame() {
@@ -614,7 +617,7 @@
                 startTrade(shipId);
             });
             // Append to Columns
-            if (shipId % 2 !== 0) {
+            if (shipId % 2 !== 0) { // Odd IDs to left, even to right
                 document.getElementById('left-column').appendChild(shipDiv);
             } else {
                 document.getElementById('right-column').appendChild(shipDiv);
@@ -686,7 +689,7 @@
         }
 
         function buyShip() {
-            const cost = Math.floor(100 * Math.pow(1.15, gameState.ships.length));
+            const cost = Math.floor(80 * Math.pow(1.15, gameState.ships.length)); // Starting cheaper
             if (gameState.credits >= cost) {
                 gameState.credits -= cost;
                 gameState.spaceshipCount++;
@@ -717,11 +720,11 @@
 
             if (multiplier === 'Max') {
                 // Calculate how many upgrades can be bought
-                const costPerUpgrade = 100 * Math.pow(1.15, gameState.techLevel - 1);
+                const costPerUpgrade = 80 * Math.pow(1.15, gameState.techLevel - 1); // Starting cheaper
                 achievableMultiplier = Math.floor(gameState.credits / (costPerUpgrade * gameState.ships.length));
                 totalCost = costPerUpgrade * achievableMultiplier * gameState.ships.length;
             } else {
-                const costPerUpgrade = 100 * Math.pow(1.15, gameState.techLevel - 1);
+                const costPerUpgrade = 80 * Math.pow(1.15, gameState.techLevel - 1); // Starting cheaper
                 totalCost = costPerUpgrade * multiplier * gameState.ships.length;
             }
 
@@ -830,11 +833,11 @@
 
             if (multiplier === 'Max') {
                 // Calculate how many upgrades can be bought
-                const costPerUpgrade = 100 * Math.pow(1.15, gameState.techLevel - 1);
+                const costPerUpgrade = 80 * Math.pow(1.15, gameState.techLevel - 1); // Starting cheaper
                 achievableMultiplier = Math.floor(gameState.credits / (costPerUpgrade * gameState.ships.length));
                 totalCost = costPerUpgrade * achievableMultiplier * gameState.ships.length;
             } else {
-                const costPerUpgrade = 100 * Math.pow(1.15, gameState.techLevel - 1);
+                const costPerUpgrade = 80 * Math.pow(1.15, gameState.techLevel - 1); // Starting cheaper
                 totalCost = costPerUpgrade * multiplier * gameState.ships.length;
             }
 
@@ -1099,9 +1102,21 @@
                     }
                 }, 8000);
             }
+
+            // Ensure at least one ship is always visible
+            ensureAtLeastOneShip();
         }
 
         window.onload = initialize;
+
+        // ==================== ENSURE AT LEAST ONE SHIP ====================
+        function ensureAtLeastOneShip() {
+            if (gameState.ships.length === 0 && gameState.hiddenShips.length > 0) {
+                // Automatically unhide the first hidden ship
+                showShip(gameState.hiddenShips[0].id);
+            }
+        }
+
     </script>
 </body>
 </html>
