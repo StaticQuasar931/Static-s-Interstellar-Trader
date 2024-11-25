@@ -2,97 +2,121 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interstellar Trader</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* ==================== GENERAL STYLES ==================== */
-        body {
+        /* ==================== RESET ==================== */
+        * {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: var(--background-color, #121212);
-            color: var(--text-color, #ffffff);
-            transition: background-color 0.3s, color 0.3s;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        /* Themes */
+        /* ==================== THEMES ==================== */
         body.dark-theme {
-            --background-color: #121212;
-            --text-color: #ffffff;
-            --modal-background: #1e1e1e;
-            --button-background: #333333;
-            --button-text: #ffffff;
-            --progress-background: #444444;
-            --progress-fill: #76c7c0;
+            background-color: #121212;
+            color: #ffffff;
         }
 
         body.light-theme {
-            --background-color: #f0f0f0;
-            --text-color: #000000;
-            --modal-background: #ffffff;
-            --button-background: #dddddd;
-            --button-text: #000000;
-            --progress-background: #cccccc;
-            --progress-fill: #76c7c0;
+            background-color: #f0f0f0;
+            color: #000000;
         }
 
         body.blue-theme {
-            --background-color: #0d1b2a;
-            --text-color: #e0e1dd;
-            --modal-background: #1b263b;
-            --button-background: #415a77;
-            --button-text: #e0e1dd;
-            --progress-background: #1b263b;
-            --progress-fill: #3282b8;
+            background-color: #1e3a8a;
+            color: #ffffff;
         }
 
-        /* ==================== HEADER ==================== */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            background-color: var(--modal-background);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        header .branding {
-            font-size: 1.5em;
-            font-weight: bold;
-        }
-
-        header .controls button {
-            margin-left: 10px;
-            padding: 8px 12px;
-            background-color: var(--button-background);
-            color: var(--button-text);
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        header .controls button:hover {
-            background-color: var(--progress-fill);
-        }
-
-        /* ==================== MAIN GAME AREA ==================== */
-        main {
+        /* ==================== GENERAL STYLES ==================== */
+        body {
+            font-family: Arial, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
             padding: 20px;
         }
 
-        /* ==================== STATUS DISPLAY ==================== */
-        .status-display {
+        .header {
             display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
+            justify-content: space-between;
+            align-items: center;
             flex-wrap: wrap;
         }
 
-        .status-display div {
-            margin: 10px;
-            font-size: 1.2em;
+        .header h1 {
+            font-size: 2em;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .buttons button {
+            padding: 10px 15px;
+            font-size: 1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .buttons button:hover {
+            opacity: 0.8;
+        }
+
+        /* ==================== MODALS ==================== */
+        .modal-menu {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 10px;
+            position: relative;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.light-theme .modal-content {
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        body.blue-theme .modal-content {
+            background-color: #2c5282;
+            color: #ffffff;
+        }
+
+        .close-modal {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-modal:hover,
+        .close-modal:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
         }
 
         /* ==================== SHIP CONTAINER ==================== */
@@ -100,18 +124,25 @@
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
-            justify-content: center;
+            margin-top: 20px;
         }
 
         .ship {
-            background-color: var(--modal-background);
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
             padding: 15px;
-            border-radius: 8px;
-            width: 250px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 200px;
             position: relative;
+            transition: background-color 0.3s, transform 0.3s;
             cursor: pointer;
-            transition: transform 0.2s;
+        }
+
+        body.light-theme .ship {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        body.blue-theme .ship {
+            background-color: rgba(255, 255, 255, 0.1);
         }
 
         .ship:hover {
@@ -119,7 +150,7 @@
         }
 
         .ship.automation {
-            border: 2px solid #76c7c0;
+            border: 2px solid #38a169;
         }
 
         .ship span {
@@ -132,16 +163,20 @@
         }
 
         .progress-bar {
-            background-color: var(--progress-background);
-            border-radius: 4px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
             overflow: hidden;
+            position: relative;
             height: 20px;
             margin: 10px 0;
-            position: relative;
+        }
+
+        body.dark-theme .progress-bar {
+            background-color: #444;
         }
 
         .progress {
-            background-color: var(--progress-fill);
+            background-color: #38a169;
             height: 100%;
             width: 0%;
             transition: width 0.1s linear;
@@ -153,27 +188,32 @@
             left: 50%;
             transform: translateX(-50%);
             font-size: 0.8em;
+            line-height: 20px;
             color: #ffffff;
+            pointer-events: none;
         }
 
         .progress-earnings {
-            bottom: 0;
-            top: auto;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ffeb3b;
         }
 
         .upgrade-trader-button {
             width: 100%;
             padding: 8px;
-            background-color: var(--button-background);
-            color: var(--button-text);
+            margin-top: 10px;
+            background-color: #3182ce;
+            color: #ffffff;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s;
         }
 
-        .upgrade-trader-button:hover {
-            background-color: var(--progress-fill);
+        .upgrade-trader-button:disabled {
+            background-color: #a0aec0;
+            cursor: not-allowed;
         }
 
         .automation-indicator {
@@ -181,6 +221,7 @@
             top: 10px;
             right: 10px;
             font-size: 1.2em;
+            color: #38a169;
             display: none;
         }
 
@@ -190,135 +231,108 @@
 
         /* ==================== EVENT LOG ==================== */
         #event-log {
-            max-height: 200px;
-            overflow-y: auto;
-            background-color: var(--modal-background);
+            background-color: rgba(0,0,0,0.1);
+            border-radius: 10px;
             padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            height: 200px;
+            overflow-y: auto;
             margin-top: 20px;
-        }
-
-        #event-log p {
-            margin: 5px 0;
             font-size: 0.9em;
         }
 
-        /* ==================== MODALS ==================== */
-        .modal-menu {
-            display: none; /* Hidden by default */
-            position: fixed; 
-            z-index: 2000; /* Sit on top */
-            left: 0;
-            top: 0;
-            width: 100%; 
-            height: 100%; 
-            overflow: auto; 
-            background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+        body.light-theme #event-log {
+            background-color: rgba(0,0,0,0.05);
         }
 
-        .modal-content {
-            background-color: var(--modal-background);
-            margin: 10% auto; 
-            padding: 20px;
-            border: 1px solid #888;
-            width: 90%; 
-            max-width: 500px;
-            border-radius: 8px;
-            position: relative;
-            transition: all 0.3s;
+        body.blue-theme #event-log {
+            background-color: rgba(255,255,255,0.1);
         }
 
-        .close-modal {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            cursor: pointer;
+        #event-log p {
+            margin-bottom: 5px;
         }
 
-        .close-modal:hover,
-        .close-modal:focus {
-            color: #000;
-            text-decoration: none;
-            cursor: pointer;
+        /* ==================== SETTINGS MENU ==================== */
+        #settings-menu h3 {
+            margin-bottom: 15px;
         }
 
-        .modal-content h3 {
-            margin-top: 0;
-        }
-
-        .modal-content button {
-            margin-top: 10px;
-        }
-
-        /* ==================== SETTINGS ==================== */
-        #settings-menu select {
+        #settings-menu button, #settings-menu select {
             width: 100%;
-            padding: 8px;
-            margin-top: 10px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 5px 0;
             font-size: 1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #settings-menu button:hover, #settings-menu select:hover {
+            opacity: 0.9;
         }
 
         /* ==================== RESPONSIVE DESIGN ==================== */
-        @media (max-width: 768px) {
-            .status-display {
-                flex-direction: column;
-                align-items: center;
-            }
-
+        @media (max-width: 600px) {
             .ship {
-                width: 90%;
+                width: 100%;
             }
 
-            .modal-content {
-                width: 95%;
-                margin: 20% auto;
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .buttons button {
+                width: 100%;
             }
         }
 
         /* ==================== TOOLTIP STYLES ==================== */
-        button[title]:hover::after {
+        [title]:hover::after {
             content: attr(title);
             position: absolute;
-            background-color: #333;
+            background: #333;
             color: #fff;
-            padding: 5px 8px;
-            border-radius: 4px;
-            top: -35px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            white-space: nowrap;
+            top: -30px;
             left: 50%;
             transform: translateX(-50%);
-            white-space: nowrap;
             font-size: 0.8em;
-            z-index: 3000;
+            z-index: 1001;
         }
-
     </style>
 </head>
-<body>
+<body class="dark-theme">
     <!-- ==================== HEADER ==================== -->
-    <header>
-        <div class="branding" data-localize="madeBy">Made By Static</div>
-        <div class="controls">
-            <button onclick="toggleHelp()" aria-label="Help" data-localize="help">❓ Help</button>
-            <button onclick="toggleSettings()" aria-label="Settings" data-localize="settings">⚙️ Settings</button>
-            <button onclick="shareGame()" aria-label="Share Game" data-localize="shareGame">🔗 Share Game</button>
+    <div class="header">
+        <h1 data-localize="title">Interstellar Trader</h1>
+        <div class="buttons">
+            <button onclick="toggleHelp()" data-localize="help" aria-label="Help">❓ Help</button>
+            <button onclick="toggleSettings()" data-localize="settings" aria-label="Settings">⚙️ Settings</button>
+            <button onclick="shareGame()" data-localize="shareGame" aria-label="Share Game">🔗 Share Game</button>
         </div>
-    </header>
+    </div>
 
-    <!-- ==================== MAIN GAME AREA ==================== -->
-    <main>
-        <!-- ==================== STATUS DISPLAY ==================== -->
-        <div class="status-display">
-            <div id="credits" data-localize="credits">100 💸</div>
-            <div id="spaceship-display" data-localize="spaceshipDisplay">Spaceships: 1/10 🚀</div>
-            <div id="tech-level-display" data-localize="techLevelDisplay">Technology Level: 1 ✯</div>
-            <div id="rebirth-points" data-localize="rebirthPoints">0 RP</div>
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <div class="main-content">
+        <div class="stats">
+            <p id="credits" data-localize="credits">100 💸</p>
+            <p id="spaceship-display" data-localize="spaceshipDisplay">Spaceships: 1/10 🚀</p>
+            <p id="tech-level-display" data-localize="techLevelDisplay">Technology Level: 1 ✯</p>
+            <p id="rebirth-points" data-localize="rebirthPoints">0 RP</p>
+        </div>
+
+        <div class="buttons">
+            <button onclick="sendAllShips()" data-localize="sendAllShips" aria-label="Send All Ships">⚙️ Send All Ships to Trade</button>
+            <button onclick="buyShip()" data-localize="buyNewShip" aria-label="Buy New Ship">⚖️ Buy a New Ship</button>
+            <button onclick="upgradeAll()" data-localize="upgradeAll" aria-label="Upgrade All Ships">🔼 Upgrade All</button>
         </div>
 
         <!-- ==================== SHIP CONTAINER ==================== -->
@@ -326,26 +340,60 @@
             <!-- Ships will be dynamically added here -->
         </div>
 
-        <!-- ==================== BUY BUTTONS ==================== -->
-        <div style="text-align: center; margin-top: 20px;">
-            <button onclick="buyShip()" aria-label="Buy a New Ship" data-localize="buyNewShip">⚖️ Buy a New Ship</button>
-            <button onclick="sendAllShips()" aria-label="Send All Ships to Trade" data-localize="sendAllShips">⚙️ Send All Ships to Trade</button>
-            <button onclick="upgradeAll()" aria-label="Upgrade All" data-localize="upgradeAll">🔼 Upgrade All</button>
-        </div>
-
         <!-- ==================== EVENT LOG ==================== -->
-        <div id="event-log" aria-live="polite" aria-atomic="true">
-            <!-- Event logs will appear here -->
+        <div id="event-log" aria-live="polite" aria-atomic="false">
+            <!-- Event messages will appear here -->
         </div>
-    </main>
+    </div>
 
     <!-- ==================== MODALS ==================== -->
 
-    <!-- Help Modal -->
+    <!-- Rebirth Confirmation Modal -->
+    <div id="rebirth-modal-confirm" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="rebirth-modal-confirm-title">
+        <div class="modal-content" role="document">
+            <span class="close-modal" onclick="closeRebirthModal()" aria-label="Close">&times;</span>
+            <h3 id="rebirth-modal-confirm-title" data-localize="confirmRebirthTitle">Confirm Rebirth</h3>
+            <p data-localize="confirmRebirthText">Are you sure you want to rebirth? This will reset all your progress but grant you <strong>{points}</strong> Rebirth Points (RP).</p>
+            <button class="button" onclick="rebirth()" data-localize="confirmRebirth" aria-label="Confirm Rebirth">✅ Confirm</button>
+            <button class="button" onclick="closeRebirthModal()" data-localize="cancelRebirth" aria-label="Cancel Rebirth">❌ Cancel</button>
+        </div>
+    </div>
+
+    <!-- Reset Confirmation Modal -->
+    <div id="reset-modal" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="reset-modal-title">
+        <div class="modal-content" role="document">
+            <span class="close-modal" onclick="closeResetModal()" aria-label="Close">&times;</span>
+            <h3 id="reset-modal-title" data-localize="confirmResetTitle">Confirm Reset</h3>
+            <p data-localize="confirmResetText">Are you sure you want to reset the game? This action cannot be undone.</p>
+            <button class="button" onclick="performReset()" data-localize="confirmReset" aria-label="Confirm Reset">✅ Confirm</button>
+            <button class="button" onclick="closeResetModal()" data-localize="cancelReset" aria-label="Cancel Reset">❌ Cancel</button>
+        </div>
+    </div>
+
+    <!-- Share Confirmation Modal -->
+    <div id="share-confirm-modal" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="share-confirm-modal-title">
+        <div class="modal-content" role="document">
+            <span class="close-modal" onclick="closeShareConfirmModal()" aria-label="Close">&times;</span>
+            <h3 id="share-confirm-modal-title" data-localize="shareConfirmationTitle">Share the Game</h3>
+            <p data-localize="shareConfirmationText">Share this link on your favorite platform to earn a bonus!</p>
+            <div style="margin-bottom: 10px;">
+                <a href="https://twitter.com/intent/tweet?text=Join%20me%20in%20Interstellar%20Trader%20and%20build%20your%20own%20intergalactic%20trading%20empire!%20https://yourgameurl.com" target="_blank" class="button" style="background-color: #1da1f2; margin-right: 5px;" aria-label="Share on Twitter">🐦 Share on Twitter</a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u=https://yourgameurl.com" target="_blank" class="button" style="background-color: #4267B2; margin-right: 5px;" aria-label="Share on Facebook">📘 Share on Facebook</a>
+                <a href="https://www.reddit.com/submit?url=https://yourgameurl.com&title=Interstellar%20Trader%20-%20Build%20your%20intergalactic%20trading%20empire" target="_blank" class="button" style="background-color: #FF4500; margin-right: 5px;" aria-label="Share on Reddit">👽 Share on Reddit</a>
+                <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://yourgameurl.com&title=Interstellar%20Trader&summary=Build%20your%20intergalactic%20trading%20empire!" target="_blank" class="button" style="background-color: #0077B5;" aria-label="Share on LinkedIn">🔗 Share on LinkedIn</a>
+            </div>
+            <p data-localize="shareOrCopy">Or copy the link below:</p>
+            <input type="text" id="share-link" value="https://yourgameurl.com" readonly style="width: 100%; padding: 10px; margin-bottom: 10px;">
+            <button class="button" onclick="copyShareLink()" data-localize="copyLink" aria-label="Copy Share Link">📋 Copy Link</button>
+            <button class="button" onclick="closeShareConfirmModal()" data-localize="cancelShare" aria-label="Cancel Share">❌ Cancel</button>
+        </div>
+    </div>
+
+    <!-- ==================== HELP MENU ==================== -->
     <div id="help-menu" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="help-menu-title">
         <div class="modal-content" role="document">
-            <span class="close-modal" onclick="toggleHelp()" aria-label="Close Help">&times;</span>
-            <h3 id="help-menu-title" data-localize="tutorialTitle">Tutorial: How to Play</h3>
+            <span class="close-modal" onclick="toggleHelp()" aria-label="Close">&times;</span>
+            <h3 data-localize="tutorialTitle">Tutorial: How to Play</h3>
             <p data-localize="tutorialContent">
                 Welcome to Interstellar Trader! 🚀 Your objective is to build an intergalactic trading empire by sending your ships to trade goods between planets. Here's how to get started:
             </p>
@@ -364,18 +412,45 @@
                 <li data-localize="gameTip5">Hire employees to unlock new functionalities and enhance your fleet.</li>
                 <li data-localize="gameTip6">Share the game on multiple platforms to earn bonuses and help grow your trading empire.</li>
             </ul>
-            <button onclick="toggleHelp()" aria-label="Close Help" data-localize="closeHelp">❌ Close</button>
+            <button class="button" onclick="toggleHelp()" data-localize="closeHelp" aria-label="Close Help">❌ Close</button>
         </div>
     </div>
 
-    <!-- Settings Modal -->
-    <div id="settings-menu" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="settings-menu-title">
+    <!-- ==================== UPGRADE MENU ==================== -->
+    <div id="upgrade-menu" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="upgrade-menu-title">
         <div class="modal-content" role="document">
-            <span class="close-modal" onclick="toggleSettings()" aria-label="Close Settings">&times;</span>
+            <span class="close-modal" onclick="toggleUpgradeMenu()" aria-label="Close">&times;</span>
+            <h3 id="upgrade-menu-title" data-localize="upgradeMenuTitle">Upgrade Menu</h3>
+            <button class="button" onclick="buyAutomation()" data-localize="buyAutomation" aria-label="Buy Automation">🤖 Buy Automation</button>
+            <button class="button" onclick="buyMultiplier()" data-localize="buyMultiplier" aria-label="Buy Multiplier">✖️ Buy Multiplier</button>
+            <button class="button" onclick="hireEmployee('storage')" data-localize="hireStorage" aria-label="Hire Storage Employee">📦 Hire Storage Employee</button>
+            <button class="button" onclick="hireEmployee('efficiency')" data-localize="hireEfficiency" aria-label="Hire Efficiency Employee">⚙️ Hire Efficiency Employee</button>
+            <button class="button" onclick="hireEmployee('security')" data-localize="hireSecurity" aria-label="Hire Security Employee">🛡️ Hire Security Employee</button>
+            <button class="button" onclick="buyShipSlots()" data-localize="buyShipSlots" aria-label="Buy Ship Slots">➕ Buy Ship Slots</button>
+            <button class="button" onclick="toggleUpgradeMenu()" data-localize="closeHelp" aria-label="Close Upgrade Menu">❌ Close</button>
+        </div>
+    </div>
+
+    <!-- ==================== REBIRTH MENU ==================== -->
+    <div id="rebirth-menu" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="rebirth-menu-title">
+        <div class="modal-content" role="document">
+            <span class="close-modal" onclick="toggleRebirthMenu()" aria-label="Close">&times;</span>
+            <h3 id="rebirth-menu-title" data-localize="rebirthMenu">♻️ Rebirth Menu</h3>
+            <p data-localize="rebirthPoints">Rebirth Points (RP): <span id="rebirth-points-display">0 RP</span></p>
+            <button class="button" onclick="confirmRebirth()" data-localize="rebirthButton" aria-label="Rebirth">♻️ Rebirth</button>
+            <button class="button" onclick="spendRebirthPoints()" data-localize="spendRPButton" aria-label="Spend RP">🔧 Spend RP for Upgrades</button>
+            <button class="button" onclick="toggleRebirthMenu()" data-localize="closeHelp" aria-label="Close Rebirth Menu">❌ Close</button>
+        </div>
+    </div>
+
+    <!-- ==================== SETTINGS MENU ==================== -->
+    <div id="settings-menu-modal" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="settings-menu-title">
+        <div class="modal-content" role="document">
+            <span class="close-modal" onclick="toggleSettings()" aria-label="Close">&times;</span>
             <h3 id="settings-menu-title" data-localize="settingsMenuTitle">Settings</h3>
-            <button onclick="toggleTheme()" aria-label="Toggle Theme" data-localize="toggleTheme">🌙 Toggle Theme</button>
-            <button onclick="saveGameManually()" aria-label="Save Game" data-localize="saveGame">💾 Save Game</button>
-            <button onclick="resetGame()" aria-label="Reset Game" data-localize="resetGame">🗑️ Reset Game</button>
+            <button class="button" onclick="toggleTheme()" data-localize="toggleTheme" aria-label="Toggle Theme">🌙 Toggle Theme</button>
+            <button class="button" onclick="saveGameManually()" data-localize="saveGame" aria-label="Save Game">💾 Save Game</button>
+            <button class="button" onclick="resetGame()" data-localize="resetGame" aria-label="Reset Game">🗑️ Reset Game</button>
             <div style="margin-top: 20px;">
                 <h4 data-localize="selectLanguage">Select Language</h4>
                 <select onchange="changeLanguage(this.value)" aria-label="Select Language">
@@ -385,56 +460,19 @@
                     <option value="vi">Tiếng Việt</option>
                 </select>
             </div>
+            <button class="button" onclick="exportSaveCode()" data-localize="exportSaveCode" aria-label="Export Save Code">📤 Export Save Code</button>
+            <button class="button" onclick="importSaveCode()" data-localize="importSaveCode" aria-label="Import Save Code">📥 Import Save Code</button>
             <div style="margin-top: 20px;">
-                <h4 data-localize="deviceMode">Device Mode</h4>
-                <button onclick="toggleDeviceMode()" aria-label="Toggle Device Mode" data-localize="toggleDeviceMode">📱 Toggle Device Mode</button>
+                <h4 data-localize="feedback">Feedback</h4>
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSfFiegPH6GsWIWERzfbtptJW2GMk4exkrTQsdqlR2-2oj83zA/viewform" target="_blank" class="button" style="background-color: #4CAF50;" aria-label="Provide Feedback">📝 Provide Feedback</a>
             </div>
-            <div style="margin-top: 20px;">
-                <a href="https://docs.google.com/forms/d/e/1FAIpQLSfFiegPH6GsWIWERzfbtptJW2GMk4exkrTQsdqlR2-2oj83zA/viewform" target="_blank" aria-label="Feedback Form" data-localize="feedbackForm">📝 Feedback Form</a>
-            </div>
-            <p id="rebirth-info" class="important"></p>
+            <button class="button" onclick="toggleSettings()" data-localize="closeHelp" aria-label="Close Settings Menu">❌ Close</button>
         </div>
     </div>
 
-    <!-- Rebirth Confirmation Modal -->
-    <div id="rebirth-modal-confirm" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="rebirth-modal-confirm-title">
-        <div class="modal-content" role="document">
-            <span class="close-modal" onclick="closeRebirthModal()" aria-label="Close Rebirth Confirmation">&times;</span>
-            <h3 id="rebirth-modal-confirm-title" data-localize="confirmRebirthTitle">Confirm Rebirth</h3>
-            <p data-localize="confirmRebirthText">Are you sure you want to rebirth? This will reset all your progress but grant you <strong id="rebirth-points-earned">{points}</strong> Rebirth Points (RP).</p>
-            <button class="button" onclick="rebirth()" aria-label="Confirm Rebirth" data-localize="confirmRebirth">✅ Confirm</button>
-            <button class="button" onclick="closeRebirthModal()" aria-label="Cancel Rebirth" data-localize="cancelRebirth">❌ Cancel</button>
-        </div>
-    </div>
-
-    <!-- Reset Confirmation Modal -->
-    <div id="reset-modal" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="reset-modal-title">
-        <div class="modal-content" role="document">
-            <span class="close-modal" onclick="closeResetModal()" aria-label="Close Reset Confirmation">&times;</span>
-            <h3 id="reset-modal-title" data-localize="confirmResetTitle">Confirm Reset</h3>
-            <p data-localize="confirmResetText">Are you sure you want to reset the game? This action cannot be undone.</p>
-            <button class="button" onclick="performReset()" aria-label="Confirm Reset" data-localize="confirmReset">✅ Confirm</button>
-            <button class="button" onclick="closeResetModal()" aria-label="Cancel Reset" data-localize="cancelReset">❌ Cancel</button>
-        </div>
-    </div>
-
-    <!-- Share Confirmation Modal -->
-    <div id="share-confirm-modal" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="share-confirm-modal-title">
-        <div class="modal-content" role="document">
-            <span class="close-modal" onclick="closeShareConfirmModal()" aria-label="Close Share Confirmation">&times;</span>
-            <h3 id="share-confirm-modal-title" data-localize="shareConfirmationTitle">Share the Game</h3>
-            <p data-localize="shareConfirmationText">Share this link on your favorite platform to earn a bonus!</p>
-            <div style="margin-bottom: 10px;">
-                <a href="https://twitter.com/intent/tweet?text=Join%20me%20in%20Interstellar%20Trader%20and%20build%20your%20own%20intergalactic%20trading%20empire!%20https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader" target="_blank" class="button" style="background-color: #1da1f2; margin-right: 5px;" aria-label="Share on Twitter">🐦 Share on Twitter</a>
-                <a href="https://www.facebook.com/sharer/sharer.php?u=https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader" target="_blank" class="button" style="background-color: #4267B2; margin-right: 5px;" aria-label="Share on Facebook">📘 Share on Facebook</a>
-                <a href="https://www.reddit.com/submit?url=https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader&title=Interstellar%20Trader%20-%20Build%20your%20intergalactic%20trading%20empire" target="_blank" class="button" style="background-color: #FF4500; margin-right: 5px;" aria-label="Share on Reddit">👽 Share on Reddit</a>
-                <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader&title=Interstellar%20Trader&summary=Build%20your%20intergalactic%20trading%20empire!" target="_blank" class="button" style="background-color: #0077B5;" aria-label="Share on LinkedIn">🔗 Share on LinkedIn</a>
-            </div>
-            <p data-localize="shareOrCopy">Or copy the link below:</p>
-            <input type="text" id="share-link" value="https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader" readonly style="width: 100%; padding: 10px; margin-bottom: 10px;" aria-label="Share Link">
-            <button class="button" onclick="copyShareLink()" aria-label="Copy Share Link" data-localize="copyLink">📋 Copy Link</button>
-            <button class="button" onclick="closeShareConfirmModal()" aria-label="Cancel Share" data-localize="cancelShare">❌ Cancel</button>
-        </div>
+    <!-- ==================== ACHIEVEMENTS NOTE ==================== -->
+    <div style="display: none;">
+        <!-- Achievements have been intentionally removed and will never be reintroduced to maintain game balance and simplicity. -->
     </div>
 
     <!-- ==================== SCRIPT ==================== -->
@@ -442,7 +480,7 @@
         // ==================== LOCALIZATION ====================
         const localization = {
             "en": {
-                "madeBy": "Made By Static",
+                "title": "Interstellar Trader",
                 "playGameHere": "Play Game Here",
                 "shareGame": "🔗 Share Game",
                 "buyAmount": "Buy: 1x",
@@ -455,7 +493,7 @@
                 "buyNewShip": "⚖️ Buy a New Ship",
                 "buyUpgrade": "✚ Buy Upgrade",
                 "upgradeAll": "🔼 Upgrade All",
-                "upgradeMenu": "🔧 Upgrade Menu",
+                "upgradeMenuTitle": "Upgrade Menu",
                 "rebirthMenu": "♻️ Rebirth Menu",
                 "rebirthPoints": "Rebirth Points (RP):",
                 "rebirthButton": "♻️ Rebirth (Requires 100K Credits)",
@@ -486,9 +524,9 @@
                 "upgradeCost2": "Multiplier: Cost increases by 1.5x with each level.",
                 "upgradeCost3": "Employees: Cost increases by 1.2x with each level.",
                 "closeHelp": "❌ Close",
-                "hireStorage": "📦 Hire Storage Employee (Over Time)",
-                "hireEfficiency": "⚙️ Hire Efficiency Employee (One-Time)",
-                "hireSecurity": "🛡️ Hire Security Employee (One-Time)",
+                "hireStorage": "📦 Hire Storage Employee",
+                "hireEfficiency": "⚙️ Hire Efficiency Employee",
+                "hireSecurity": "🛡️ Hire Security Employee",
                 "confirmRebirthTitle": "Confirm Rebirth",
                 "confirmRebirthText": "Are you sure you want to rebirth? This will reset all your progress but grant you <strong>{points}</strong> Rebirth Points (RP).",
                 "confirmResetTitle": "Confirm Reset",
@@ -555,13 +593,12 @@
                 "closeAchievement": "❌ Close",
                 "exportSaveCode": "📤 Export Save Code",
                 "importSaveCode": "📥 Import Save Code",
-                "deviceMode": "Device Mode",
-                "toggleDeviceMode": "📱 Toggle Device Mode",
-                "feedbackForm": "📝 Feedback Form",
-                "selectLanguage": "Select Language"
+                "buyShipSlots": "➕ Buy Ship Slots",
+                "selectLanguage": "Select Language",
+                "feedback": "Feedback"
             },
             "es": {
-                "madeBy": "Hecho por Static",
+                "title": "Comerciante Interstelar",
                 "playGameHere": "Juega Aquí",
                 "shareGame": "🔗 Compartir Juego",
                 "buyAmount": "Comprar: 1x",
@@ -574,7 +611,7 @@
                 "buyNewShip": "⚖️ Comprar una Nueva Nave",
                 "buyUpgrade": "✚ Comprar Mejora",
                 "upgradeAll": "🔼 Mejorar Todas",
-                "upgradeMenu": "🔧 Menú de Mejoras",
+                "upgradeMenuTitle": "Menú de Mejoras",
                 "rebirthMenu": "♻️ Menú de Renacimiento",
                 "rebirthPoints": "Puntos de Renacimiento (RP):",
                 "rebirthButton": "♻️ Renacimiento (Requiere 100K Créditos)",
@@ -590,7 +627,7 @@
                 "copyLink": "📋 Copiar Enlace",
                 "cancelShare": "❌ Cancelar",
                 "tutorialTitle": "Tutorial: Cómo Jugar",
-                "tutorialContent": "¡Bienvenido a Interstellar Trader! 🚀 Tu objetivo es construir un imperio comercial intergaláctico enviando tus naves a comerciar mercancías entre planetas. Así es como comenzar:",
+                "tutorialContent": "¡Bienvenido a Comerciante Interstelar! 🚀 Tu objetivo es construir un imperio comercial intergaláctico enviando tus naves a comerciar mercancías entre planetas. Así es como comenzar:",
                 "gameInfoTitle": "Información del Juego",
                 "gameInfoContent": "Créditos: Tu moneda en el juego usada para comprar naves, mejoras y otras características.<br>Nivel de Tecnología: Determina la eficiencia y ganancias de tus operaciones comerciales.<br>Puntos de Renacimiento (RP): Ganados a través de renacimientos, usados para comprar mejoras poderosas.",
                 "gameTipsTitle": "Consejos del Juego",
@@ -605,9 +642,9 @@
                 "upgradeCost2": "Multiplicador: El costo aumenta 1.5x con cada nivel.",
                 "upgradeCost3": "Empleados: El costo aumenta 1.2x con cada nivel.",
                 "closeHelp": "❌ Cerrar",
-                "hireStorage": "📦 Contratar Empleado de Almacenamiento (En Tiempo)",
-                "hireEfficiency": "⚙️ Contratar Empleado de Eficiencia (Único)",
-                "hireSecurity": "🛡️ Contratar Empleado de Seguridad (Único)",
+                "hireStorage": "📦 Contratar Empleado de Almacenamiento",
+                "hireEfficiency": "⚙️ Contratar Empleado de Eficiencia",
+                "hireSecurity": "🛡️ Contratar Empleado de Seguridad",
                 "confirmRebirthTitle": "Confirmar Renacimiento",
                 "confirmRebirthText": "¿Estás seguro de que deseas renacer? Esto reiniciará todo tu progreso pero te otorgará <strong>{points}</strong> Puntos de Renacimiento (RP).",
                 "confirmResetTitle": "Confirmar Reinicio",
@@ -617,19 +654,19 @@
                 "rebirthNotEnough": "⚠ ¡No tienes suficientes créditos para renacer! (Requiere {cost} Créditos)",
                 "rebirthInfoText": "Próximo Renacimiento en: {time}",
                 "upgradeMenuTitle": "Menú de Mejoras",
-                "buyAutomation": "🤖 Buy Automation (Cost: {cost} Credits)",
-                "buyMultiplier": "✖️ Buy Multiplier (Cost: {cost} Credits)",
-                "hireEmployee": "👨‍🚀 Hire {type} Employee (Cost: {cost} Credits)",
-                "upgradeTrader": "Upgrade Trader (Cost: {cost} Credits)",
-                "upgradeTraderMax": "Upgrade Trader to Max (Cost: {cost} Credits)",
-                "upgradeAllButton": "🔼 Upgrade All",
-                "sendAllShipsButton": "⚙️ Send All Ships to Trade",
-                "buyNewShipButton": "⚖️ Buy a New Ship",
-                "buyUpgradeButton": "✚ Buy Upgrade",
-                "rebirthButtonTitle": "♻️ Rebirth (Requires 100K Credits)",
-                "spendRPButtonTitle": "🔧 Spend RP for Upgrades",
+                "buyAutomation": "🤖 Comprar Automatización (Costo: {cost} Créditos)",
+                "buyMultiplier": "✖️ Comprar Multiplicador (Costo: {cost} Créditos)",
+                "hireEmployee": "👨‍🚀 Contratar Empleado de {type} (Costo: {cost} Créditos)",
+                "upgradeTrader": "Mejorar Comerciante (Costo: {cost} Créditos)",
+                "upgradeTraderMax": "Mejorar Comerciante al Máximo (Costo: {cost} Créditos)",
+                "upgradeAllButton": "🔼 Mejorar Todas",
+                "sendAllShipsButton": "⚙️ Enviar Todas las Naves a Comerciar",
+                "buyNewShipButton": "⚖️ Comprar una Nueva Nave",
+                "buyUpgradeButton": "✚ Comprar Mejora",
+                "rebirthButtonTitle": "♻️ Renacimiento (Requiere 100K Créditos)",
+                "spendRPButtonTitle": "🔧 Gastar RP para Mejoras",
                 "rebirthPointsDisplay": "{points} RP",
-                "resetButton": "🗑️ Reset Game",
+                "resetButton": "🗑️ Reiniciar Juego",
                 "resetConfirmation": "Are you sure you want to reset the game? This action cannot be undone.",
                 "tradeCompleted": "✨ Ship {shipId} completed a trade mission and earned {earnings} credits!",
                 "buyShipCost": "⚠ Not enough credits to buy a new ship! (Cost: {cost} Credits)",
@@ -674,13 +711,12 @@
                 "closeAchievement": "❌ Close",
                 "exportSaveCode": "📤 Export Save Code",
                 "importSaveCode": "📥 Import Save Code",
-                "deviceMode": "Device Mode",
-                "toggleDeviceMode": "📱 Toggle Device Mode",
-                "feedbackForm": "📝 Feedback Form",
-                "selectLanguage": "Select Language"
+                "buyShipSlots": "➕ Buy Ship Slots",
+                "selectLanguage": "Select Language",
+                "feedback": "Feedback"
             },
             "nl": {
-                "madeBy": "Gemaakt door Static",
+                "title": "Interstellair Handelaar",
                 "playGameHere": "Speel Hier",
                 "shareGame": "🔗 Deel Spel",
                 "buyAmount": "Kopen: 1x",
@@ -693,7 +729,7 @@
                 "buyNewShip": "⚖️ Koop een Nieuw Ruimteschip",
                 "buyUpgrade": "✚ Koop Upgrade",
                 "upgradeAll": "🔼 Upgrade Alles",
-                "upgradeMenu": "🔧 Upgrade Menu",
+                "upgradeMenuTitle": "Upgrade Menu",
                 "rebirthMenu": "♻️ Hergeboorte Menu",
                 "rebirthPoints": "Punten Hergeboorte (RP):",
                 "rebirthButton": "♻️ Hergeboorte (Vereist 100K Credits)",
@@ -709,7 +745,7 @@
                 "copyLink": "📋 Kopieer Link",
                 "cancelShare": "❌ Annuleren",
                 "tutorialTitle": "Tutorial: Hoe te Spelen",
-                "tutorialContent": "Welkom bij Interstellar Trader! 🚀 Jouw doel is het bouwen van een intergalactisch handelsimperium door je schepen te laten handelen tussen planeten. Zo begin je:",
+                "tutorialContent": "Welkom bij Interstellair Handelaar! 🚀 Jouw doel is het bouwen van een intergalactisch handelsimperium door je schepen te laten handelen tussen planeten. Zo begin je:",
                 "gameInfoTitle": "Spelinformatie",
                 "gameInfoContent": "Credits: Je in-game valuta gebruikt om schepen, upgrades en andere functies te kopen.<br>Technologieniveau: Bepaalt de efficiëntie en verdiensten van je handelsactiviteiten.<br>Punten Hergeboorte (RP): Verdiend door hergeboortes, gebruikt om krachtige upgrades te kopen.",
                 "gameTipsTitle": "Speltips",
@@ -720,13 +756,13 @@
                 "gameTip5": "Huur werknemers in om nieuwe functionaliteiten te ontgrendelen en je vloot te verbeteren.",
                 "gameTip6": "Deel het spel op meerdere platforms om bonussen te verdienen en je handelsimperium te laten groeien.",
                 "upgradeCostsTitle": "Upgrade Kosten",
-                "upgradeCost1": "Automatisering: Kosten nemen met 1.2x toe per niveau.",
-                "upgradeCost2": "Multiplicator: Kosten nemen met 1.5x toe per niveau.",
-                "upgradeCost3": "Werknemers: Kosten nemen met 1.2x toe per niveau.",
+                "upgradeCost1": "Automatisering: Kosten nemen 1.2x toe per niveau.",
+                "upgradeCost2": "Multiplicator: Kosten nemen 1.5x toe per niveau.",
+                "upgradeCost3": "Werknemers: Kosten nemen 1.2x toe per niveau.",
                 "closeHelp": "❌ Sluiten",
-                "hireStorage": "📦 Huur Opslag Werknemer (In Tijd)",
-                "hireEfficiency": "⚙️ Huur Efficiëntie Werknemer (Eenmalig)",
-                "hireSecurity": "🛡️ Huur Beveiliging Werknemer (Eenmalig)",
+                "hireStorage": "📦 Huur Opslag Werknemer",
+                "hireEfficiency": "⚙️ Huur Efficiëntie Werknemer",
+                "hireSecurity": "🛡️ Huur Beveiliging Werknemer",
                 "confirmRebirthTitle": "Bevestig Hergeboorte",
                 "confirmRebirthText": "Weet je zeker dat je wilt hergeboren? Dit zal al je voortgang resetten maar je krijgt <strong>{points}</strong> Punten Hergeboorte (RP).",
                 "confirmResetTitle": "Bevestig Reset",
@@ -736,19 +772,19 @@
                 "rebirthNotEnough": "⚠ Onvoldoende credits om te hergeboren! (Vereist {cost} Credits)",
                 "rebirthInfoText": "Volgende Hergeboorte over: {time}",
                 "upgradeMenuTitle": "Upgrade Menu",
-                "buyAutomation": "🤖 Buy Automation (Cost: {cost} Credits)",
-                "buyMultiplier": "✖️ Buy Multiplier (Cost: {cost} Credits)",
-                "hireEmployee": "👨‍🚀 Hire {type} Employee (Cost: {cost} Credits)",
-                "upgradeTrader": "Upgrade Trader (Cost: {cost} Credits)",
-                "upgradeTraderMax": "Upgrade Trader to Max (Cost: {cost} Credits)",
-                "upgradeAllButton": "🔼 Upgrade All",
-                "sendAllShipsButton": "⚙️ Send All Ships to Trade",
-                "buyNewShipButton": "⚖️ Buy a New Ship",
-                "buyUpgradeButton": "✚ Buy Upgrade",
-                "rebirthButtonTitle": "♻️ Rebirth (Requires 100K Credits)",
-                "spendRPButtonTitle": "🔧 Spend RP for Upgrades",
+                "buyAutomation": "🤖 Koop Automatisering (Kosten: {cost} Credits)",
+                "buyMultiplier": "✖️ Koop Multiplicator (Kosten: {cost} Credits)",
+                "hireEmployee": "👨‍🚀 Huur {type} Werknemer (Kosten: {cost} Credits)",
+                "upgradeTrader": "Upgrade Handelaar (Kosten: {cost} Credits)",
+                "upgradeTraderMax": "Upgrade Handelaar tot Max (Kosten: {cost} Credits)",
+                "upgradeAllButton": "🔼 Upgrade Alles",
+                "sendAllShipsButton": "⚙️ Verstuur Alle Schepen om te Handelen",
+                "buyNewShipButton": "⚖️ Koop een Nieuw Ruimteschip",
+                "buyUpgradeButton": "✚ Koop Upgrade",
+                "rebirthButtonTitle": "♻️ Hergeboorte (Vereist 100K Credits)",
+                "spendRPButtonTitle": "🔧 Gebruik RP voor Upgrades",
                 "rebirthPointsDisplay": "{points} RP",
-                "resetButton": "🗑️ Reset Game",
+                "resetButton": "🗑️ Reset Spel",
                 "resetConfirmation": "Are you sure you want to reset the game? This action cannot be undone.",
                 "tradeCompleted": "✨ Ship {shipId} completed a trade mission and earned {earnings} credits!",
                 "buyShipCost": "⚠ Not enough credits to buy a new ship! (Cost: {cost} Credits)",
@@ -793,13 +829,12 @@
                 "closeAchievement": "❌ Close",
                 "exportSaveCode": "📤 Export Save Code",
                 "importSaveCode": "📥 Import Save Code",
-                "deviceMode": "Device Mode",
-                "toggleDeviceMode": "📱 Toggle Device Mode",
-                "feedbackForm": "📝 Feedback Form",
-                "selectLanguage": "Select Language"
+                "buyShipSlots": "➕ Buy Ship Slots",
+                "selectLanguage": "Select Language",
+                "feedback": "Feedback"
             },
             "vi": {
-                "madeBy": "Được làm bởi Static",
+                "title": "Người Thương Thuyền Sao",
                 "playGameHere": "Chơi Tại Đây",
                 "shareGame": "🔗 Chia Sẻ Trò Chơi",
                 "buyAmount": "Mua: 1x",
@@ -812,7 +847,7 @@
                 "buyNewShip": "⚖️ Mua Tàu Vũ Trụ Mới",
                 "buyUpgrade": "✚ Mua Nâng Cấp",
                 "upgradeAll": "🔼 Nâng Cấp Tất Cả",
-                "upgradeMenu": "🔧 Upgrade Menu",
+                "upgradeMenuTitle": "🔧 Upgrade Menu",
                 "rebirthMenu": "♻️ Menu Tái Sinh",
                 "rebirthPoints": "Điểm Tái Sinh (RP):",
                 "rebirthButton": "♻️ Tái Sinh (Cần 100K Credits)",
@@ -828,7 +863,7 @@
                 "copyLink": "📋 Sao Chép Liên Kết",
                 "cancelShare": "❌ Hủy Bỏ",
                 "tutorialTitle": "Hướng Dẫn: Cách Chơi",
-                "tutorialContent": "Chào mừng đến với Interstellar Trader! 🚀 Mục tiêu của bạn là xây dựng một đế chế thương mại liên hành tinh bằng cách gửi tàu vũ trụ của bạn để giao dịch hàng hóa giữa các hành tinh. Đây là cách bắt đầu:",
+                "tutorialContent": "Chào mừng đến với NgườI Thương Thuyền Sao! 🚀 Mục tiêu của bạn là xây dựng một đế chế thương mại liên hành tinh bằng cách gửi tàu vũ trụ của bạn để giao dịch hàng hóa giữa các hành tinh. Đây là cách bắt đầu:",
                 "gameInfoTitle": "Thông Tin Trò Chơi",
                 "gameInfoContent": "Credits: Đơn vị tiền tệ trong trò chơi của bạn được sử dụng để mua tàu, nâng cấp và các tính năng khác.<br>Cấp Độ Công Nghệ: Xác định hiệu quả và lợi nhuận của các hoạt động thương mại của bạn.<br>Điểm Tái Sinh (RP): Được kiếm thông qua việc tái sinh, được sử dụng để mua các nâng cấp mạnh mẽ.",
                 "gameTipsTitle": "Mẹo Chơi",
@@ -843,9 +878,9 @@
                 "upgradeCost2": "Multiplicator: Chi phí tăng 1.5x mỗi cấp.",
                 "upgradeCost3": "Nhân viên: Chi phí tăng 1.2x mỗi cấp.",
                 "closeHelp": "❌ Đóng",
-                "hireStorage": "📦 Thuê Nhân Viên Lưu Trữ (Theo Thời Gian)",
-                "hireEfficiency": "⚙️ Thuê Nhân Viên Hiệu Suất (Một Lần)",
-                "hireSecurity": "🛡️ Thuê Nhân Viên Bảo Mật (Một Lần)",
+                "hireStorage": "📦 Thuê Nhân Viên Lưu Trữ",
+                "hireEfficiency": "⚙️ Thuê Nhân Viên Hiệu Suất",
+                "hireSecurity": "🛡️ Thuê Nhân Viên Bảo Mật",
                 "confirmRebirthTitle": "Xác Nhận Tái Sinh",
                 "confirmRebirthText": "Bạn có chắc chắn muốn tái sinh không? Điều này sẽ đặt lại tất cả tiến độ của bạn nhưng sẽ cấp cho bạn <strong>{points}</strong> Điểm Tái Sinh (RP).",
                 "confirmResetTitle": "Xác Nhận Đặt Lại",
@@ -912,10 +947,9 @@
                 "closeAchievement": "❌ Close",
                 "exportSaveCode": "📤 Export Save Code",
                 "importSaveCode": "📥 Import Save Code",
-                "deviceMode": "Device Mode",
-                "toggleDeviceMode": "📱 Toggle Device Mode",
-                "feedbackForm": "📝 Feedback Form",
-                "selectLanguage": "Select Language"
+                "buyShipSlots": "➕ Buy Ship Slots",
+                "selectLanguage": "Select Language",
+                "feedback": "Feedback"
             }
             // Additional languages can be added here
         };
@@ -934,7 +968,7 @@
                     upgrades: 0,
                     traderLevel: 1,
                     trading: false,
-                    automation: false,
+                    automation: false
                 }
             ],
             buyAmounts: ['1x', '10x', '15x', '30x', '50x', 'Max'],
@@ -971,8 +1005,6 @@
             securityProtection: 0, // Percentage protection against random events
             version: "v1.62.08", // Updated version
             language: "en", // Default language
-            deviceMode: "auto" // "auto", "desktop", "mobile"
-            // Achievements removed as per instructions
         };
 
         const VERSION = "v1.62.08"; // Updated version
@@ -984,6 +1016,7 @@
                 const saveData = JSON.stringify(gameState);
                 const encodedData = btoa(saveData); // Base64 encode
                 localStorage.setItem('interstellarTraderSave', encodedData);
+                backupLocalStorage(); // Create backup
             } catch (e) {
                 console.error("Save failed:", e);
                 logEvent("⚠ Save failed due to browser restrictions.");
@@ -1002,18 +1035,16 @@
                         migrateGameState();
                         handleOfflineProgress();
                         updateTheme();
-                        updateLanguage();
-                        renderShips();
                         updateDisplay();
-                        applyDeviceMode();
+                        renderShips();
+                        updateLanguage();
                     } else {
                         logEvent("⚠ Save data version mismatch. Starting a new game.");
                         resetGameState();
                     }
                 } catch (e) {
                     console.error("Load failed:", e);
-                    logEvent("⚠ Load failed due to corrupted save data.");
-                    // Attempt to restore from backup
+                    logEvent("⚠ Load failed due to corrupted save data. Attempting to restore from backup.");
                     restoreFromBackup();
                 }
             } else {
@@ -1045,9 +1076,6 @@
                 if (!gameState.language) {
                     gameState.language = "en";
                 }
-                if (!gameState.deviceMode) {
-                    gameState.deviceMode = "auto";
-                }
                 // Update version
                 gameState.version = VERSION;
                 saveGame();
@@ -1075,7 +1103,7 @@
                     }
                 });
 
-                tradesPossible = Math.min(tradesPossible, gameState.ships.filter(s => s.automation).length * 100); // Limit to prevent excessive trades
+                tradesPossible = Math.min(tradesPossible, gameState.ships.filter(ship => ship.automation).length * 100); // Limit to prevent excessive trades
 
                 if (tradesPossible > 0) {
                     const earningsPerTrade = Math.floor(50 * gameState.techLevel * gameState.multiplier);
@@ -1114,15 +1142,27 @@
                 console.error("Tech level display element not found.");
             }
 
-            const rebirthPointsDisplay = document.getElementById('rebirth-points');
+            const rebirthPointsDisplay = document.getElementById('rebirth-points-display');
             if (rebirthPointsDisplay) {
                 rebirthPointsDisplay.innerText = `${gameState.rebirthPoints} RP`;
             } else {
                 console.error("Rebirth points display element not found.");
             }
 
+            const buyAmountButton = document.querySelector('.buttons button[data-localize="buyAmount"]');
+            if (buyAmountButton) {
+                buyAmountButton.innerText = `Buy: ${gameState.buyAmounts[gameState.currentBuyIndex]}`;
+            } else {
+                console.error("Buy amount button not found.");
+            }
+
+            const versionNumber = document.getElementById('version-number');
+            if (versionNumber) {
+                versionNumber.innerText = gameState.version;
+            }
+
             // Update upgrade buttons with dynamic costs and disable if not affordable
-            const upgradeMenu = document.getElementById('settings-menu');
+            const upgradeMenu = document.getElementById('upgrade-menu');
             if (upgradeMenu) {
                 const automationButton = upgradeMenu.querySelector('button[onclick="buyAutomation()"]');
                 const multiplierButton = upgradeMenu.querySelector('button[onclick="buyMultiplier()"]');
@@ -1158,22 +1198,35 @@
                     hireSecurityButton.disabled = gameState.credits < securityCost || gameState.employees.security.level >= 10;
                 }
                 if (buyShipSlotsButton) {
-                    const shipSlotsCost = Math.floor(20000 * Math.pow(1.5, gameState.shipLimit / 10));
+                    const shipSlotsCost = Math.floor(20000 * Math.pow(1.2, gameState.shipLimit / 10));
                     buyShipSlotsButton.innerText = `➕ Buy Ship Slots (Cost: ${formatNumberWithSuffix(shipSlotsCost)} Credits)`;
                     buyShipSlotsButton.disabled = gameState.credits < shipSlotsCost;
                 }
             }
 
-            // Update each ship's trader upgrade button
+            // Update each ship's trader upgrade button and automation indicators
             gameState.ships.forEach(ship => {
                 const upgradeButton = document.querySelector(`#ship-${ship.id} .upgrade-trader-button`);
                 if (upgradeButton) {
                     const cost = Math.floor(10 * Math.pow(1.5, ship.upgrades));
                     upgradeButton.innerText = `Upgrade Trader (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
                     upgradeButton.disabled = gameState.credits < cost;
-                    upgradeButton.setAttribute('title', `Enhance trader efficiency`);
                 } else {
                     logEvent(`⚠ Upgrade button for Ship ${ship.id} not found.`);
+                }
+            });
+
+            // Update automation indicators
+            gameState.ships.forEach(ship => {
+                const shipDiv = document.getElementById(`ship-${ship.id}`);
+                if (shipDiv) {
+                    if (ship.automation) {
+                        shipDiv.classList.add('automation');
+                    } else {
+                        shipDiv.classList.remove('automation');
+                    }
+                } else {
+                    logEvent(`⚠ Ship div for Ship ${ship.id} not found.`);
                 }
             });
 
@@ -1232,6 +1285,7 @@
 
         function replacePlaceholders(text) {
             return text.replace(/{(\w+)}/g, (match, key) => {
+                if (key === "points") return Math.floor(gameState.totalCreditsEarned / 100000);
                 return gameState[key] !== undefined ? gameState[key] : match;
             });
         }
@@ -1247,21 +1301,18 @@
             shipDiv.innerHTML = `
                 <span>🚀 Ship ${shipId}</span>
                 <p>Trader Level: <span id="trader-level-${shipId}">${traderLevel}</span></p>
-                <div class="progress-bar" title="Click to start trade">
+                <div class="progress-bar" title="Start trade mission">
                     <div class="progress" id="progress-${shipId}"></div>
                     <span class="progress-time" id="progress-time-${shipId}">10s</span>
                     <span class="progress-earnings" id="progress-earnings-${shipId}">0 💸</span>
                 </div>
-                <button class="upgrade-trader-button" onclick="buyBetterTrader(${shipId})" aria-label="Upgrade Trader" data-localize="upgradeTrader">Upgrade Trader</button>
+                <button class="button upgrade-trader-button" onclick="buyBetterTrader(${shipId})" data-localize="upgradeTrader" aria-label="Upgrade Trader">Upgrade Trader</button>
                 <div class="automation-indicator" title="Automated Trading">🤖</div>
             `;
             // Event Listener for clicking the ship area to start trade
             const shipClickableArea = shipDiv.querySelector('.progress-bar');
             shipClickableArea.addEventListener('click', function(event) {
-                // Prevent triggering when clicking on the upgrade button
-                if (event.target.tagName.toLowerCase() !== 'button' && !event.target.classList.contains('upgrade-trader-button')) {
-                    startTrade(shipId);
-                }
+                startTrade(shipId);
             });
             // Append to Ship Container
             const shipContainer = document.getElementById('ship-container');
@@ -1313,20 +1364,19 @@
             const upgradeBonus = Math.floor(ship.upgrades / 5);
             tradeDuration = Math.max(5, tradeDuration - upgradeBonus);
 
-            const intervalTime = 100; // 100ms intervals
-            const totalIntervals = tradeDuration * 10; // since intervalTime is 100ms
+            const intervalTime = 100; // 0.1 second intervals for smooth progress
 
-            const tradeInterval = setInterval(() => {
-                progress++;
-                const percentage = (progress / totalIntervals) * 100;
+            const progressInterval = setInterval(() => {
+                progress += 0.1;
+                const percentage = (progress / tradeDuration) * 100;
                 progressBar.style.width = percentage + '%';
-                const remainingTime = tradeDuration - (progress / 10);
-                progressTime.innerText = `${remainingTime.toFixed(1)}s`;
+                const remainingTime = Math.max(tradeDuration - progress, 0).toFixed(1);
+                progressTime.innerText = `${remainingTime}s`;
                 const earnings = Math.floor(50 * gameState.techLevel * ship.traderLevel * gameState.multiplier);
                 progressEarnings.innerText = `${formatNumberWithSuffix(earnings)} 💸`;
 
-                if (progress >= totalIntervals) {
-                    clearInterval(tradeInterval);
+                if (progress >= tradeDuration) {
+                    clearInterval(progressInterval);
                     ship.trading = false;
                     gameState.credits += earnings;
                     gameState.totalCreditsEarned += earnings;
@@ -1349,11 +1399,11 @@
 
         function sendAllShips() {
             gameState.ships.forEach(ship => {
-                if (!ship.trading) {
+                if (ship.automation && !ship.trading) {
                     sendShip(ship.id);
                 }
             });
-            logEvent(`⚙️ All ships have been sent to trade missions.`);
+            logEvent(`⚙️ All automated ships have been sent to trade missions.`);
             updateDisplay();
             saveGame();
         }
@@ -1446,93 +1496,6 @@
             } else {
                 logEvent(`⚠ Not enough credits to buy upgrade!`);
             }
-        }
-
-        // ==================== EMPLOYEE MANAGEMENT ====================
-        function hireEmployee(type) {
-            const employee = gameState.employees[type];
-            if (!employee) {
-                logEvent(`⚠ Invalid employee type: ${type}.`);
-                return;
-            }
-            const cost = Math.floor(employee.cost * Math.pow(1.2, employee.level));
-            const maxLevel = 10; // Example maximum level
-            if (employee.level >= maxLevel) {
-                logEvent(`⚠ You have reached the maximum level for ${capitalize(type)} Employees.`);
-                return;
-            }
-            if (gameState.credits >= cost) {
-                gameState.credits -= cost;
-                gameState.employees[type].level += 1;
-                logEvent(`👨‍🚀 Hired a Level ${gameState.employees[type].level} ${capitalize(type)} Employee!`);
-                // Apply employee-specific benefits
-                switch(type) {
-                    case 'storage':
-                        const shipsToAdd = 2; // Each level adds 2 ships
-                        gameState.shipLimit += shipsToAdd;
-                        logEvent(`📦 Storage Employee increased ship limit by ${formatNumberWithSuffix(shipsToAdd)} ships to ${formatNumberWithSuffix(gameState.shipLimit)}.`);
-                        break;
-                    case 'efficiency':
-                        // Each Efficiency Employee increases multiplier by 0.5
-                        gameState.multiplier += 0.5;
-                        logEvent(`⚙️ Efficiency Employee improved trade efficiency. Tech multiplier increased to x${gameState.multiplier}.`);
-                        break;
-                    case 'security':
-                        // Each Security Employee increases protection by 10%
-                        gameState.securityProtection += 10;
-                        logEvent(`🛡️ Security Employee increased protection against random events by 10%. Current Protection: ${gameState.securityProtection}%`);
-                        break;
-                    default:
-                        break;
-                }
-                updateDisplay();
-                saveGame();
-            } else {
-                logEvent(`⚠ Not enough credits to hire ${capitalize(type)} employee! (Cost: ${formatNumberWithSuffix(cost)} Credits)`);
-            }
-        }
-
-        // ==================== UPGRADE ALL ====================
-        function upgradeAll() {
-            let multiplier = gameState.buyAmounts[gameState.currentBuyIndex];
-            multiplier = multiplier === 'Max' ? 'max' : parseInt(multiplier.replace('x', ''));
-
-            if (multiplier === 'Max') {
-                // Upgrade all ships as much as possible, prioritizing cheaper upgrades
-                gameState.ships.sort((a, b) => Math.floor(10 * Math.pow(1.5, a.upgrades)) - Math.floor(10 * Math.pow(1.5, b.upgrades))).forEach(ship => {
-                    while (true) {
-                        const cost = Math.floor(10 * Math.pow(1.5, ship.upgrades));
-                        if (gameState.credits >= cost) {
-                            gameState.credits -= cost;
-                            ship.traderLevel += 1;
-                            ship.upgrades += 1;
-                            gameState.techLevel += 0.1; // Increment tech level slightly for each upgrade
-                            gameState.totalUpgrades += 1;
-                            logEvent(`🔼 Ship ${ship.id} trader level increased to ${ship.traderLevel}.`);
-                        } else {
-                            break;
-                        }
-                    }
-                });
-            } else {
-                // Upgrade all ships based on multiplier
-                for (let i = 0; i < multiplier; i++) {
-                    gameState.ships.sort((a, b) => Math.floor(10 * Math.pow(1.5, a.upgrades)) - Math.floor(10 * Math.pow(1.5, b.upgrades))).forEach(ship => {
-                        const cost = Math.floor(10 * Math.pow(1.5, ship.upgrades));
-                        if (gameState.credits >= cost) {
-                            gameState.credits -= cost;
-                            ship.traderLevel += 1;
-                            ship.upgrades += 1;
-                            gameState.techLevel += 0.1; // Increment tech level slightly for each upgrade
-                            gameState.totalUpgrades += 1;
-                            logEvent(`🔼 Ship ${ship.id} trader level increased to ${ship.traderLevel}.`);
-                        }
-                    });
-                }
-            }
-
-            updateDisplay();
-            saveGame();
         }
 
         // ==================== REBIRTH SYSTEM ====================
@@ -1638,106 +1601,103 @@
             }
         }
 
-        // ==================== SHARE FEATURE ====================
-        function shareGame() {
-            const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-            if (currentTime - gameState.shareCooldown.lastShareTime < gameState.shareCooldown.cooldownDuration) {
-                const remaining = gameState.shareCooldown.cooldownDuration - (currentTime - gameState.shareCooldown.lastShareTime);
-                logEvent(`⚠ Share bonus is on cooldown. Please wait ${formatTime(remaining)} before sharing again.`);
-                return;
-            }
-            const shareModal = document.getElementById('share-confirm-modal');
-            if (shareModal) {
-                shareModal.style.display = 'block';
-            } else {
-                logEvent(`⚠ Share Confirmation Modal not found.`);
-            }
-        }
-
-        function closeShareConfirmModal() {
-            const shareModal = document.getElementById('share-confirm-modal');
-            if (shareModal) {
-                shareModal.style.display = 'none';
-            }
-        }
-
-        async function copyShareLink() {
-            const shareLink = document.getElementById('share-link');
-            if (!shareLink) {
-                logEvent(`⚠ Share Link element not found.`);
-                return;
-            }
-            try {
-                await navigator.clipboard.writeText(shareLink.value);
-                logEvent(`📋 Game link copied to clipboard! You earned a 500 Credits bonus.`);
-                gameState.credits += 500;
-                gameState.totalCreditsEarned += 500;
-                gameState.totalEarnings += 500;
-                // Update share cooldown
-                gameState.shareCooldown.lastShareTime = Math.floor(Date.now() / 1000);
-                updateDisplay();
-                saveGame();
-            } catch (err) {
-                console.error('Failed to copy:', err);
-                logEvent(`⚠ Failed to copy the game link.`);
-            }
-
-            closeShareConfirmModal();
-        }
-
-        // ==================== BUY SHIP SLOTS ====================
-        function buyShipSlots() {
-            const cost = Math.floor(20000 * Math.pow(1.5, gameState.shipLimit / 10));
-            if (gameState.credits >= cost) {
-                gameState.credits -= cost;
-                gameState.shipLimit += 10; // Each purchase adds 10 ship slots
-                logEvent(`➕ Ship slots purchased! New ship limit: ${formatNumberWithSuffix(gameState.shipLimit)}.`);
-                updateDisplay();
-                saveGame();
-            } else {
-                logEvent(`⚠ Not enough credits to buy ship slots! (Cost: ${formatNumberWithSuffix(cost)} Credits)`);
-            }
-        }
-
-        // ==================== KEY BINDINGS ====================
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeAllModals();
-            }
-            if (e.key === 'Control') {
-                setBuyMode(4); // 50x
-            }
-            if (e.key === 'Shift') {
-                setBuyMode(1); // 10x
-            }
-        });
-
-        document.addEventListener('keyup', function(e) {
-            if (e.key === 'Control' || e.key === 'Shift') {
-                setBuyMode(0); // Reset to 1x
-            }
-        });
-
-        function toggleBuyAmount() {
-            gameState.currentBuyIndex = (gameState.currentBuyIndex + 1) % gameState.buyAmounts.length;
-            const buyAmountButton = document.querySelector('.buy-toggle button');
-            if (buyAmountButton) {
-                buyAmountButton.innerText = `Buy: ${gameState.buyAmounts[gameState.currentBuyIndex]}`;
-            }
-            saveGame();
-        }
-
-        function setBuyMode(modeIndex) {
-            if (modeIndex >=0 && modeIndex < gameState.buyAmounts.length) {
-                gameState.currentBuyIndex = modeIndex;
-                const buyAmountButton = document.querySelector('.buy-toggle button');
-                if (buyAmountButton) {
-                    buyAmountButton.innerText = `Buy: ${gameState.buyAmounts[gameState.currentBuyIndex]}`;
+        function updateRebirthInfo() {
+            const rebirthInfo = document.getElementById('rebirth-info');
+            if (rebirthInfo) {
+                const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+                const remaining = gameState.rebirthCooldown.cooldownDuration - (currentTime - gameState.rebirthCooldown.lastRebirthTime);
+                if (remaining > 0) {
+                    rebirthInfo.innerText = localization[gameState.language].rebirthCooldownInfo.replace("{time}", formatTime(remaining));
                 } else {
-                    console.error("Buy amount button not found.");
+                    rebirthInfo.innerText = "";
                 }
-                saveGame();
             }
+        }
+
+        function openRebirthModalConfirm() {
+            const rebirthConfirmModal = document.getElementById('rebirth-modal-confirm');
+            if (rebirthConfirmModal) {
+                const pointsEarned = Math.floor(gameState.totalCreditsEarned / 100000);
+                const rebirthText = localization[gameState.language].confirmRebirthText.replace("{points}", pointsEarned);
+                rebirthConfirmModal.querySelector('p').innerHTML = rebirthText;
+                rebirthConfirmModal.style.display = 'block';
+            } else {
+                logEvent(`⚠ Rebirth Confirmation Modal not found.`);
+            }
+        }
+
+        function closeRebirthModalConfirm() {
+            const rebirthConfirmModal = document.getElementById('rebirth-modal-confirm');
+            if (rebirthConfirmModal) {
+                rebirthConfirmModal.style.display = 'none';
+            }
+        }
+
+        function openResetModal() {
+            const resetModal = document.getElementById('reset-modal');
+            if (resetModal) {
+                resetModal.style.display = 'block';
+            } else {
+                logEvent(`⚠ Reset Modal not found.`);
+            }
+        }
+
+        function closeResetModal() {
+            const resetModal = document.getElementById('reset-modal');
+            if (resetModal) {
+                resetModal.style.display = 'none';
+            }
+        }
+
+        function closeAllModals() {
+            const modals = document.querySelectorAll('.modal-menu');
+            modals.forEach(modal => {
+                modal.style.display = 'none';
+            });
+        }
+
+        // Close modals when clicking outside of them
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal-menu');
+            modals.forEach(modal => {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // ==================== NEW FEATURES ====================
+        // Device Detection and Mode Setting
+        function detectDevice() {
+            const ua = navigator.userAgent;
+            if (/mobile/i.test(ua)) {
+                return 'mobile';
+            }
+            if (/iPad|Android|Touch/.test(ua)) {
+                return 'tablet';
+            }
+            return 'desktop';
+        }
+
+        function applyDeviceMode(mode) {
+            document.body.classList.remove('desktop-mode', 'tablet-mode', 'mobile-mode');
+            if (mode === 'mobile') {
+                document.body.classList.add('mobile-mode');
+            } else if (mode === 'tablet') {
+                document.body.classList.add('tablet-mode');
+            } else {
+                document.body.classList.add('desktop-mode');
+            }
+        }
+
+        // Manual toggle for device mode
+        function toggleDeviceMode() {
+            const currentMode = detectDevice();
+            let newMode = 'desktop';
+            if (currentMode === 'desktop') newMode = 'mobile';
+            else if (currentMode === 'mobile') newMode = 'tablet';
+            else if (currentMode === 'tablet') newMode = 'desktop';
+            applyDeviceMode(newMode);
         }
 
         // ==================== THEME TOGGLE ====================
@@ -1754,16 +1714,20 @@
         }
 
         function updateTheme() {
-            document.body.classList.remove('light-theme', 'blue-theme');
-            if (gameState.theme === 'light') {
+            document.body.classList.remove('dark-theme', 'light-theme', 'blue-theme');
+            if (gameState.theme === 'dark') {
+                document.body.classList.add('dark-theme');
+            } else if (gameState.theme === 'light') {
                 document.body.classList.add('light-theme');
             } else if (gameState.theme === 'blue') {
                 document.body.classList.add('blue-theme');
             }
             // Update modal themes
             document.querySelectorAll('.modal-content').forEach(modal => {
-                modal.classList.remove('light-theme', 'blue-theme');
-                if (gameState.theme === 'light') {
+                modal.classList.remove('dark-theme', 'light-theme', 'blue-theme');
+                if (gameState.theme === 'dark') {
+                    modal.classList.add('dark-theme');
+                } else if (gameState.theme === 'light') {
                     modal.classList.add('light-theme');
                 } else if (gameState.theme === 'blue') {
                     modal.classList.add('blue-theme');
@@ -1773,7 +1737,7 @@
 
         // ==================== SETTINGS MENU ====================
         function toggleSettings() {
-            const settingsMenu = document.getElementById('settings-menu');
+            const settingsMenu = document.getElementById('settings-menu-modal');
             if (settingsMenu) {
                 settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block';
             } else {
@@ -1817,186 +1781,227 @@
         }
 
         // ==================== MODALS ====================
-        function openRebirthModalConfirm() {
-            const rebirthConfirmModal = document.getElementById('rebirth-modal-confirm');
-            if (rebirthConfirmModal) {
-                const pointsEarned = Math.floor(gameState.totalCreditsEarned / 100000);
-                const rebirthText = localization[gameState.language].confirmRebirthText.replace("{points}", pointsEarned);
-                rebirthConfirmModal.querySelector('p').innerHTML = rebirthText;
-                rebirthConfirmModal.style.display = 'block';
+        // All modals are defined in the HTML and managed via functions above
+
+        // ==================== NEW FEATURES ====================
+        // Additional features as per user instructions have been integrated above
+
+        // ==================== SHARE FEATURE ====================
+        function shareGame() {
+            const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+            if (currentTime - gameState.shareCooldown.lastShareTime < gameState.shareCooldown.cooldownDuration) {
+                const remaining = gameState.shareCooldown.cooldownDuration - (currentTime - gameState.shareCooldown.lastShareTime);
+                logEvent(`⚠ Share bonus is on cooldown. Please wait ${formatTime(remaining)} before sharing again.`);
+                return;
+            }
+            const shareModal = document.getElementById('share-confirm-modal');
+            if (shareModal) {
+                shareModal.style.display = 'block';
             } else {
-                logEvent(`⚠ Rebirth Confirmation Modal not found.`);
+                logEvent(`⚠ Share Confirmation Modal not found.`);
             }
         }
 
-        function closeRebirthModal() {
-            const rebirthConfirmModal = document.getElementById('rebirth-modal-confirm');
-            if (rebirthConfirmModal) {
-                rebirthConfirmModal.style.display = 'none';
+        function closeShareConfirmModal() {
+            const shareModal = document.getElementById('share-confirm-modal');
+            if (shareModal) {
+                shareModal.style.display = 'none';
             }
         }
 
-        function openResetModal() {
-            const resetModal = document.getElementById('reset-modal');
-            if (resetModal) {
-                resetModal.style.display = 'block';
-            } else {
-                logEvent(`⚠ Reset Modal not found.`);
+        function copyShareLink() {
+            const shareLink = document.getElementById('share-link');
+            if (!shareLink) {
+                logEvent(`⚠ Share Link element not found.`);
+                return;
             }
-        }
+            shareLink.select();
+            shareLink.setSelectionRange(0, 99999); // For mobile devices
 
-        function closeResetModal() {
-            const resetModal = document.getElementById('reset-modal');
-            if (resetModal) {
-                resetModal.style.display = 'none';
-            }
-        }
-
-        function closeAllModals() {
-            const modals = document.querySelectorAll('.modal-menu');
-            modals.forEach(modal => {
-                modal.style.display = 'none';
+            navigator.clipboard.writeText(shareLink.value).then(() => {
+                logEvent(`📋 Game link copied to clipboard! You earned a 500 Credits bonus.`);
+                gameState.credits += 500;
+                gameState.totalCreditsEarned += 500;
+                gameState.totalEarnings += 500;
+                // Update share cooldown
+                gameState.shareCooldown.lastShareTime = Math.floor(Date.now() / 1000);
+                updateDisplay();
+                saveGame();
+            }).catch(() => {
+                logEvent(`⚠ Failed to copy the game link.`);
             });
+
+            closeShareConfirmModal();
         }
 
-        // Close modals when clicking outside of them
-        window.onclick = function(event) {
-            const modals = document.querySelectorAll('.modal-menu');
-            modals.forEach(modal => {
-                if (event.target == modal) {
-                    modal.style.display = 'none';
+        // ==================== BUY SHIP SLOTS ====================
+        function buyShipSlots() {
+            const cost = Math.floor(20000 * Math.pow(1.2, gameState.shipLimit / 10));
+            if (gameState.credits >= cost) {
+                gameState.credits -= cost;
+                gameState.shipLimit += 10; // Each purchase adds 10 ship slots
+                logEvent(`➕ Ship slots purchased! New ship limit: ${formatNumberWithSuffix(gameState.shipLimit)}.`);
+                updateDisplay();
+                saveGame();
+            } else {
+                logEvent(`⚠ Not enough credits to buy ship slots! (Cost: ${formatNumberWithSuffix(cost)} Credits)`);
+            }
+        }
+
+        // ==================== EMPLOYEE MANAGEMENT ====================
+        function hireEmployee(type) {
+            const employee = gameState.employees[type];
+            if (!employee) {
+                logEvent(`⚠ Invalid employee type: ${type}.`);
+                return;
+            }
+            const cost = Math.floor(employee.cost * Math.pow(1.2, employee.level));
+            const maxLevel = 10; // Example maximum level
+            if (employee.level >= maxLevel) {
+                logEvent(`⚠ You have reached the maximum level for ${capitalize(type)} Employees.`);
+                return;
+            }
+            if (gameState.credits >= cost) {
+                gameState.credits -= cost;
+                gameState.employees[type].level += 1;
+                logEvent(`👨‍🚀 Hired a Level ${gameState.employees[type].level} ${capitalize(type)} Employee!`);
+                // Apply employee-specific benefits
+                switch(type) {
+                    case 'storage':
+                        const shipsToAdd = 2; // Each level adds 2 ships
+                        gameState.shipLimit += shipsToAdd;
+                        logEvent(`📦 Storage Employee increased ship limit by ${formatNumberWithSuffix(shipsToAdd)} ships to ${formatNumberWithSuffix(gameState.shipLimit)}.`);
+                        break;
+                    case 'efficiency':
+                        // Each Efficiency Employee increases multiplier by 0.5
+                        gameState.multiplier += 0.5;
+                        logEvent(`⚙️ Efficiency Employee improved trade efficiency. Tech multiplier increased to x${gameState.multiplier}.`);
+                        break;
+                    case 'security':
+                        // Each Security Employee increases protection by 10%
+                        gameState.securityProtection += 10;
+                        logEvent(`🛡️ Security Employee increased protection against random events by 10%. Current Protection: ${gameState.securityProtection}%`);
+                        break;
+                    default:
+                        break;
                 }
-            });
-        }
-
-        // ==================== MANUAL SAVE & LOAD ====================
-        // Implement Export and Import Save Code functionality
-        function exportSaveCode() {
-            try {
-                const saveData = JSON.stringify(gameState);
-                const encodedBackup = btoa(saveData);
-                prompt("Copy your save code below:", encodedBackup);
-                logEvent(`💾 Save code exported successfully.`);
-            } catch (e) {
-                console.error("Export failed:", e);
-                logEvent("⚠ Failed to export save code.");
+                updateDisplay();
+                saveGame();
+            } else {
+                logEvent(`⚠ Not enough credits to hire ${capitalize(type)} employee! (Cost: ${formatNumberWithSuffix(cost)} Credits)`);
             }
         }
 
-        function importSaveCode() {
-            const saveCode = prompt("Paste your save code below:");
-            if (saveCode) {
-                try {
-                    const decodedBackup = atob(saveCode);
-                    const parsedBackup = JSON.parse(decodedBackup);
-                    // Validate and migrate if necessary
-                    if (parsedBackup.version && parsedBackup.version === VERSION) {
-                        gameState = parsedBackup;
-                        migrateGameState();
-                        handleOfflineProgress();
-                        updateTheme();
-                        updateLanguage();
-                        renderShips();
-                        updateDisplay();
-                        applyDeviceMode();
-                        logEvent(`💾 Save code imported successfully.`);
-                    } else {
-                        logEvent(`⚠ Invalid save code version.`);
+        // ==================== UPGRADE ALL ====================
+        function upgradeAll() {
+            let multiplier = gameState.buyAmounts[gameState.currentBuyIndex];
+            multiplier = multiplier === 'Max' ? 'max' : parseInt(multiplier.replace('x', ''));
+
+            if (multiplier === 'Max') {
+                // Upgrade all ships as much as possible, prioritizing cheaper upgrades
+                gameState.ships.sort((a, b) => Math.floor(10 * Math.pow(1.5, a.upgrades)) - Math.floor(10 * Math.pow(1.5, b.upgrades))).forEach(ship => {
+                    while (true) {
+                        const cost = Math.floor(10 * Math.pow(1.5, ship.upgrades));
+                        if (gameState.credits >= cost) {
+                            gameState.credits -= cost;
+                            ship.traderLevel += 1;
+                            ship.upgrades += 1;
+                            gameState.techLevel += 0.1; // Increment tech level slightly for each upgrade
+                            gameState.totalUpgrades += 1;
+                            logEvent(`🔼 Ship ${ship.id} trader level increased to ${ship.traderLevel}.`);
+                        } else {
+                            break;
+                        }
                     }
-                } catch (e) {
-                    console.error("Import failed:", e);
-                    logEvent(`⚠ Failed to import save code. Please ensure it's correct.`);
+                });
+            } else {
+                // Upgrade all ships based on multiplier
+                for (let i = 0; i < multiplier; i++) {
+                    gameState.ships.sort((a, b) => Math.floor(10 * Math.pow(1.5, a.upgrades)) - Math.floor(10 * Math.pow(1.5, b.upgrades))).forEach(ship => {
+                        const cost = Math.floor(10 * Math.pow(1.5, ship.upgrades));
+                        if (gameState.credits >= cost) {
+                            gameState.credits -= cost;
+                            ship.traderLevel += 1;
+                            ship.upgrades += 1;
+                            gameState.techLevel += 0.1; // Increment tech level slightly for each upgrade
+                            gameState.totalUpgrades += 1;
+                            logEvent(`🔼 Ship ${ship.id} trader level increased to ${ship.traderLevel}.`);
+                        }
+                    });
                 }
             }
-        }
 
-        // ==================== HIGH SCORE ====================
-        // High score feature removed as per instructions
-
-        // ==================== SHARE BUTTON COOLDOWN ====================
-        // Already handled with shareCooldown in shareGame()
-
-        // ==================== BACKUP DATA ====================
-        function backupLocalStorage() {
-            try {
-                const backupData = JSON.stringify(gameState);
-                const encodedBackup = btoa(backupData);
-                localStorage.setItem('interstellarTraderBackup', encodedBackup);
-            } catch (e) {
-                console.error("Backup failed:", e);
-                logEvent("⚠ Backup failed.");
-            }
-        }
-
-        function restoreFromBackup() {
-            const backupState = localStorage.getItem('interstellarTraderBackup');
-            if (backupState) {
-                try {
-                    const decodedBackup = atob(backupState);
-                    const parsedBackup = JSON.parse(decodedBackup);
-                    gameState = parsedBackup;
-                    migrateGameState();
-                    handleOfflineProgress();
-                    updateTheme();
-                    updateLanguage();
-                    renderShips();
-                    updateDisplay();
-                    applyDeviceMode();
-                    logEvent(`💾 Restored from backup successfully.`);
-                } catch (e) {
-                    console.error("Restore backup failed:", e);
-                    logEvent(`⚠ Failed to restore from backup.`);
-                }
-            }
-        }
-
-        // Periodic backup every 5 minutes
-        setInterval(backupLocalStorage, 300000); // 5 minutes
-
-        // ==================== ACCESSIBILITY ====================
-        // Add ARIA labels and ensure keyboard navigation
-        // Already included ARIA labels in HTML elements
-
-        // ==================== DEVICE MODE ====================
-        function detectDevice() {
-            const ua = navigator.userAgent;
-            if (/Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)) {
-                return 'mobile';
-            }
-            return 'desktop';
-        }
-
-        function applyDeviceMode() {
-            if (gameState.deviceMode === 'auto') {
-                const detected = detectDevice();
-                gameState.deviceMode = detected;
-            }
-            updateDeviceModeUI();
-        }
-
-        function toggleDeviceMode() {
-            if (gameState.deviceMode === 'desktop') {
-                gameState.deviceMode = 'mobile';
-            } else if (gameState.deviceMode === 'mobile') {
-                gameState.deviceMode = 'desktop';
-            }
-            updateDeviceModeUI();
+            updateDisplay();
             saveGame();
         }
 
-        function updateDeviceModeUI() {
-            if (gameState.deviceMode === 'desktop') {
-                document.body.classList.add('desktop-mode');
-                document.body.classList.remove('mobile-mode');
-            } else if (gameState.deviceMode === 'mobile') {
-                document.body.classList.add('mobile-mode');
-                document.body.classList.remove('desktop-mode');
-            }
-            // Additional UI adjustments can be made here
+        // ==================== REBIRTH SYSTEM ====================
+        // Already implemented above in rebirth()
+
+        // ==================== RANDOM EVENTS ====================
+        function triggerRandomEvent() {
+            // Random events have been removed as per user instructions
+            // If you wish to add alternative events, implement them here
         }
 
-        // ==================== MODAL PLACEHOLDERS REMOVED ====================
-        // Achievements, undo features, leaderboards, autoplay, audio, game-over detection, high scores, pop-up notifications have been removed as per instructions
+        // ==================== SHARE FEATURE ====================
+        // Already implemented above in shareGame(), copyShareLink()
+
+        // ==================== SAVE AND LOAD ====================
+        // Already implemented above
+
+        // ==================== HIGH SCORE ====================
+        // Removed high score as per user instructions
+
+        // ==================== POP-UP NOTIFICATIONS ====================
+        // Removed pop-up notification system; notifications only show in event log
+
+        // ==================== PAUSE/RESUME ====================
+        // Removed pause functionality as per user instructions
+
+        // ==================== GAME RESET ====================
+        // Already implemented above
+
+        // ==================== KEY BINDINGS ====================
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeAllModals();
+            }
+            if (e.key === 'Control') {
+                setBuyMode(4); // 50x
+            }
+            if (e.key === 'Shift') {
+                setBuyMode(1); // 10x
+            }
+        });
+
+        document.addEventListener('keyup', function(e) {
+            if (e.key === 'Control' || e.key === 'Shift') {
+                setBuyMode(0); // Reset to 1x
+            }
+        });
+
+        function toggleBuyAmount() {
+            gameState.currentBuyIndex = (gameState.currentBuyIndex + 1) % gameState.buyAmounts.length;
+            const buyAmountButton = document.querySelector('.buttons button[data-localize="buyAmount"]');
+            if (buyAmountButton) {
+                buyAmountButton.innerText = `Buy: ${gameState.buyAmounts[gameState.currentBuyIndex]}`;
+            }
+            saveGame();
+        }
+
+        function setBuyMode(modeIndex) {
+            if (modeIndex >=0 && modeIndex < gameState.buyAmounts.length) {
+                gameState.currentBuyIndex = modeIndex;
+                const buyAmountButton = document.querySelector('.buttons button[data-localize="buyAmount"]');
+                if (buyAmountButton) {
+                    buyAmountButton.innerText = `Buy: ${gameState.buyAmounts[gameState.currentBuyIndex]}`;
+                } else {
+                    console.error("Buy amount button not found.");
+                }
+                saveGame();
+            }
+        }
 
         // ==================== INITIALIZE GAME ====================
         function initialize() {
@@ -2011,8 +2016,12 @@
                 }
             });
             startTimeCounter();
-            applyDeviceMode();
-            setInterval(updateRebirthMenu, 1000); // Update rebirth info every second
+            updateRebirthMenu();
+            setInterval(updateRebirthMenu, 1000); // Update every second
+
+            // Apply device mode based on detection
+            const deviceMode = detectDevice();
+            applyDeviceMode(deviceMode);
         }
 
         let timeCounterInterval = null;
@@ -2036,40 +2045,57 @@
 
         // ==================== CLEAR ALL INTERVALS ====================
         function clearAllIntervals() {
-            gameState.ships.forEach(ship => {
-                if (ship.trading) {
-                    ship.trading = false;
+            // Currently, no intervals are stored per ship
+            // If future features introduce intervals, manage them here
+        }
+
+        // ==================== BACKUP DATA ====================
+        function backupLocalStorage() {
+            try {
+                const backupData = JSON.stringify(gameState);
+                const encodedBackup = btoa(backupData);
+                localStorage.setItem('interstellarTraderBackup', encodedBackup);
+            } catch (e) {
+                console.error("Backup failed:", e);
+                logEvent("⚠ Backup failed.");
+            }
+        }
+
+        function restoreFromBackup() {
+            const backupState = localStorage.getItem('interstellarTraderBackup');
+            if (backupState) {
+                try {
+                    const decodedBackup = atob(backupState);
+                    const parsedBackup = JSON.parse(decodedBackup);
+                    gameState = parsedBackup;
+                    migrateGameState();
+                    handleOfflineProgress();
+                    updateTheme();
+                    updateDisplay();
+                    renderShips();
+                    updateLanguage();
+                    logEvent(`💾 Restored from backup successfully.`);
+                } catch (e) {
+                    console.error("Restore backup failed:", e);
+                    logEvent(`⚠ Failed to restore from backup.`);
                 }
-            });
-            // No employee intervals implemented, but placeholder if added in future
-        }
-
-        // ==================== SHARE FEATURE ====================
-        function shareGame() {
-            const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-            if (currentTime - gameState.shareCooldown.lastShareTime < gameState.shareCooldown.cooldownDuration) {
-                const remaining = gameState.shareCooldown.cooldownDuration - (currentTime - gameState.shareCooldown.lastShareTime);
-                logEvent(`⚠ Share bonus is on cooldown. Please wait ${formatTime(remaining)} before sharing again.`);
-                return;
-            }
-            const shareModal = document.getElementById('share-confirm-modal');
-            if (shareModal) {
-                shareModal.style.display = 'block';
             } else {
-                logEvent(`⚠ Share Confirmation Modal not found.`);
+                logEvent(`⚠ No backup available to restore.`);
             }
         }
 
-        // ==================== ADDITIONAL FUNCTIONS ====================
-        function capitalize(str) {
-            return str.charAt(0).toUpperCase() + str.slice(1);
-        }
+        // ==================== LOCALSTORAGE EVENT LISTENER ====================
+        window.addEventListener('storage', function(event) {
+            if (event.key === 'interstellarTraderSave') {
+                loadGame();
+            }
+        });
 
-        // ==================== RANDOM EVENTS ====================
-        function triggerRandomEvent() {
-            // Random events have been removed as per user instructions
-            // If you wish to add alternative events, implement them here
-        }
+        // ==================== CLEAR ALL INTERVALS ====================
+        // Function defined above
+
+        // ==================== ACHIEVEMENTS ====================
+        // Achievements have been intentionally removed and will never be reintroduced to maintain game balance and simplicity.
 
         // ==================== LOCALIZATION ====================
         function updateLanguage() {
@@ -2098,24 +2124,13 @@
             }
         }
 
-        // ==================== REBIRTH MENU INFO ====================
-        function updateRebirthInfo() {
-            const rebirthInfo = document.getElementById('rebirth-info');
-            if (rebirthInfo) {
-                const currentTime = Math.floor(Date.now() / 1000);
-                const remaining = gameState.rebirthCooldown.cooldownDuration - (currentTime - gameState.rebirthCooldown.lastRebirthTime);
-                if (remaining > 0) {
-                    rebirthInfo.innerText = localization[gameState.language].rebirthCooldownInfo.replace("{time}", formatTime(remaining));
-                } else {
-                    rebirthInfo.innerText = "";
-                }
-            }
-        }
+        // ==================== ERROR HANDLING AND RECOVERY ====================
+        // Automatic recovery options have been implemented via restoreFromBackup()
 
-        // ==================== DEVICE MODE UI ====================
-        // Additional adjustments for device modes can be handled here
-        // For now, it's handled via CSS classes
+        // ==================== USER EXPERIENCE ENHANCEMENTS ====================
+        // All feedback is provided via the event log
 
+        // ==================== END OF SCRIPT ====================
     </script>
 </body>
 </html>
