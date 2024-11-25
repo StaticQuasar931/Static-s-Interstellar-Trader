@@ -89,7 +89,6 @@
         .settings-button, .help-button, .share-button {
             position: absolute;
             top: 10px;
-            right: 150px;
             background: #1f2833;
             color: #c5c6c7;
             border: none;
@@ -101,13 +100,14 @@
             font-weight: bold;
             z-index: 1001;
         }
-        .help-button {
-            right: 100px;
-            background: #1f2833;
-        }
         .share-button {
             right: 200px;
-            background: #1f2833;
+        }
+        .help-button {
+            right: 100px;
+        }
+        .settings-button {
+            right: 300px;
         }
         .settings-button:hover, .help-button:hover, .share-button:hover {
             background: #45a29e;
@@ -291,9 +291,7 @@
             font-weight: bold;
             border-radius: 5px;
         }
-
-        /* ==================== UPGRADE COUNT ==================== */
-        .upgrade-count {
+        .ship .upgrade-count {
             position: absolute;
             top: 10px;
             left: 10px;
@@ -310,7 +308,7 @@
             cursor: pointer;
             transition: background 0.3s;
         }
-        .upgrade-count:hover {
+        .ship .upgrade-count:hover {
             background: #e0a800;
         }
 
@@ -355,15 +353,15 @@
             }
             .settings-button {
                 top: 50px;
-                right: 150px;
-            }
-            .help-button {
-                top: 50px;
-                right: 100px;
+                right: 300px;
             }
             .share-button {
                 top: 50px;
                 right: 200px;
+            }
+            .help-button {
+                top: 50px;
+                right: 100px;
             }
             .modal-content {
                 width: 95%;
@@ -427,10 +425,10 @@
     <button class="button share-button" onclick="shareGame()" title="Share the game and earn a bonus">🔗 Share Game</button>
 
     <!-- Settings Button -->
-    <button class="button settings-button" onclick="toggleSettings()" title="Open Settings">⚙️</button>
+    <button class="button settings-button" onclick="toggleSettings()" title="Open Settings">⚙️ Settings</button>
 
     <!-- Help Button -->
-    <button class="button help-button" onclick="toggleHelp()" title="Open Help">❓</button>
+    <button class="button help-button" onclick="toggleHelp()" title="Open Help">❓ Help</button>
 
     <!-- Buy Amount Toggle -->
     <div class="buy-toggle">
@@ -726,11 +724,24 @@
             if (!gameState.version || gameState.version !== VERSION) {
                 // Handle migration if needed
                 // Example: Initialize new properties for newer versions
-                if (gameState.version === "v2.0.0") {
+                // Ensure all necessary properties are initialized
+                if (!gameState.shareCooldown) {
                     gameState.shareCooldown = {
                         lastShareTime: 0,
                         cooldownDuration: 86400 // 24 hours in seconds
                     };
+                }
+                if (!gameState.rebirthCooldown) {
+                    gameState.rebirthCooldown = {
+                        lastRebirthTime: 0,
+                        cooldownDuration: 604800 // 7 days in seconds
+                    };
+                }
+                if (gameState.securityProtection === undefined) {
+                    gameState.securityProtection = 0;
+                }
+                if (gameState.rebirthPoints === undefined) {
+                    gameState.rebirthPoints = 0;
                 }
                 // Update version
                 gameState.version = VERSION;
@@ -760,34 +771,61 @@
 
         // ==================== UPDATE DISPLAY ====================
         function updateDisplay() {
-            document.getElementById('credits').innerText = `${formatNumberWithSuffix(gameState.credits)} 💸`;
-            document.getElementById('spaceship-display').innerText = `Spaceships: ${gameState.ships.length}/${formatNumberWithSuffix(gameState.shipLimit)} 🚀`;
-            document.getElementById('tech-level-display').innerHTML = `<strong>Technology Level:</strong> ${gameState.techLevel.toFixed(1)} ✯`;
-            document.getElementById('rebirth-points').innerText = gameState.rebirthPoints;
-            document.getElementById('buy-amount-button').innerText = `Buy: ${gameState.buyAmounts[gameState.currentBuyIndex]}`;
-            document.getElementById('version-number').innerText = VERSION;
+            const creditsElement = document.getElementById('credits');
+            if (creditsElement) {
+                creditsElement.innerText = `${formatNumberWithSuffix(gameState.credits)} 💸`;
+            } else {
+                console.error("Credits element not found.");
+            }
+
+            const spaceshipDisplay = document.getElementById('spaceship-display');
+            if (spaceshipDisplay) {
+                spaceshipDisplay.innerText = `Spaceships: ${gameState.ships.length}/${formatNumberWithSuffix(gameState.shipLimit)} 🚀`;
+            } else {
+                console.error("Spaceship display element not found.");
+            }
+
+            const techLevelDisplay = document.getElementById('tech-level-display');
+            if (techLevelDisplay) {
+                techLevelDisplay.innerHTML = `<strong>Technology Level:</strong> ${gameState.techLevel.toFixed(1)} ✯`;
+            } else {
+                console.error("Tech level display element not found.");
+            }
+
+            const rebirthPoints = document.getElementById('rebirth-points');
+            if (rebirthPoints) {
+                rebirthPoints.innerText = gameState.rebirthPoints;
+            } else {
+                console.error("Rebirth points element not found.");
+            }
+
+            const buyAmountButton = document.getElementById('buy-amount-button');
+            if (buyAmountButton) {
+                buyAmountButton.innerText = `Buy: ${gameState.buyAmounts[gameState.currentBuyIndex]}`;
+            } else {
+                console.error("Buy amount button not found.");
+            }
+
+            const versionNumber = document.getElementById('version-number');
+            if (versionNumber) {
+                versionNumber.innerText = VERSION;
+            } else {
+                console.error("Version number element not found.");
+            }
 
             // Update upgrade buttons with dynamic costs and disable if not affordable
             gameState.ships.forEach(ship => {
                 const upgradeButton = document.querySelector(`#ship-${ship.id} .upgrade-trader-button`);
                 if (upgradeButton) {
-                    const cost = Math.floor(10 * Math.pow(1.5, ship.upgrades)); // Scaling: 10, 15, 22, 33, 50, etc.
+                    const cost = Math.floor(10 * Math.pow(1.5, ship.upgrades));
                     upgradeButton.innerText = `Upgrade Trader (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
                     upgradeButton.disabled = gameState.credits < cost;
+                } else {
+                    logEvent(`⚠ Upgrade button for Ship ${ship.id} not found.`);
                 }
             });
 
             // Update other upgrade buttons in upgrade menu
-            const automationCost = Math.floor(500 * Math.pow(1.2, gameState.ships.filter(s => s.automation).length));
-            const multiplierCost = Math.floor(10000 * Math.pow(1.5, gameState.techLevel - 1)); // Increased cost for multiplier
-            const employeeCost = {
-                storage: Math.floor(1000 * Math.pow(1.2, gameState.employees.storage.level)),
-                efficiency: Math.floor(1500 * Math.pow(1.2, gameState.employees.efficiency.level)),
-                security: Math.floor(2000 * Math.pow(1.2, gameState.employees.security.level))
-            };
-            const bigUpgradeCost = Math.floor(5000 * Math.pow(1.2, gameState.techLevel - 1));
-            const shipLimitUpgradeCost = calculateShipLimitUpgradeCost();
-
             const upgradeMenu = document.getElementById('upgrade-menu');
             if (upgradeMenu) {
                 const automationButton = upgradeMenu.querySelector('button[onclick="buyAutomation()"]');
@@ -799,32 +837,46 @@
                 const shipLimitUpgradeButton = upgradeMenu.querySelector('button[onclick="upgradeShipLimit()"]');
 
                 if (automationButton) {
-                    automationButton.innerText = `🤖 Buy Automation (Cost: ${formatNumberWithSuffix(automationCost)} Credits)`;
-                    automationButton.disabled = gameState.credits < automationCost;
+                    const automationCount = gameState.ships.filter(s => s.automation).length;
+                    const cost = Math.floor(500 * Math.pow(1.2, automationCount));
+                    automationButton.innerText = `🤖 Buy Automation (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
+                    automationButton.disabled = gameState.credits < cost;
                 }
+
                 if (multiplierButton) {
-                    multiplierButton.innerText = `✖️ Buy Multiplier (Cost: ${formatNumberWithSuffix(multiplierCost)} Credits)`;
-                    multiplierButton.disabled = gameState.credits < multiplierCost;
+                    const cost = Math.floor(10000 * Math.pow(1.5, gameState.techLevel - 1)); // Increased cost for multiplier
+                    multiplierButton.innerText = `✖️ Buy Multiplier (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
+                    multiplierButton.disabled = gameState.credits < cost;
                 }
+
                 if (hireStorageButton) {
-                    hireStorageButton.innerText = `📦 Hire Storage Employee (Cost: ${formatNumberWithSuffix(employeeCost.storage)} Credits)`;
-                    hireStorageButton.disabled = gameState.credits < employeeCost.storage;
+                    const cost = Math.floor(1000 * Math.pow(1.2, gameState.employees.storage.level));
+                    hireStorageButton.innerText = `📦 Hire Storage Employee (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
+                    hireStorageButton.disabled = gameState.credits < cost;
                 }
+
                 if (hireEfficiencyButton) {
-                    hireEfficiencyButton.innerText = `⚙️ Hire Efficiency Employee (Cost: ${formatNumberWithSuffix(employeeCost.efficiency)} Credits)`;
-                    hireEfficiencyButton.disabled = gameState.credits < employeeCost.efficiency;
+                    const cost = Math.floor(1500 * Math.pow(1.2, gameState.employees.efficiency.level));
+                    hireEfficiencyButton.innerText = `⚙️ Hire Efficiency Employee (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
+                    hireEfficiencyButton.disabled = gameState.credits < cost;
                 }
+
                 if (hireSecurityButton) {
-                    hireSecurityButton.innerText = `🛡️ Hire Security Employee (Cost: ${formatNumberWithSuffix(employeeCost.security)} Credits)`;
-                    hireSecurityButton.disabled = gameState.credits < employeeCost.security;
+                    const cost = Math.floor(2000 * Math.pow(1.2, gameState.employees.security.level));
+                    hireSecurityButton.innerText = `🛡️ Hire Security Employee (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
+                    hireSecurityButton.disabled = gameState.credits < cost;
                 }
+
                 if (bigUpgradeButton) {
-                    bigUpgradeButton.innerText = `🚀 Big Upgrade for Ship (Cost: ${formatNumberWithSuffix(bigUpgradeCost)} Credits)`;
-                    bigUpgradeButton.disabled = gameState.credits < bigUpgradeCost;
+                    const cost = Math.floor(5000 * Math.pow(1.2, gameState.techLevel - 1));
+                    bigUpgradeButton.innerText = `🚀 Big Upgrade for Ship (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
+                    bigUpgradeButton.disabled = gameState.credits < cost;
                 }
+
                 if (shipLimitUpgradeButton) {
-                    shipLimitUpgradeButton.innerText = `📈 Upgrade Ship Limit (Cost: ${formatNumberWithSuffix(shipLimitUpgradeCost)} Credits)`;
-                    shipLimitUpgradeButton.disabled = gameState.credits < shipLimitUpgradeCost;
+                    const cost = calculateShipLimitUpgradeCost();
+                    shipLimitUpgradeButton.innerText = `📈 Upgrade Ship Limit (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
+                    shipLimitUpgradeButton.disabled = gameState.credits < cost;
                 }
             }
 
@@ -901,10 +953,10 @@
                 shipDiv.classList.add('automation');
             }
             shipDiv.innerHTML = `
-                <div class="upgrade-count">🔼 ${upgrades}</div>
+                <div class="upgrade-count" title="Number of Upgrades">🔼 ${upgrades}</div>
                 <span>🚀 Ship ${shipId}</span>
                 <p>Trader Level: <span id="trader-level-${shipId}">${traderLevel}</span></p>
-                <div class="progress-bar" title="Click anywhere on the ship to start trade">
+                <div class="progress-bar" title="Click to start trade">
                     <div class="progress" id="progress-${shipId}"></div>
                     <span class="progress-time" id="progress-time-${shipId}">10s</span>
                     <span class="progress-earnings" id="progress-earnings-${shipId}">0 💸</span>
@@ -1232,11 +1284,15 @@
             let totalUpgrades = 0;
             for (let i = 0; i < buyAmount; i++) {
                 const cost = Math.floor(10 * Math.pow(1.5, ship.upgrades));
-                totalCost += cost;
-                totalUpgrades += 1;
+                if (gameState.credits >= (totalCost + cost)) {
+                    totalCost += cost;
+                    totalUpgrades += 1;
+                } else {
+                    break;
+                }
             }
 
-            if (gameState.credits >= totalCost) {
+            if (totalUpgrades > 0) {
                 gameState.credits -= totalCost;
                 ship.traderLevel += totalUpgrades;
                 ship.upgrades += totalUpgrades;
@@ -1246,7 +1302,7 @@
                 updateDisplay();
                 saveGame();
             } else {
-                logEvent(`⚠ Not enough credits to upgrade trader for Ship ${ship.id}! (Cost: ${formatNumberWithSuffix(totalCost)} Credits)`);
+                logEvent(`⚠ Not enough credits to upgrade trader for Ship ${ship.id}!`);
             }
         }
 
@@ -1360,9 +1416,6 @@
 
                 // Clear all intervals before resetting ships
                 clearAllIntervals();
-
-                // Update share cooldown if necessary
-                // Not resetting share cooldown to allow rebirth independent of sharing
 
                 // Set rebirth cooldown
                 gameState.rebirthCooldown.lastRebirthTime = currentTime;
@@ -1505,7 +1558,41 @@
                 selectionDiv.appendChild(label);
                 selectionDiv.appendChild(br);
             });
+
+            // Update combine cost
+            updateCombineCost();
         }
+
+        function updateCombineCost() {
+            const selectedCheckboxes = Array.from(document.querySelectorAll('#combine-ship-selection input[type="checkbox"]:checked'));
+            const combineCostSpan = document.getElementById('combine-cost');
+            if (!combineCostSpan) {
+                logEvent(`⚠ Combine Cost element not found.`);
+                return;
+            }
+            if (selectedCheckboxes.length === 2) {
+                const shipId1 = parseInt(selectedCheckboxes[0].value);
+                const shipId2 = parseInt(selectedCheckboxes[1].value);
+                const ship1 = gameState.ships.find(s => s.id === shipId1);
+                const ship2 = gameState.ships.find(s => s.id === shipId2);
+                if (ship1 && ship2) {
+                    const totalUpgrades = ship1.upgrades + ship2.upgrades;
+                    const cost = Math.floor(totalUpgrades / 6); // Example scaling: 300 upgrades -> 50 credits
+                    combineCostSpan.innerText = `${formatNumberWithSuffix(cost)}`;
+                } else {
+                    combineCostSpan.innerText = `0`;
+                }
+            } else {
+                combineCostSpan.innerText = `0`;
+            }
+        }
+
+        // Listen for checkbox changes to update combine cost
+        document.addEventListener('change', function(event) {
+            if (event.target.matches('#combine-ship-selection input[type="checkbox"]')) {
+                updateCombineCost();
+            }
+        });
 
         function confirmCombineShips() {
             const selectedCheckboxes = Array.from(document.querySelectorAll('#combine-ship-selection input[type="checkbox"]:checked'));
@@ -1680,13 +1767,14 @@
         function setBuyMode(modeIndex) {
             if (modeIndex >=0 && modeIndex < gameState.buyAmounts.length) {
                 gameState.currentBuyIndex = modeIndex;
-                document.getElementById('buy-amount-button').innerText = `Buy: ${gameState.buyAmounts[gameState.currentBuyIndex]}`;
+                const buyAmountButton = document.getElementById('buy-amount-button');
+                if (buyAmountButton) {
+                    buyAmountButton.innerText = `Buy: ${gameState.buyAmounts[gameState.currentBuyIndex]}`;
+                } else {
+                    logEvent(`⚠ Buy amount button not found.`);
+                }
                 saveGame();
             }
-        }
-
-        function cycleBuyAmount() {
-            // No longer used based on new requirements
         }
 
         // ==================== THEME TOGGLE ====================
