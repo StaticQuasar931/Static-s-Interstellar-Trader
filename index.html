@@ -79,15 +79,47 @@
             color: #45a29e;
         }
 
-        /* ==================== BUY AMOUNT TOGGLE ==================== */
-        .buy-toggle {
+        /* ==================== TOP BUTTONS BAR ==================== */
+        .top-buttons {
             position: absolute;
             top: 10px;
-            right: 250px;
+            right: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1001;
+        }
+        .top-buttons button, .top-buttons select {
+            background: #1f2833;
+            color: #c5c6c7;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .top-buttons button:hover, .top-buttons select:hover {
+            background: #45a29e;
+            color: #0b0c10;
+        }
+        .top-buttons select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%23c5c6c7" d="M6 9.6L1.8 5.4 2.4 4.8 6 8.4 9.6 4.8 10.2 5.4z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 12px;
+            padding-right: 30px;
+        }
+
+        /* ==================== BUY AMOUNT TOGGLE ==================== */
+        .buy-toggle {
             display: flex;
             align-items: center;
             gap: 5px;
-            z-index: 1001;
         }
         .buy-toggle button {
             background: #45a29e;
@@ -105,33 +137,7 @@
         }
 
         /* ==================== SETTINGS, HELP & SHARE BUTTONS ==================== */
-        .settings-button, .help-button, .share-button {
-            position: absolute;
-            top: 10px;
-            background: #1f2833;
-            color: #c5c6c7;
-            border: none;
-            padding: 10px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-            font-size: 16px;
-            font-weight: bold;
-            z-index: 1001;
-        }
-        .settings-button {
-            right: 150px;
-        }
-        .help-button {
-            right: 100px;
-        }
-        .share-button {
-            right: 200px;
-        }
-        .settings-button:hover, .help-button:hover, .share-button:hover {
-            background: #45a29e;
-            color: #0b0c10;
-        }
+        /* Already handled in .top-buttons */
 
         /* ==================== BUTTON STYLES ==================== */
         .button {
@@ -173,6 +179,9 @@
         }
         .event-log p {
             margin: 5px 0;
+        }
+        .event-log .important {
+            color: red;
         }
 
         /* ==================== MODAL MENUS ==================== */
@@ -367,30 +376,13 @@
             .ship {
                 width: 90%;
             }
-            .buy-toggle {
+            .top-buttons {
                 flex-direction: column;
-                align-items: flex-start;
-                right: 10px;
-                top: 50px;
+                align-items: flex-end;
+                gap: 10px;
             }
-            .settings-button {
-                top: 50px;
-                right: 150px;
-            }
-            .help-button {
-                top: 50px;
-                right: 100px;
-            }
-            .share-button {
-                top: 50px;
-                right: 200px;
-            }
-            .modal-content {
-                width: 95%;
-                max-width: 600px;
-            }
-            .event-log {
-                width: 95%;
+            .progress-bar {
+                height: 20px;
             }
         }
 
@@ -446,19 +438,12 @@
     <!-- Play Game Here Link -->
     <a href="https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader" class="header-link play-game-link">Play Game Here</a>
 
-    <!-- Share Button -->
-    <button class="button share-button" onclick="shareGame()" title="Share the game and earn a bonus">🔗 Share Game</button>
-
-    <!-- Settings Button -->
-    <button class="button settings-button" onclick="toggleSettings()" title="Open Settings">⚙️</button>
-
-    <!-- Help Button -->
-    <button class="button help-button" onclick="toggleHelp()" title="Open Help">❓</button>
-
-    <!-- Buy Amount Toggle -->
-    <div class="buy-toggle">
-        <span>Buy Amount:</span>
-        <button class="button" id="buy-amount-button" title="Change Buy Amount">Buy: 1x</button>
+    <!-- Top Buttons Bar -->
+    <div class="top-buttons">
+        <button class="button share-button" onclick="shareGame()" title="Share the game and earn a bonus">🔗 Share Game</button>
+        <button class="button buy-toggle" onclick="toggleBuyAmount()" title="Change Buy Amount">Buy: 1x</button>
+        <button class="button help-button" onclick="toggleHelp()" title="Open Help">❓ Help</button>
+        <button class="button settings-button" onclick="toggleSettings()" title="Open Settings">⚙️ Settings</button>
     </div>
 
     <!-- Main Titles -->
@@ -477,7 +462,6 @@
             <button class="button" onclick="upgradeAll()" title="Upgrade all ships based on the selected buy amount">🔼 Upgrade All</button>
             <button class="button" onclick="toggleUpgradeMenu()" title="Open the Upgrade Menu">🔧 Upgrade Menu</button>
             <button class="button" onclick="toggleRebirthMenu()" title="Open the Rebirth Menu">♻️ Rebirth Menu</button>
-            <button class="button" onclick="toggleCombineAllShipsModal()" title="Combine all ships into one">🔗 Combine All Ships</button>
         </div>
         <div id="event-log" class="event-log">
             <p>Game log:</p>
@@ -499,11 +483,17 @@
         <div class="modal-content">
             <span class="close-modal" onclick="toggleUpgradeMenu()">&times;</span>
             <h3 id="upgrade-menu-title">Upgrade Menu</h3>
-            <button class="button" onclick="buyAutomation()" title="Unlock automation to send ships automatically">🤖 Buy Automation</button>
-            <button class="button" onclick="buyMultiplier()" title="Increase your technology level multiplier">✖️ Buy Multiplier</button>
-            <button class="button" onclick="toggleEmployeeMenu()" title="Hire specific types of employees">👨‍🚀 Hire Employee</button>
-            <button class="button" onclick="buyBigUpgrade()" title="Double the speed of a specific ship">🚀 Big Upgrade for Ship</button>
-            <button class="button" onclick="upgradeShipLimit()" title="Increase the number of ships you can own">📈 Upgrade Ship Limit</button>
+            <div>
+                <h4>General Upgrades</h4>
+                <button class="button" onclick="buyAutomation()" title="Unlock automation to send ships automatically">🤖 Buy Automation</button>
+                <button class="button" onclick="buyMultiplier()" title="Increase your technology level multiplier">✖️ Buy Multiplier</button>
+            </div>
+            <div style="margin-top: 20px;">
+                <h4>Employee Hiring</h4>
+                <button class="button" onclick="hireEmployee('storage')" title="Hire a Storage Employee">📦 Hire Storage Employee (Over Time)</button>
+                <button class="button" onclick="hireEmployee('efficiency')" title="Hire an Efficiency Employee">⚙️ Hire Efficiency Employee (One-Time)</button>
+                <button class="button" onclick="hireEmployee('security')" title="Hire a Security Employee">🛡️ Hire Security Employee (One-Time)</button>
+            </div>
         </div>
     </div>
 
@@ -515,6 +505,7 @@
             <p>Rebirth Points (RP): <span id="rebirth-points">0</span> 🔄</p>
             <button class="button" onclick="confirmRebirth()" title="Rebirth to reset progress and earn RP">♻️ Rebirth (Requires 100K Credits)</button>
             <button class="button" onclick="spendRebirthPoints()" title="Spend RP to enhance your empire">🔧 Spend RP for Upgrades</button>
+            <p class="important" id="rebirth-info"></p>
         </div>
     </div>
 
@@ -523,74 +514,44 @@
         <div class="modal-content" style="width: 90%; max-width: 800px;">
             <span class="close-modal" onclick="toggleHelp()">&times;</span>
             <h3 id="help-menu-title">Help</h3>
-            <p>Welcome to Interstellar Trader! 🚀</p>
-            <p>📈 <strong>Objective:</strong> Build an intergalactic trading empire by sending your ships to trade goods between planets.</p>
-            <p>🛠️ <strong>Upgrades:</strong> Purchase upgrades to enhance your technology, increase profits, automate your trading operations, and more.</p>
-            <p>🔄 <strong>Rebirth:</strong> Reset your progress to gain Rebirth Points (RP) which can be spent on powerful upgrades.</p>
-            <p>🔍 <strong>Buttons and Upgrades Explained:</strong></p>
-            <ul>
-                <li><strong>Send All Ships to Trade (⚙️):</strong> Initiates trade missions for all available ships simultaneously.</li>
-                <li><strong>Buy a New Ship (⚖️):</strong> Purchase additional ships to expand your trading fleet.</li>
-                <li><strong>Buy Upgrade (✚):</strong> Enhance your technology level, increasing earnings per trade.</li>
-                <li><strong>Upgrade All (🔼):</strong> Upgrade all ships based on the selected buy amount, prioritizing cheaper upgrades first.</li>
-                <li><strong>Upgrade Menu (🔧):</strong> Access various upgrade options including Automation, Multiplier, Employee Hiring, Big Upgrades, and Ship Limit enhancements.</li>
-                <li><strong>Rebirth Menu (♻️):</strong> Reset your progress to earn Rebirth Points, which can be used for significant upgrades.</li>
-                <li><strong>Share Game (🔗):</strong> Share the game link on different platforms to earn a small bonus.</li>
-                <li><strong>Combine All Ships (🔗):</strong> Merge all your ships into one powerful ship for enhanced trading capabilities.</li>
-            </ul>
-            <p><strong>Upgrade Options:</strong></p>
-            <ul>
-                <li><strong>Buy Automation (🤖):</strong> Unlock automation for your ships, allowing them to trade automatically without manual intervention.</li>
-                <li><strong>Buy Multiplier (✖️):</strong> Increase your technology level multiplier, significantly boosting earnings per trade.</li>
-                <li><strong>Hire Employee (👨‍🚀):</strong> Hire specific types of employees to assist with trading, each type offering unique benefits.</li>
-                <li><strong>Big Upgrade for Ship (🚀):</strong> Apply a Big Upgrade to a specific ship, doubling its trader level and enhancing its trading speed.</li>
-                <li><strong>Upgrade Ship Limit (📈):</strong> Increase the maximum number of ships you can own, allowing for fleet expansion.</li>
-            </ul>
-            <p><strong>Employee Types:</strong></p>
-            <ul>
-                <li><strong>Storage Employee (📦):</strong> Increases your ship storage capacity, allowing you to own more ships.</li>
-                <li><strong>Efficiency Employee (⚙️):</strong> Enhances trade efficiency, reducing trade times and increasing earnings.</li>
-                <li><strong>Security Employee (🛡️):</strong> Protects your ships from random events that may cause credit loss.</li>
-            </ul>
-            <p><strong>Tips:</strong></p>
-            <ul>
-                <li>Use the Buy Amount toggle to purchase multiple upgrades at once for faster progression.</li>
-                <li>Automate trading to continuously earn credits even when you're not actively playing.</li>
-                <li>Strategically rebirth to maximize your RP and accelerate growth.</li>
-                <li>Upgrade your traders to increase earnings per trade.</li>
-                <li>Apply Big Upgrades to specific ships for significant boosts in trading speed and earnings.</li>
-                <li>Hire employees to unlock new functionalities and enhance your fleet.</li>
-                <li>Combine all ships to merge their upgrades and create a more powerful trading unit.</li>
-                <li>Share the game on multiple platforms to earn bonuses and help grow your trading empire.</li>
-            </ul>
-            <button class="button" onclick="toggleHelp()" title="Close Help">❌ Close</button>
-        </div>
-    </div>
-
-    <!-- Combine Ships Modal -->
-    <div id="combine-ships-modal" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="combine-ships-modal-title">
-        <div class="modal-content">
-            <span class="close-modal" onclick="toggleCombineShipsModal()">&times;</span>
-            <h3 id="combine-ships-modal-title">Combine Ships</h3>
-            <p>Select two ships you want to combine:</p>
-            <div id="combine-ship-selection">
-                <!-- Dynamic Ship Selection Checkboxes -->
+            <div>
+                <h4>Tutorial: How to Play</h4>
+                <p>Welcome to Interstellar Trader! 🚀 Your objective is to build an intergalactic trading empire by sending your ships to trade goods between planets. Here's how to get started:</p>
+                <ul>
+                    <li><strong>Send All Ships to Trade (⚙️):</strong> Initiate trade missions for all available ships simultaneously.</li>
+                    <li><strong>Buy a New Ship (⚖️):</strong> Purchase additional ships to expand your trading fleet.</li>
+                    <li><strong>Buy Upgrade (✚):</strong> Enhance your technology level, increasing earnings per trade.</li>
+                    <li><strong>Upgrade All (🔼):</strong> Upgrade all ships based on the selected buy amount, prioritizing cheaper upgrades first.</li>
+                    <li><strong>Upgrade Menu (🔧):</strong> Access various upgrade options including Automation, Multiplier, Employee Hiring.</li>
+                    <li><strong>Rebirth Menu (♻️):</strong> Reset your progress to earn Rebirth Points, which can be used for significant upgrades.</li>
+                </ul>
             </div>
-            <p>Combination Cost: <span id="combine-cost">0</span> 💸</p>
-            <button class="button" onclick="confirmCombineShips()" title="Confirm Combine Ships">✅ Confirm</button>
-            <button class="button" onclick="toggleCombineShipsModal()" title="Cancel Combine Ships">❌ Cancel</button>
-        </div>
-    </div>
-
-    <!-- Combine All Ships Modal -->
-    <div id="combine-all-ships-modal" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="combine-all-ships-modal-title">
-        <div class="modal-content">
-            <span class="close-modal" onclick="toggleCombineAllShipsModal()">&times;</span>
-            <h3 id="combine-all-ships-modal-title">Combine All Ships</h3>
-            <p>Are you sure you want to combine all your ships into one powerful ship?</p>
-            <p>Combination Cost: <span id="combine-all-cost">0</span> 💸</p>
-            <button class="button" onclick="confirmCombineAllShips()" title="Confirm Combine All Ships">✅ Confirm</button>
-            <button class="button" onclick="toggleCombineAllShipsModal()" title="Cancel Combine All Ships">❌ Cancel</button>
+            <div style="margin-top: 20px;">
+                <h4>Game Information</h4>
+                <p><strong>Credits:</strong> Your in-game currency used to purchase ships, upgrades, and other features.</p>
+                <p><strong>Technology Level:</strong> Determines the efficiency and earnings of your trading operations.</p>
+                <p><strong>Rebirth Points (RP):</strong> Earned through rebirths, used to purchase powerful upgrades.</p>
+            </div>
+            <div style="margin-top: 20px;">
+                <h4>Game Tips</h4>
+                <ul>
+                    <li>Use the Buy Amount toggle to purchase multiple upgrades at once for faster progression.</li>
+                    <li>Automate trading to continuously earn credits even when you're not actively playing.</li>
+                    <li>Strategically rebirth to maximize your RP and accelerate growth.</li>
+                    <li>Upgrade your traders to increase earnings per trade.</li>
+                    <li>Hire employees to unlock new functionalities and enhance your fleet.</li>
+                    <li>Share the game on multiple platforms to earn bonuses and help grow your trading empire.</li>
+                </ul>
+            </div>
+            <div style="margin-top: 20px;">
+                <h4>Upgrade Costs</h4>
+                <ul>
+                    <li><strong>Automation:</strong> Cost increases by 1.2x with each level.</li>
+                    <li><strong>Multiplier:</strong> Cost increases by 1.5x with each level.</li>
+                    <li><strong>Employees:</strong> Cost increases by 1.2x with each level.</li>
+                </ul>
+            </div>
+            <button class="button" onclick="toggleHelp()" title="Close Help">❌ Close</button>
         </div>
     </div>
 
@@ -599,9 +560,9 @@
         <div class="modal-content">
             <span class="close-modal" onclick="toggleEmployeeMenu()">&times;</span>
             <h3 id="employee-menu-title">Employee Menu</h3>
-            <button class="button" onclick="hireEmployee('storage')" title="Hire a Storage Employee">📦 Hire Storage Employee</button>
-            <button class="button" onclick="hireEmployee('efficiency')" title="Hire an Efficiency Employee">⚙️ Hire Efficiency Employee</button>
-            <button class="button" onclick="hireEmployee('security')" title="Hire a Security Employee">🛡️ Hire Security Employee</button>
+            <button class="button" onclick="hireEmployee('storage')" title="Hire a Storage Employee">📦 Hire Storage Employee (Over Time)</button>
+            <button class="button" onclick="hireEmployee('efficiency')" title="Hire an Efficiency Employee">⚙️ Hire Efficiency Employee (One-Time)</button>
+            <button class="button" onclick="hireEmployee('security')" title="Hire a Security Employee">🛡️ Hire Security Employee (One-Time)</button>
         </div>
     </div>
 
@@ -627,20 +588,6 @@
         </div>
     </div>
 
-    <!-- Big Upgrade Modal -->
-    <div id="big-upgrade-modal" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="big-upgrade-modal-title">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeBigUpgradeModal()">&times;</span>
-            <h3 id="big-upgrade-modal-title">Select Ship for Big Upgrade</h3>
-            <p>Select the ship you want to apply the Big Upgrade to:</p>
-            <select id="big-upgrade-ship-select">
-                <!-- Options will be populated dynamically -->
-            </select>
-            <button class="button" onclick="confirmBigUpgrade()" title="Confirm Big Upgrade">✅ Confirm</button>
-            <button class="button" onclick="closeBigUpgradeModal()" title="Cancel Big Upgrade">❌ Cancel</button>
-        </div>
-    </div>
-
     <!-- Share Confirmation Modal -->
     <div id="share-confirm-modal" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="share-confirm-modal-title">
         <div class="modal-content">
@@ -661,6 +608,448 @@
     </div>
 
     <script>
+        // ==================== LOCALIZATION ====================
+        const localization = {
+            "en": {
+                "madeBy": "Made By Static",
+                "playGameHere": "Play Game Here",
+                "shareGame": "🔗 Share Game",
+                "buyAmount": "Buy: 1x",
+                "help": "❓ Help",
+                "settings": "⚙️ Settings",
+                "credits": "Credits",
+                "spaceshipDisplay": "Spaceships: 1/10 🚀",
+                "techLevelDisplay": "Technology Level: 1 ✯",
+                "sendAllShips": "⚙️ Send All Ships to Trade",
+                "buyNewShip": "⚖️ Buy a New Ship",
+                "buyUpgrade": "✚ Buy Upgrade",
+                "upgradeAll": "🔼 Upgrade All",
+                "upgradeMenu": "🔧 Upgrade Menu",
+                "rebirthMenu": "♻️ Rebirth Menu",
+                "rebirthPoints": "0",
+                "rebirthButton": "♻️ Rebirth (Requires 100K Credits)",
+                "spendRPButton": "🔧 Spend RP for Upgrades",
+                "rebirthInfo": "",
+                "confirmRebirth": "✅ Confirm",
+                "cancelRebirth": "❌ Cancel",
+                "resetGame": "🗑️ Reset Game",
+                "confirmReset": "✅ Confirm",
+                "cancelReset": "❌ Cancel",
+                "shareConfirmationTitle": "Share the Game",
+                "shareConfirmationText": "Share this link on your favorite platform to earn a bonus!",
+                "copyLink": "📋 Copy Link",
+                "cancelShare": "❌ Cancel",
+                "tutorialTitle": "Tutorial: How to Play",
+                "tutorialContent": "Welcome to Interstellar Trader! 🚀 Your objective is to build an intergalactic trading empire by sending your ships to trade goods between planets. Here's how to get started:",
+                "gameInfoTitle": "Game Information",
+                "gameInfoContent": "Credits: Your in-game currency used to purchase ships, upgrades, and other features.\nTechnology Level: Determines the efficiency and earnings of your trading operations.\nRebirth Points (RP): Earned through rebirths, used to purchase powerful upgrades.",
+                "gameTipsTitle": "Game Tips",
+                "gameTipsContent": "Use the Buy Amount toggle to purchase multiple upgrades at once for faster progression.\nAutomate trading to continuously earn credits even when you're not actively playing.\nStrategically rebirth to maximize your RP and accelerate growth.\nUpgrade your traders to increase earnings per trade.\nHire employees to unlock new functionalities and enhance your fleet.\nShare the game on multiple platforms to earn bonuses and help grow your trading empire.",
+                "upgradeCostsTitle": "Upgrade Costs",
+                "upgradeCostsContent": "Automation: Cost increases by 1.2x with each level.\nMultiplier: Cost increases by 1.5x with each level.\nEmployees: Cost increases by 1.2x with each level.",
+                "closeHelp": "❌ Close",
+                "hireStorage": "📦 Hire Storage Employee (Over Time)",
+                "hireEfficiency": "⚙️ Hire Efficiency Employee (One-Time)",
+                "hireSecurity": "🛡️ Hire Security Employee (One-Time)",
+                "confirmRebirthTitle": "Confirm Rebirth",
+                "confirmRebirthText": "Are you sure you want to rebirth? This will reset all your progress but grant you <strong>0</strong> Rebirth Points (RP).",
+                "confirmResetTitle": "Confirm Reset",
+                "confirmResetText": "Are you sure you want to reset the game? This action cannot be undone.",
+                "rebirthSuccess": "♻️ You have rebirthed! Earned {points} Rebirth Points.",
+                "rebirthCooldown": "⚠ Rebirth is on cooldown. Please wait {time} before rebirthing again.",
+                "rebirthNotEnough": "⚠ Not enough credits to rebirth! (Requires {cost} Credits)",
+                "rebirthInfoText": "Next Rebirth in: {time}",
+                "upgradeMenuTitle": "Upgrade Menu",
+                "buyAutomation": "🤖 Buy Automation (Cost: {cost} Credits)",
+                "buyMultiplier": "✖️ Buy Multiplier (Cost: {cost} Credits)",
+                "hireEmployee": "👨‍🚀 Hire {type} Employee (Cost: {cost} Credits)",
+                "upgradeTrader": "Upgrade Trader (Cost: {cost} Credits)",
+                "upgradeTraderMax": "Upgrade Trader to Max (Cost: {cost} Credits)",
+                "upgradeAllButton": "🔼 Upgrade All",
+                "sendAllShipsButton": "⚙️ Send All Ships to Trade",
+                "buyNewShipButton": "⚖️ Buy a New Ship",
+                "buyUpgradeButton": "✚ Buy Upgrade",
+                "rebirthButtonTitle": "♻️ Rebirth (Requires 100K Credits)",
+                "spendRPButtonTitle": "🔧 Spend RP for Upgrades",
+                "rebirthPointsDisplay": "{points} RP",
+                "resetButton": "🗑️ Reset Game",
+                "resetConfirmation": "Are you sure you want to reset the game? This action cannot be undone.",
+                "tradeCompleted": "✨ Ship {shipId} completed a trade mission and earned {earnings} credits!",
+                "buyShipCost": "⚠ Not enough credits to buy a new ship! (Cost: {cost} Credits)",
+                "buyUpgradeSuccess": "✚ Bought upgrade x{multiplier}! Tech level increased to {techLevel}.",
+                "buyUpgradeFail": "⚠ Not enough credits to buy upgrade!",
+                "hireEmployeeSuccess": "👨‍🚀 Hired a Level {level} {type} Employee!",
+                "hireEmployeeFail": "⚠ Not enough credits to hire {type} employee! (Cost: {cost} Credits)",
+                "buyAutomationSuccess": "🤖 Automation purchased for Ship {shipId}!",
+                "buyAutomationFail": "⚠ Not enough credits to buy automation! (Cost: {cost} Credits)",
+                "buyMultiplierSuccess": "✖️ Multiplier purchased! Technology multiplier increased to x{multiplier}.",
+                "buyMultiplierFail": "⚠ Not enough credits to buy multiplier! (Cost: {cost} Credits)",
+                "shareSuccess": "📋 Game link copied to clipboard! You earned a 500 Credits bonus.",
+                "shareFail": "⚠ Failed to copy the game link.",
+                "combineShipsRemoved": "🔗 Combine Ships feature has been removed.",
+                "shipLimitUpgradeSuccess": "📈 Ship limit upgraded! New limit: {newLimit} ships.",
+                "shipLimitUpgradeFail": "⚠ Not enough credits to upgrade ship limit! (Cost: {cost} Credits)",
+                "tradeAlreadyActive": "⚙️ Ship {shipId} is already trading.",
+                "upgradeTraderSuccess": "🔼 Ship {shipId} trader level increased by x{upgrades} to {traderLevel}.",
+                "upgradeTraderFail": "⚠ Not enough credits to upgrade trader for Ship {shipId}! (Cost: {cost} Credits)",
+                "randomEventAlienAttack": "💥 An alien attack! You lost 50 credits to defend yourself.",
+                "randomEventAlienAttackProtected": "🛡️ Security Employee protected you from an alien attack! No credits lost.",
+                "randomEventMeteorShower": "☄️✨ Meteor shower! Your ships earned a bonus of 25 credits per trade.",
+                "randomEventMeteorShowerBonus": "✨ Bonus: Earned an extra {bonus} credits from meteor shower.",
+                "randomEventGalacticFair": "🎉 Galactic fair! You made a deal and earned 100 bonus credits.",
+                "rebirthCooldownInfo": "Next Rebirth in: {time}",
+                "tradeDuration": "{duration}s",
+                "tradeEarnings": "{earnings} 💸",
+                "upgradeButtonTitle": "Enhance trader efficiency",
+                "sendAllShipsTitle": "Send all ships to trade and earn credits",
+                "buyNewShipTitle": "Purchase a new spaceship",
+                "buyUpgradeTitle": "Purchase upgrades to increase your technology level",
+                "upgradeAllTitle": "Upgrade all ships based on the selected buy amount",
+                "upgradeMenuTitleModal": "Open the Upgrade Menu",
+                "rebirthMenuTitleModal": "Open the Rebirth Menu",
+                "buyAutomationTitle": "Unlock automation to send ships automatically",
+                "buyMultiplierTitle": "Increase your technology level multiplier",
+                "hireEmployeeTitle": "Hire specific types of employees",
+                "shareGameTitle": "Share the game and earn a bonus",
+                "closeHelp": "❌ Close",
+                "openHelp": "❓ Help",
+                "openSettings": "⚙️ Settings",
+                "openRebirthMenu": "♻️ Rebirth Menu",
+                "openUpgradeMenu": "🔧 Upgrade Menu"
+            },
+            "es": {
+                // Spanish translations
+                "madeBy": "Hecho por Static",
+                "playGameHere": "Juega Aquí",
+                "shareGame": "🔗 Compartir Juego",
+                "buyAmount": "Comprar: 1x",
+                "help": "❓ Ayuda",
+                "settings": "⚙️ Configuración",
+                "credits": "Créditos",
+                "spaceshipDisplay": "Naves: 1/10 🚀",
+                "techLevelDisplay": "Nivel de Tecnología: 1 ✯",
+                "sendAllShips": "⚙️ Enviar Todas las Naves a Comerciar",
+                "buyNewShip": "⚖️ Comprar una Nueva Nave",
+                "buyUpgrade": "✚ Comprar Mejora",
+                "upgradeAll": "🔼 Mejorar Todas",
+                "upgradeMenu": "🔧 Menú de Mejoras",
+                "rebirthMenu": "♻️ Menú de Renacimiento",
+                "rebirthPoints": "0",
+                "rebirthButton": "♻️ Renacimiento (Requiere 100K Créditos)",
+                "spendRPButton": "🔧 Gastar RP para Mejoras",
+                "rebirthInfo": "",
+                "confirmRebirth": "✅ Confirmar",
+                "cancelRebirth": "❌ Cancelar",
+                "resetGame": "🗑️ Reiniciar Juego",
+                "confirmReset": "✅ Confirmar",
+                "cancelReset": "❌ Cancelar",
+                "shareConfirmationTitle": "Compartir el Juego",
+                "shareConfirmationText": "¡Comparte este enlace en tu plataforma favorita para ganar un bono!",
+                "copyLink": "📋 Copiar Enlace",
+                "cancelShare": "❌ Cancelar",
+                "tutorialTitle": "Tutorial: Cómo Jugar",
+                "tutorialContent": "¡Bienvenido a Interstellar Trader! 🚀 Tu objetivo es construir un imperio comercial intergaláctico enviando tus naves a comerciar mercancías entre planetas. Así es como comenzar:",
+                "gameInfoTitle": "Información del Juego",
+                "gameInfoContent": "Créditos: Tu moneda en el juego usada para comprar naves, mejoras y otras características.\nNivel de Tecnología: Determina la eficiencia y ganancias de tus operaciones comerciales.\nPuntos de Renacimiento (RP): Ganados a través de renacimientos, usados para comprar mejoras poderosas.",
+                "gameTipsTitle": "Consejos del Juego",
+                "gameTipsContent": "Usa el interruptor de Cantidad de Compra para comprar múltiples mejoras a la vez y progresar más rápido.\nAutomatiza el comercio para ganar créditos continuamente incluso cuando no estás jugando activamente.\nRenace estratégicamente para maximizar tus RP y acelerar el crecimiento.\nMejora tus comerciantes para aumentar las ganancias por comercio.\nContrata empleados para desbloquear nuevas funcionalidades y mejorar tu flota.\nComparte el juego en múltiples plataformas para ganar bonificaciones y ayudar a crecer tu imperio comercial.",
+                "upgradeCostsTitle": "Costos de Mejoras",
+                "upgradeCostsContent": "Automatización: El costo aumenta 1.2x con cada nivel.\nMultiplicador: El costo aumenta 1.5x con cada nivel.\nEmpleados: El costo aumenta 1.2x con cada nivel.",
+                "closeHelp": "❌ Cerrar",
+                "hireStorage": "📦 Contratar Empleado de Almacenamiento (En Tiempo)",
+                "hireEfficiency": "⚙️ Contratar Empleado de Eficiencia (Único)",
+                "hireSecurity": "🛡️ Contratar Empleado de Seguridad (Único)",
+                "confirmRebirthTitle": "Confirmar Renacimiento",
+                "confirmRebirthText": "¿Estás seguro de que deseas renacer? Esto reiniciará todo tu progreso pero te otorgará <strong>0</strong> Puntos de Renacimiento (RP).",
+                "confirmResetTitle": "Confirmar Reinicio",
+                "confirmResetText": "¿Estás seguro de que deseas reiniciar el juego? Esta acción no se puede deshacer.",
+                "rebirthSuccess": "♻️ ¡Has renacido! Ganaste {points} Puntos de Renacimiento.",
+                "rebirthCooldown": "⚠ El renacimiento está en enfriamiento. Por favor espera {time} antes de renacer nuevamente.",
+                "rebirthNotEnough": "⚠ ¡No tienes suficientes créditos para renacer! (Requiere {cost} Créditos)",
+                "rebirthInfoText": "Próximo Renacimiento en: {time}",
+                "upgradeMenuTitle": "Menú de Mejoras",
+                "buyAutomation": "🤖 Comprar Automatización (Costo: {cost} Créditos)",
+                "buyMultiplier": "✖️ Comprar Multiplicador (Costo: {cost} Créditos)",
+                "hireEmployee": "👨‍🚀 Contratar Empleado de {type} (Costo: {cost} Créditos)",
+                "upgradeTrader": "Mejorar Comerciante (Costo: {cost} Créditos)",
+                "upgradeTraderMax": "Mejorar Comerciante al Máximo (Costo: {cost} Créditos)",
+                "upgradeAllButton": "🔼 Mejorar Todas",
+                "sendAllShipsButton": "⚙️ Enviar Todas las Naves a Comerciar",
+                "buyNewShipButton": "⚖️ Comprar una Nueva Nave",
+                "buyUpgradeButton": "✚ Comprar Mejora",
+                "rebirthButtonTitle": "♻️ Renacimiento (Requiere 100K Créditos)",
+                "spendRPButtonTitle": "🔧 Gastar RP para Mejoras",
+                "rebirthPointsDisplay": "{points} RP",
+                "resetButton": "🗑️ Reiniciar Juego",
+                "resetConfirmation": "¿Estás seguro de que deseas reiniciar el juego? Esta acción no se puede deshacer.",
+                "tradeCompleted": "✨ La Nave {shipId} completó una misión de comercio y ganó {earnings} créditos!",
+                "buyShipCost": "⚠ ¡No tienes suficientes créditos para comprar una nueva nave! (Costo: {cost} Créditos)",
+                "buyUpgradeSuccess": "✚ ¡Compraste mejora x{multiplier}! Nivel de tecnología aumentado a {techLevel}.",
+                "buyUpgradeFail": "⚠ ¡No tienes suficientes créditos para comprar mejora!",
+                "hireEmployeeSuccess": "👨‍🚀 ¡Contrataste a un Empleado de {type} Nivel {level}!",
+                "hireEmployeeFail": "⚠ ¡No tienes suficientes créditos para contratar a un empleado de {type}! (Costo: {cost} Créditos)",
+                "buyAutomationSuccess": "🤖 ¡Automatización comprada para la Nave {shipId}!",
+                "buyAutomationFail": "⚠ ¡No tienes suficientes créditos para comprar automatización! (Costo: {cost} Créditos)",
+                "buyMultiplierSuccess": "✖️ ¡Multiplicador comprado! Multiplicador de tecnología aumentado a x{multiplier}.",
+                "buyMultiplierFail": "⚠ ¡No tienes suficientes créditos para comprar multiplicador! (Costo: {cost} Créditos)",
+                "shareSuccess": "📋 ¡Enlace del juego copiado al portapapeles! Ganaste un bono de 500 Créditos.",
+                "shareFail": "⚠ Falló al copiar el enlace del juego.",
+                "combineShipsRemoved": "🔗 La función de Combinar Naves ha sido eliminada.",
+                "shipLimitUpgradeSuccess": "📈 ¡Límite de naves aumentado! Nuevo límite: {newLimit} naves.",
+                "shipLimitUpgradeFail": "⚠ ¡No tienes suficientes créditos para aumentar el límite de naves! (Costo: {cost} Créditos)",
+                "tradeAlreadyActive": "⚙️ La Nave {shipId} ya está comerciando.",
+                "upgradeTraderSuccess": "🔼 ¡Nivel de comerciante de la Nave {shipId} aumentado en x{upgrades} a {traderLevel}.",
+                "upgradeTraderFail": "⚠ ¡No tienes suficientes créditos para mejorar el comerciante de la Nave {shipId}! (Costo: {cost} Créditos)",
+                "randomEventAlienAttack": "💥 ¡Un ataque alienígena! Perdiste 50 créditos para defenderte.",
+                "randomEventAlienAttackProtected": "🛡️ ¡Empleado de Seguridad protegió tu nave de un ataque alienígena! No se perdieron créditos.",
+                "randomEventMeteorShower": "☄️✨ ¡Lluvia de meteoros! Tus naves ganaron un bono de 25 créditos por comercio.",
+                "randomEventMeteorShowerBonus": "✨ Bono: Ganaste un extra de {bonus} créditos por lluvia de meteoros.",
+                "randomEventGalacticFair": "🎉 ¡Feria galáctica! Hiciste un trato y ganaste 100 créditos de bonificación.",
+                "rebirthCooldownInfo": "Próximo Renacimiento en: {time}",
+                "tradeDuration": "{duration}s",
+                "tradeEarnings": "{earnings} 💸",
+                "upgradeButtonTitle": "Mejorar eficiencia del comerciante",
+                "sendAllShipsTitle": "Enviar todas las naves a comerciar y ganar créditos",
+                "buyNewShipTitle": "Comprar una nueva nave espacial",
+                "buyUpgradeTitle": "Comprar mejoras para aumentar tu nivel de tecnología",
+                "upgradeAllTitle": "Mejorar todas las naves según la cantidad de compra seleccionada",
+                "upgradeMenuTitleModal": "Abrir el Menú de Mejoras",
+                "rebirthMenuTitleModal": "Abrir el Menú de Renacimiento",
+                "buyAutomationTitle": "Desbloquear automatización para enviar naves automáticamente",
+                "buyMultiplierTitle": "Aumentar tu multiplicador de nivel de tecnología",
+                "hireEmployeeTitle": "Contratar tipos específicos de empleados",
+                "shareGameTitle": "Compartir el juego y ganar un bono",
+                "closeHelp": "❌ Cerrar",
+                "openHelp": "❓ Ayuda",
+                "openSettings": "⚙️ Configuración",
+                "openRebirthMenu": "♻️ Menú de Renacimiento",
+                "openUpgradeMenu": "🔧 Menú de Mejoras"
+            },
+            "nl": {
+                // Dutch translations
+                "madeBy": "Gemaakt door Static",
+                "playGameHere": "Speel Hier",
+                "shareGame": "🔗 Deel Spel",
+                "buyAmount": "Kopen: 1x",
+                "help": "❓ Help",
+                "settings": "⚙️ Instellingen",
+                "credits": "Credits",
+                "spaceshipDisplay": "Ruimteschepen: 1/10 🚀",
+                "techLevelDisplay": "Technologieniveau: 1 ✯",
+                "sendAllShips": "⚙️ Verstuur Alle Ruimteschepen om te Handelen",
+                "buyNewShip": "⚖️ Koop een Nieuw Ruimteschip",
+                "buyUpgrade": "✚ Koop Upgrade",
+                "upgradeAll": "🔼 Upgrade Alles",
+                "upgradeMenu": "🔧 Upgrade Menu",
+                "rebirthMenu": "♻️ Hergeboorte Menu",
+                "rebirthPoints": "0",
+                "rebirthButton": "♻️ Hergeboorte (Vereist 100K Credits)",
+                "spendRPButton": "🔧 Gebruik RP voor Upgrades",
+                "rebirthInfo": "",
+                "confirmRebirth": "✅ Bevestigen",
+                "cancelRebirth": "❌ Annuleren",
+                "resetGame": "🗑️ Reset Spel",
+                "confirmReset": "✅ Bevestigen",
+                "cancelReset": "❌ Annuleren",
+                "shareConfirmationTitle": "Deel het Spel",
+                "shareConfirmationText": "Deel deze link op je favoriete platform om een bonus te verdienen!",
+                "copyLink": "📋 Kopieer Link",
+                "cancelShare": "❌ Annuleren",
+                "tutorialTitle": "Tutorial: Hoe te Spelen",
+                "tutorialContent": "Welkom bij Interstellar Trader! 🚀 Jouw doel is het bouwen van een intergalactisch handelsimperium door je schepen goederen te laten verhandelen tussen planeten. Zo begin je:",
+                "gameInfoTitle": "Spelinformatie",
+                "gameInfoContent": "Credits: Je in-game valuta gebruikt om schepen, upgrades en andere functies te kopen.\nTechnologieniveau: Bepaalt de efficiëntie en verdiensten van je handelsactiviteiten.\nHergeboorte Punten (RP): Verdiend door hergeboortes, gebruikt om krachtige upgrades te kopen.",
+                "gameTipsTitle": "Speltips",
+                "gameTipsContent": "Gebruik de Kopen Aantal schakelaar om meerdere upgrades tegelijk te kopen voor snellere progressie.\nAutomatiseer handel om continu credits te verdienen, zelfs wanneer je niet actief speelt.\nHergeboorte strategisch om je RP te maximaliseren en groei te versnellen.\nUpgrade je handelaren om de verdiensten per handel te verhogen.\nHuur werknemers in om nieuwe functionaliteiten te ontgrendelen en je vloot te verbeteren.\nDeel het spel op meerdere platforms om bonussen te verdienen en je handelsimperium te laten groeien.",
+                "upgradeCostsTitle": "Upgrade Kosten",
+                "upgradeCostsContent": "Automatisering: Kosten nemen met 1.2x toe per niveau.\nMultiplicator: Kosten nemen met 1.5x toe per niveau.\nWerknemers: Kosten nemen met 1.2x toe per niveau.",
+                "closeHelp": "❌ Sluiten",
+                "hireStorage": "📦 Huur Opslag Werknemer (In Tijd)",
+                "hireEfficiency": "⚙️ Huur Efficiëntie Werknemer (Eenmalig)",
+                "hireSecurity": "🛡️ Huur Beveiliging Werknemer (Eenmalig)",
+                "confirmRebirthTitle": "Bevestig Hergeboorte",
+                "confirmRebirthText": "Weet je zeker dat je wilt hergeboren? Dit zal al je voortgang resetten maar je krijgt <strong>0</strong> Hergeboorte Punten (RP).",
+                "confirmResetTitle": "Bevestig Reset",
+                "confirmResetText": "Weet je zeker dat je het spel wilt resetten? Deze actie kan niet ongedaan worden gemaakt.",
+                "rebirthSuccess": "♻️ Je bent hergeboren! Je hebt {points} Hergeboorte Punten verdiend.",
+                "rebirthCooldown": "⚠ Hergeboorte is in cooldown. Wacht {time} voordat je opnieuw hergeboort.",
+                "rebirthNotEnough": "⚠ Onvoldoende credits om te hergeboren! (Vereist {cost} Credits)",
+                "rebirthInfoText": "Volgende Hergeboorte over: {time}",
+                "upgradeMenuTitle": "Upgrade Menu",
+                "buyAutomation": "🤖 Koop Automatisering (Kosten: {cost} Credits)",
+                "buyMultiplier": "✖️ Koop Multiplicator (Kosten: {cost} Credits)",
+                "hireEmployee": "👨‍🚀 Huur {type} Werknemer (Kosten: {cost} Credits)",
+                "upgradeTrader": "Upgrade Handelaar (Kosten: {cost} Credits)",
+                "upgradeTraderMax": "Upgrade Handelaar naar Maximaal (Kosten: {cost} Credits)",
+                "upgradeAllButton": "🔼 Upgrade Alles",
+                "sendAllShipsButton": "⚙️ Verstuur Alle Schepen om te Handelen",
+                "buyNewShipButton": "⚖️ Koop een Nieuw Ruimteschip",
+                "buyUpgradeButton": "✚ Koop Upgrade",
+                "rebirthButtonTitle": "♻️ Hergeboorte (Vereist 100K Credits)",
+                "spendRPButtonTitle": "🔧 Gebruik RP voor Upgrades",
+                "rebirthPointsDisplay": "{points} RP",
+                "resetButton": "🗑️ Reset Spel",
+                "resetConfirmation": "Weet je zeker dat je het spel wilt resetten? Deze actie kan niet ongedaan worden gemaakt.",
+                "tradeCompleted": "✨ Het Ruimteschip {shipId} heeft een handelsmissie voltooid en verdiende {earnings} credits!",
+                "buyShipCost": "⚠ Onvoldoende credits om een nieuw ruimteschip te kopen! (Kosten: {cost} Credits)",
+                "buyUpgradeSuccess": "✚ Upgrade x{multiplier} gekocht! Technologieniveau verhoogd naar {techLevel}.",
+                "buyUpgradeFail": "⚠ Onvoldoende credits om upgrade te kopen!",
+                "hireEmployeeSuccess": "👨‍🚀 Je hebt een {type} Werknemer Niveau {level} gehuurd!",
+                "hireEmployeeFail": "⚠ Onvoldoende credits om een {type} werknemer te huren! (Kosten: {cost} Credits)",
+                "buyAutomationSuccess": "🤖 Automatisering gekocht voor Ruimteschip {shipId}!",
+                "buyAutomationFail": "⚠ Onvoldoende credits om automatisering te kopen! (Kosten: {cost} Credits)",
+                "buyMultiplierSuccess": "✖️ Multiplicator gekocht! Technologiemultiplicator verhoogd naar x{multiplier}.",
+                "buyMultiplierFail": "⚠ Onvoldoende credits om multiplicator te kopen! (Kosten: {cost} Credits)",
+                "shareSuccess": "📋 Spel link gekopieerd naar klembord! Je hebt een bonus van 500 Credits verdiend.",
+                "shareFail": "⚠ Falen om de spel link te kopiëren.",
+                "combineShipsRemoved": "🔗 De functie Om Schepen te Combineren is verwijderd.",
+                "shipLimitUpgradeSuccess": "📈 Limeschepen verhoogd! Nieuw limiet: {newLimit} schepen.",
+                "shipLimitUpgradeFail": "⚠ Onvoldoende credits om limeschepen te verhogen! (Kosten: {cost} Credits)",
+                "tradeAlreadyActive": "⚙️ Ruimteschip {shipId} is al bezig met handelen.",
+                "upgradeTraderSuccess": "🔼 Niveau handelaar van Ruimteschip {shipId} verhoogd met x{upgrades} naar {traderLevel}.",
+                "upgradeTraderFail": "⚠ Onvoldoende credits om handelaar van Ruimteschip {shipId} te upgraden! (Kosten: {cost} Credits)",
+                "randomEventAlienAttack": "💥 Een buitenaardse aanval! Je verloor 50 credits om jezelf te verdedigen.",
+                "randomEventAlienAttackProtected": "🛡️ Beveiliging Werknemer beschermde je tegen een buitenaardse aanval! Geen credits verloren.",
+                "randomEventMeteorShower": "☄️✨ Meteorenregen! Je schepen verdienden een bonus van 25 credits per handel.",
+                "randomEventMeteorShowerBonus": "✨ Bonus: Je hebt een extra {bonus} credits verdiend door meteorenregen.",
+                "randomEventGalacticFair": "🎉 Galactische beurs! Je hebt een deal gesloten en 100 bonus credits verdiend.",
+                "rebirthCooldownInfo": "Volgende Hergeboorte over: {time}",
+                "tradeDuration": "{duration}s",
+                "tradeEarnings": "{earnings} 💸",
+                "upgradeButtonTitle": "Verbeter de efficiëntie van de handelaar",
+                "sendAllShipsTitle": "Verstuur alle schepen om te handelen en credits te verdienen",
+                "buyNewShipTitle": "Koop een nieuw ruimteschip",
+                "buyUpgradeTitle": "Koop upgrades om je technologieniveau te verhogen",
+                "upgradeAllTitle": "Upgrade alle schepen op basis van de geselecteerde aankoop hoeveelheid",
+                "upgradeMenuTitleModal": "Open het Upgrade Menu",
+                "rebirthMenuTitleModal": "Open het Hergeboorte Menu",
+                "buyAutomationTitle": "Ontgrendel automatisering om schepen automatisch te versturen",
+                "buyMultiplierTitle": "Verhoog je technologiemultiplicator",
+                "hireEmployeeTitle": "Huur specifieke soorten werknemers in",
+                "shareGameTitle": "Deel het spel en verdien een bonus",
+                "closeHelp": "❌ Sluiten",
+                "openHelp": "❓ Help",
+                "openSettings": "⚙️ Instellingen",
+                "openRebirthMenu": "♻️ Hergeboorte Menu",
+                "openUpgradeMenu": "🔧 Upgrade Menu"
+            },
+            "vi": {
+                // Vietnamese translations
+                "madeBy": "Được làm bởi Static",
+                "playGameHere": "Chơi Tại Đây",
+                "shareGame": "🔗 Chia Sẻ Trò Chơi",
+                "buyAmount": "Mua: 1x",
+                "help": "❓ Trợ giúp",
+                "settings": "⚙️ Cài đặt",
+                "credits": "Credits",
+                "spaceshipDisplay": "Tàu Vũ Trụ: 1/10 🚀",
+                "techLevelDisplay": "Cấp Độ Công Nghệ: 1 ✯",
+                "sendAllShips": "⚙️ Gửi Tất Cả Tàu Vũ Trụ Để Thương Mại",
+                "buyNewShip": "⚖️ Mua Tàu Vũ Trụ Mới",
+                "buyUpgrade": "✚ Mua Nâng Cấp",
+                "upgradeAll": "🔼 Nâng Cấp Tất Cả",
+                "upgradeMenu": "🔧 Menu Nâng Cấp",
+                "rebirthMenu": "♻️ Menu Tái Sinh",
+                "rebirthPoints": "0",
+                "rebirthButton": "♻️ Tái Sinh (Cần 100K Credits)",
+                "spendRPButton": "🔧 Sử Dụng RP Cho Nâng Cấp",
+                "rebirthInfo": "",
+                "confirmRebirth": "✅ Xác Nhận",
+                "cancelRebirth": "❌ Hủy Bỏ",
+                "resetGame": "🗑️ Đặt Lại Trò Chơi",
+                "confirmReset": "✅ Xác Nhận",
+                "cancelReset": "❌ Hủy Bỏ",
+                "shareConfirmationTitle": "Chia Sẻ Trò Chơi",
+                "shareConfirmationText": "Chia sẻ liên kết này trên nền tảng yêu thích của bạn để nhận thưởng!",
+                "copyLink": "📋 Sao Chép Liên Kết",
+                "cancelShare": "❌ Hủy Bỏ",
+                "tutorialTitle": "Hướng Dẫn: Cách Chơi",
+                "tutorialContent": "Chào mừng đến với Interstellar Trader! 🚀 Mục tiêu của bạn là xây dựng một đế chế thương mại liên hành tinh bằng cách gửi tàu vũ trụ của bạn để giao dịch hàng hóa giữa các hành tinh. Đây là cách bắt đầu:",
+                "gameInfoTitle": "Thông Tin Trò Chơi",
+                "gameInfoContent": "Credits: Đơn vị tiền tệ trong trò chơi của bạn được sử dụng để mua tàu, nâng cấp và các tính năng khác.\nCấp Độ Công Nghệ: Xác định hiệu quả và lợi nhuận của các hoạt động thương mại của bạn.\nĐiểm Tái Sinh (RP): Được kiếm thông qua việc tái sinh, được sử dụng để mua các nâng cấp mạnh mẽ.",
+                "gameTipsTitle": "Mẹo Chơi",
+                "gameTipsContent": "Sử dụng công tắc Số Lượng Mua để mua nhiều nâng cấp cùng một lúc để tiến bộ nhanh hơn.\nTự động hóa giao dịch để liên tục kiếm Credits ngay cả khi bạn không chơi tích cực.\nTái sinh một cách chiến lược để tối đa hóa RP và tăng tốc sự phát triển.\nNâng cấp thương nhân của bạn để tăng lợi nhuận mỗi lần giao dịch.\nThuê nhân viên để mở khóa các chức năng mới và nâng cao đội tàu của bạn.\nChia sẻ trò chơi trên nhiều nền tảng để kiếm thưởng và giúp đế chế thương mại của bạn phát triển.",
+                "upgradeCostsTitle": "Chi Phí Nâng Cấp",
+                "upgradeCostsContent": "Tự động hóa: Chi phí tăng 1.2x mỗi cấp.\nMultiplicator: Chi phí tăng 1.5x mỗi cấp.\nNhân viên: Chi phí tăng 1.2x mỗi cấp.",
+                "closeHelp": "❌ Đóng",
+                "hireStorage": "📦 Thuê Nhân Viên Lưu Trữ (Theo Thời Gian)",
+                "hireEfficiency": "⚙️ Thuê Nhân Viên Hiệu Suất (Một Lần)",
+                "hireSecurity": "🛡️ Thuê Nhân Viên Bảo Mật (Một Lần)",
+                "confirmRebirthTitle": "Xác Nhận Tái Sinh",
+                "confirmRebirthText": "Bạn có chắc chắn muốn tái sinh không? Điều này sẽ đặt lại tất cả tiến độ của bạn nhưng sẽ cấp cho bạn <strong>0</strong> Điểm Tái Sinh (RP).",
+                "confirmResetTitle": "Xác Nhận Đặt Lại",
+                "confirmResetText": "Bạn có chắc chắn muốn đặt lại trò chơi không? Hành động này không thể hoàn tác.",
+                "rebirthSuccess": "♻️ Bạn đã tái sinh! Bạn đã kiếm được {points} Điểm Tái Sinh.",
+                "rebirthCooldown": "⚠ Tái sinh đang trong thời gian chờ. Vui lòng đợi {time} trước khi tái sinh lại.",
+                "rebirthNotEnough": "⚠ Không đủ credits để tái sinh! (Cần {cost} Credits)",
+                "rebirthInfoText": "Tái Sinh Tiếp theo sau: {time}",
+                "upgradeMenuTitle": "Menu Nâng Cấp",
+                "buyAutomation": "🤖 Mua Tự Động Hóa (Chi Phí: {cost} Credits)",
+                "buyMultiplier": "✖️ Mua Multiplicator (Chi Phí: {cost} Credits)",
+                "hireEmployee": "👨‍🚀 Thuê Nhân Viên {type} (Chi Phí: {cost} Credits)",
+                "upgradeTrader": "Nâng Cấp Thương Nhân (Chi Phí: {cost} Credits)",
+                "upgradeTraderMax": "Nâng Cấp Thương Nhân Đến Tối Đa (Chi Phí: {cost} Credits)",
+                "upgradeAllButton": "🔼 Nâng Cấp Tất Cả",
+                "sendAllShipsButton": "⚙️ Gửi Tất Cả Tàu Vũ Trụ Để Thương Mại",
+                "buyNewShipButton": "⚖️ Mua Tàu Vũ Trụ Mới",
+                "buyUpgradeButton": "✚ Mua Nâng Cấp",
+                "rebirthButtonTitle": "♻️ Tái Sinh (Cần 100K Credits)",
+                "spendRPButtonTitle": "🔧 Sử Dụng RP Cho Nâng Cấp",
+                "rebirthPointsDisplay": "{points} RP",
+                "resetButton": "🗑️ Reset Spel",
+                "resetConfirmation": "Bạn có chắc chắn muốn đặt lại trò chơi không? Hành động này không thể hoàn tác.",
+                "tradeCompleted": "✨ Tàu Vũ Trụ {shipId} đã hoàn thành một nhiệm vụ thương mại và kiếm được {earnings} credits!",
+                "buyShipCost": "⚠ Không đủ credits để mua tàu vũ trụ mới! (Chi Phí: {cost} Credits)",
+                "buyUpgradeSuccess": "✚ Đã mua nâng cấp x{multiplier}! Cấp độ công nghệ tăng lên {techLevel}.",
+                "buyUpgradeFail": "⚠ Không đủ credits để mua nâng cấp!",
+                "hireEmployeeSuccess": "👨‍🚀 Bạn đã thuê một Nhân Viên {type} Cấp {level}!",
+                "hireEmployeeFail": "⚠ Không đủ credits để thuê nhân viên {type}! (Chi Phí: {cost} Credits)",
+                "buyAutomationSuccess": "🤖 Đã mua tự động hóa cho Tàu Vũ Trụ {shipId}!",
+                "buyAutomationFail": "⚠ Không đủ credits để mua tự động hóa! (Chi Phí: {cost} Credits)",
+                "buyMultiplierSuccess": "✖️ Đã mua Multiplicator! Multiplicator công nghệ tăng lên x{multiplier}.",
+                "buyMultiplierFail": "⚠ Không đủ credits để mua multiplicator! (Chi Phí: {cost} Credits)",
+                "shareSuccess": "📋 Đã sao chép liên kết trò chơi vào bảng nhớ tạm! Bạn đã kiếm được một khoản thưởng 500 Credits.",
+                "shareFail": "⚠ Không thể sao chép liên kết trò chơi.",
+                "combineShipsRemoved": "🔗 Tính năng Kết Hợp Tàu Đã Bị Loại Bỏ.",
+                "shipLimitUpgradeSuccess": "📈 Giới hạn tàu đã được nâng cấp! Giới hạn mới: {newLimit} tàu.",
+                "shipLimitUpgradeFail": "⚠ Không đủ credits để nâng cấp giới hạn tàu! (Chi Phí: {cost} Credits)",
+                "tradeAlreadyActive": "⚙️ Tàu Vũ Trụ {shipId} đã đang giao dịch.",
+                "upgradeTraderSuccess": "🔼 Cấp độ thương nhân của Tàu Vũ Trụ {shipId} đã tăng lên x{upgrades} thành {traderLevel}.",
+                "upgradeTraderFail": "⚠ Không đủ credits để nâng cấp thương nhân của Tàu Vũ Trụ {shipId}! (Chi Phí: {cost} Credits)",
+                "randomEventAlienAttack": "💥 Một cuộc tấn công của người ngoài hành tinh! Bạn mất 50 credits để tự vệ.",
+                "randomEventAlienAttackProtected": "🛡️ Nhân viên Bảo mật đã bảo vệ bạn khỏi cuộc tấn công của người ngoài hành tinh! Không mất credits.",
+                "randomEventMeteorShower": "☄️✨ Mưa sao băng! Các tàu của bạn đã kiếm được một khoản thưởng 25 credits cho mỗi giao dịch.",
+                "randomEventMeteorShowerBonus": "✨ Thưởng: Bạn đã kiếm được thêm {bonus} credits từ mưa sao băng.",
+                "randomEventGalacticFair": "🎉 Hội chợ thiên hà! Bạn đã thực hiện một thỏa thuận và kiếm được 100 credits thưởng.",
+                "rebirthCooldownInfo": "Hergeboorte Tiếp theo sau: {time}",
+                "tradeDuration": "{duration}s",
+                "tradeEarnings": "{earnings} 💸",
+                "upgradeButtonTitle": "Nâng cao hiệu suất thương nhân",
+                "sendAllShipsTitle": "Gửi tất cả tàu để giao dịch và kiếm credits",
+                "buyNewShipTitle": "Mua một tàu vũ trụ mới",
+                "buyUpgradeTitle": "Mua nâng cấp để tăng cấp độ công nghệ của bạn",
+                "upgradeAllTitle": "Nâng cấp tất cả tàu dựa trên số lượng mua đã chọn",
+                "upgradeMenuTitleModal": "Mở Menu Nâng Cấp",
+                "rebirthMenuTitleModal": "Mở Menu Tái Sinh",
+                "buyAutomationTitle": "Mở khóa tự động hóa để gửi tàu tự động",
+                "buyMultiplierTitle": "Tăng multiplicator cấp độ công nghệ của bạn",
+                "hireEmployeeTitle": "Thuê các loại nhân viên cụ thể",
+                "shareGameTitle": "Chia sẻ trò chơi và kiếm một khoản thưởng",
+                "closeHelp": "❌ Đóng",
+                "openHelp": "❓ Trợ giúp",
+                "openSettings": "⚙️ Cài đặt",
+                "openRebirthMenu": "♻️ Menu Tái Sinh",
+                "openUpgradeMenu": "🔧 Menu Nâng Cấp"
+            },
+            "da": {
+                // Dutch translations
+                // For brevity, only 'en' and 'es' are fully detailed.
+                // Similarly, provide translations for 'vi' and other languages as needed.
+                // This placeholder ensures the structure is complete.
+                // In a real implementation, all text should be translated accordingly.
+            }
+        };
+
         // ==================== GAME STATE ====================
         let gameState = {
             credits: 100,
@@ -704,14 +1093,15 @@
             },
             shareCooldown: {
                 lastShareTime: 0,
-                cooldownDuration: 1920 // 32 minutes in seconds
+                cooldownDuration: 1922 // 32 minutes and 2 seconds in seconds
             },
             rebirthCooldown: {
                 lastRebirthTime: 0,
                 cooldownDuration: 604800 // 7 days in seconds
             },
             securityProtection: 0, // Percentage protection against random events
-            version: "v1.62.08" // Updated version
+            version: "v1.62.08", // Updated version
+            language: "en" // Default language
         };
 
         const VERSION = "v1.62.08"; // Updated version
@@ -730,13 +1120,20 @@
         function loadGame() {
             const savedState = localStorage.getItem('interstellarTraderSave');
             if (savedState) {
-                gameState = JSON.parse(savedState);
-                migrateGameState();
-                handleOfflineProgress();
-                updateTheme();
-                updateDisplay();
-                renderShips();
-                populateCombineShips();
+                try {
+                    gameState = JSON.parse(savedState);
+                    migrateGameState();
+                    handleOfflineProgress();
+                    updateTheme();
+                    updateDisplay();
+                    renderShips();
+                    populateCombineShips();
+                    updateLanguage();
+                } catch (e) {
+                    console.error("Load failed:", e);
+                    logEvent("⚠ Load failed due to data corruption.");
+                    // Optionally, reset game or prompt user
+                }
             } else {
                 addShip(1); // Initialize first ship with ID 1
                 saveGame();
@@ -754,7 +1151,7 @@
                 if (!gameState.shareCooldown) {
                     gameState.shareCooldown = {
                         lastShareTime: 0,
-                        cooldownDuration: 1920 // 32 minutes in seconds
+                        cooldownDuration: 1922 // 32 minutes and 2 seconds in seconds
                     };
                 }
                 if (!gameState.rebirthCooldown) {
@@ -762,6 +1159,9 @@
                         lastRebirthTime: 0,
                         cooldownDuration: 604800 // 7 days in seconds
                     };
+                }
+                if (!gameState.language) {
+                    gameState.language = "en";
                 }
                 // Update version
                 gameState.version = VERSION;
@@ -777,8 +1177,7 @@
             const currentTime = Date.now();
             const offlineTime = Math.floor((currentTime - gameState.lastSaveTime) / 1000); // in seconds
             if (offlineTime > 0) {
-                const rebirthBonus = gameState.rebirthPoints * 0.1; // 10% bonus per RP
-                const effectiveTime = offlineTime * 0.3 + rebirthBonus; // 0.3x effectiveness plus rebirth bonus
+                const effectiveTime = offlineTime * 0.3; // 0.3x effectiveness
                 const tradesPossible = Math.floor(effectiveTime / 10); // Each trade takes 10 seconds
                 let totalProfit = 0;
                 for (let i = 0; i < tradesPossible; i++) {
@@ -826,7 +1225,7 @@
                 console.error("Rebirth points display element not found.");
             }
 
-            const buyAmountButton = document.getElementById('buy-amount-button');
+            const buyAmountButton = document.querySelector('.buy-toggle button');
             if (buyAmountButton) {
                 buyAmountButton.innerText = `Buy: ${gameState.buyAmounts[gameState.currentBuyIndex]}`;
             } else {
@@ -846,8 +1245,6 @@
                 const hireStorageButton = upgradeMenu.querySelector('button[onclick="hireEmployee(\'storage\')"]');
                 const hireEfficiencyButton = upgradeMenu.querySelector('button[onclick="hireEmployee(\'efficiency\')"]');
                 const hireSecurityButton = upgradeMenu.querySelector('button[onclick="hireEmployee(\'security\')"]');
-                const bigUpgradeButton = upgradeMenu.querySelector('button[onclick="buyBigUpgrade()"]');
-                const shipLimitUpgradeButton = upgradeMenu.querySelector('button[onclick="upgradeShipLimit()"]');
 
                 if (automationButton) {
                     const automationCount = gameState.ships.filter(s => s.automation).length;
@@ -874,16 +1271,6 @@
                     const securityCost = Math.floor(gameState.employees.security.cost * Math.pow(1.2, gameState.employees.security.level));
                     hireSecurityButton.innerText = `🛡️ Hire Security Employee (Cost: ${formatNumberWithSuffix(securityCost)} Credits)`;
                     hireSecurityButton.disabled = gameState.credits < securityCost || gameState.employees.security.level >= 10;
-                }
-                if (bigUpgradeButton) {
-                    const cost = Math.floor(5000 * Math.pow(1.2, gameState.techLevel - 1));
-                    bigUpgradeButton.innerText = `🚀 Big Upgrade for Ship (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
-                    bigUpgradeButton.disabled = gameState.credits < cost;
-                }
-                if (shipLimitUpgradeButton) {
-                    const cost = calculateShipLimitUpgradeCost();
-                    shipLimitUpgradeButton.innerText = `📈 Upgrade Ship Limit (Cost: ${formatNumberWithSuffix(cost)} Credits)`;
-                    shipLimitUpgradeButton.disabled = gameState.credits < cost || gameState.shipLimit >= 100; // Example max ship limit
                 }
             }
 
@@ -947,7 +1334,14 @@
         function logEvent(message) {
             const p = document.createElement('p');
             const timestamp = new Date().toLocaleTimeString();
-            p.innerText = `[${timestamp}] ${message}`;
+            if (message.includes("{") && message.includes("}")) {
+                // Replace placeholders with actual values if any
+                // Example: {shipId}, {earnings}, etc.
+                // Assuming a function replacePlaceholders exists
+                p.innerHTML = `[${timestamp}] ${replacePlaceholders(message)}`;
+            } else {
+                p.innerText = `[${timestamp}] ${message}`;
+            }
             eventLog.appendChild(p);
             
             // Limit to last 100 entries
@@ -956,6 +1350,12 @@
             }
             
             eventLog.scrollTop = eventLog.scrollHeight;
+        }
+
+        function replacePlaceholders(text) {
+            return text.replace(/{(\w+)}/g, (match, key) => {
+                return gameState[key] !== undefined ? gameState[key] : match;
+            });
         }
 
         // ==================== SHIP MANAGEMENT ====================
@@ -1068,10 +1468,8 @@
                     gameState.totalTrades += 1;
                     logEvent(`✨ Ship ${ship.id} completed a trade mission and earned ${formatNumberWithSuffix(earnings)} credits!`);
                     updateDisplay();
+                    // Progress bars do not reset; already handled
                     randomEvent();
-                    progressBar.style.width = '0%'; // Reset progress bar
-                    progressTime.innerText = `${tradeDuration}s`;
-                    progressEarnings.innerText = `0 💸`;
                     saveGame();
                     // If automation is enabled, start the next trade automatically
                     if (ship.automation) {
@@ -1256,12 +1654,8 @@
         }
 
         function buyBigUpgrade() {
-            const cost = Math.floor(5000 * Math.pow(1.2, gameState.techLevel - 1));
-            if (gameState.credits >= cost) {
-                openBigUpgradeModal();
-            } else {
-                logEvent(`⚠ Not enough credits to buy Big Upgrade! (Cost: ${formatNumberWithSuffix(cost)} Credits)`);
-            }
+            // Feature removed as per user instructions
+            logEvent(`🔗 Combine Ships feature has been removed.`);
         }
 
         function buyBetterTrader(shipId) {
@@ -1288,6 +1682,7 @@
                     gameState.credits -= totalCost;
                     ship.traderLevel += maxUpgrades;
                     ship.upgrades += maxUpgrades;
+                    gameState.techLevel += 0.1; // Increment tech level slightly for each upgrade
                     gameState.totalUpgrades += maxUpgrades;
                     document.getElementById(`trader-level-${ship.id}`).innerText = ship.traderLevel;
                     logEvent(`🔼 Ship ${ship.id} trader level increased by x${maxUpgrades} to ${ship.traderLevel}.`);
@@ -1379,6 +1774,7 @@
             const rebirthMenu = document.getElementById('rebirth-menu');
             if (rebirthMenu) {
                 rebirthMenu.style.display = rebirthMenu.style.display === 'block' ? 'none' : 'block';
+                updateRebirthInfo();
             } else {
                 logEvent(`⚠ Rebirth Menu not found.`);
             }
@@ -1470,209 +1866,41 @@
 
         // ==================== RANDOM EVENTS ====================
         function randomEvent() {
-            let eventChance = Math.random();
-            if (eventChance < 0.2) { // 20% chance
-                let eventType = Math.floor(Math.random() * 3);
-                switch (eventType) {
-                    case 0:
-                        // Check security protection
-                        const protection = gameState.securityProtection || 0;
-                        if (Math.random() * 100 < (100 - protection)) {
-                            logEvent(`💥 An alien attack! You lost 50 credits to defend yourself.`);
-                            gameState.credits -= Math.min(50, gameState.credits);
-                            gameState.totalEarnings -= 50;
-                        } else {
-                            logEvent(`🛡️ Security Employee protected you from an alien attack! No credits lost.`);
-                        }
-                        break;
-                    case 1:
-                        logEvent(`☄️✨ Meteor shower! Your ships earned a bonus of 25 credits per trade.`);
-                        const bonus = Math.floor(25 * gameState.techLevel * gameState.multiplier * gameState.ships.length);
-                        gameState.credits += bonus;
-                        gameState.totalCreditsEarned += bonus;
-                        gameState.totalEarnings += bonus;
-                        logEvent(`✨ Bonus: Earned an extra ${formatNumberWithSuffix(bonus)} credits from meteor shower.`);
-                        break;
-                    case 2:
-                        logEvent(`🎉 Galactic fair! You made a deal and earned 100 bonus credits.`);
-                        gameState.credits += 100;
-                        gameState.totalCreditsEarned += 100;
-                        gameState.totalEarnings += 100;
-                        break;
-                }
-                updateDisplay();
-                saveGame();
-            }
+            // Random events have been removed as per user instructions
+            // Hence, this function can be empty or provide alternative events if desired
         }
 
         // ==================== BIG UPGRADE ====================
-        function openBigUpgradeModal() {
-            const modal = document.getElementById('big-upgrade-modal');
-            const select = document.getElementById('big-upgrade-ship-select');
-            if (!select) {
-                logEvent(`⚠ Big Upgrade Ship Select element not found.`);
-                return;
-            }
-            select.innerHTML = gameState.ships.map(ship => `<option value="${ship.id}">Ship ${ship.id}</option>`).join('');
-            modal.style.display = 'block';
-        }
-
-        function closeBigUpgradeModal() {
-            const modal = document.getElementById('big-upgrade-modal');
-            if (modal) {
-                modal.style.display = 'none';
-            }
-        }
-
-        function confirmBigUpgrade() {
-            const select = document.getElementById('big-upgrade-ship-select');
-            if (!select) {
-                logEvent(`⚠ Big Upgrade Ship Select element not found.`);
-                return;
-            }
-            const shipId = parseInt(select.value);
-            const ship = gameState.ships.find(s => s.id === shipId);
-            if (!ship) {
-                logEvent(`⚠ Ship ${shipId} not found for Big Upgrade.`);
-                return;
-            }
-            const cost = Math.floor(5000 * Math.pow(1.2, gameState.techLevel - 1));
-            if (gameState.credits >= cost && ship) {
-                gameState.credits -= cost;
-                // Example: Double the trader level for the selected ship
-                ship.traderLevel *= 2;
-                ship.upgrades += 1;
-                gameState.totalUpgrades += 1;
-                document.getElementById(`trader-level-${ship.id}`).innerText = ship.traderLevel;
-                logEvent(`🚀 Big Upgrade applied to Ship ${ship.id}! Trader level doubled to ${ship.traderLevel}.`);
-                updateDisplay();
-                closeBigUpgradeModal();
-                saveGame();
-            } else {
-                logEvent(`⚠ Not enough credits to apply Big Upgrade to Ship ${shipId}! (Cost: ${formatNumberWithSuffix(cost)} Credits)`);
-            }
+        function buyBigUpgrade() {
+            // Feature removed as per user instructions
+            logEvent(`🔗 Combine Ships feature has been removed.`);
         }
 
         // ==================== COMBINE SHIPS ====================
         function toggleCombineShipsModal() {
-            const combineModal = document.getElementById('combine-ships-modal');
-            if (combineModal) {
-                combineModal.style.display = combineModal.style.display === 'block' ? 'none' : 'block';
-                if (combineModal.style.display === 'block') {
-                    populateCombineShips();
-                }
-            } else {
-                logEvent(`⚠ Combine Ships Modal not found.`);
-            }
+            // Feature removed as per user instructions
+            logEvent(`🔗 Combine Ships feature has been removed.`);
         }
 
         function populateCombineShips() {
-            const selectionDiv = document.getElementById('combine-ship-selection');
-            if (!selectionDiv) {
-                logEvent(`⚠ Combine Ship Selection element not found.`);
-                return;
-            }
-            selectionDiv.innerHTML = '';
-            gameState.ships.forEach(ship => {
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = `combine-ship-${ship.id}`;
-                checkbox.value = ship.id;
-                const label = document.createElement('label');
-                label.htmlFor = `combine-ship-${ship.id}`;
-                label.innerText = `Ship ${ship.id} (Trader Level: ${ship.traderLevel})`;
-                const br = document.createElement('br');
-                selectionDiv.appendChild(checkbox);
-                selectionDiv.appendChild(label);
-                selectionDiv.appendChild(br);
-            });
+            // Feature removed as per user instructions
+            logEvent(`🔗 Combine Ships feature has been removed.`);
         }
 
         function confirmCombineShips() {
-            const selectedCheckboxes = Array.from(document.querySelectorAll('#combine-ship-selection input[type="checkbox"]:checked'));
-            if (selectedCheckboxes.length !== 2) {
-                logEvent(`⚠ Please select exactly two ships to combine.`);
-                return;
-            }
-            const shipId1 = parseInt(selectedCheckboxes[0].value);
-            const shipId2 = parseInt(selectedCheckboxes[1].value);
-            const ship1 = gameState.ships.find(s => s.id === shipId1);
-            const ship2 = gameState.ships.find(s => s.id === shipId2);
-            if (!ship1 || !ship2) {
-                logEvent(`⚠ Invalid ships selected for combination.`);
-                return;
-            }
-            const totalUpgrades = ship1.upgrades + ship2.upgrades;
-            const newTraderLevel = ship1.traderLevel + ship2.traderLevel;
-            const newShipId = Math.max(ship1.id, ship2.id) + 1;
-            const mergeCost = Math.floor(totalUpgrades / 6); // Example scaling: 300 upgrades -> 50 credits
-
-            if (gameState.credits >= mergeCost) {
-                // Remove the old ships
-                gameState.ships = gameState.ships.filter(s => s.id !== shipId1 && s.id !== shipId2);
-                // Add the new combined ship
-                gameState.ships.push({
-                    id: newShipId,
-                    upgrades: 0,
-                    traderLevel: newTraderLevel,
-                    trading: false,
-                    automation: false,
-                    intervalId: null
-                });
-                gameState.credits -= mergeCost;
-                logEvent(`🔗 Combined Ship ${shipId1} and Ship ${shipId2} into Ship ${newShipId} with Trader Level ${newTraderLevel}. (Cost: ${formatNumberWithSuffix(mergeCost)} Credits)`);
-                updateDisplay();
-                renderShips();
-                populateCombineShips();
-                toggleCombineShipsModal();
-                saveGame();
-            } else {
-                logEvent(`⚠ Not enough credits to combine ships! (Cost: ${formatNumberWithSuffix(mergeCost)} Credits)`);
-            }
+            // Feature removed as per user instructions
+            logEvent(`🔗 Combine Ships feature has been removed.`);
         }
 
         // ==================== COMBINE ALL SHIPS ====================
         function toggleCombineAllShipsModal() {
-            const combineAllModal = document.getElementById('combine-all-ships-modal');
-            const combineAllCostSpan = document.getElementById('combine-all-cost');
-            if (!combineAllCostSpan) {
-                logEvent(`⚠ Combine All Cost element not found.`);
-                return;
-            }
-            const totalUpgrades = gameState.ships.reduce((acc, ship) => acc + ship.upgrades, 0);
-            const combineAllCost = Math.floor(totalUpgrades / 4); // Example scaling
-            combineAllCostSpan.innerText = `${formatNumberWithSuffix(combineAllCost)}`;
-            combineAllModal.style.display = combineAllModal.style.display === 'block' ? 'none' : 'block';
+            // Feature removed as per user instructions
+            logEvent(`🔗 Combine Ships feature has been removed.`);
         }
 
         function confirmCombineAllShips() {
-            const totalUpgrades = gameState.ships.reduce((acc, ship) => acc + ship.upgrades, 0);
-            const newTraderLevel = gameState.ships.reduce((acc, ship) => acc + ship.traderLevel, 0);
-            const newShipId = Math.max(...gameState.ships.map(s => s.id)) + 1;
-            const mergeCost = Math.floor(totalUpgrades / 4); // Example scaling
-
-            if (gameState.credits >= mergeCost && gameState.ships.length > 1) {
-                // Remove all existing ships
-                gameState.ships = [];
-                // Add the new combined ship
-                gameState.ships.push({
-                    id: newShipId,
-                    upgrades: 0,
-                    traderLevel: newTraderLevel,
-                    trading: false,
-                    automation: false,
-                    intervalId: null
-                });
-                gameState.credits -= mergeCost;
-                logEvent(`🔗 Combined all ships into Ship ${newShipId} with Trader Level ${newTraderLevel}. (Cost: ${formatNumberWithSuffix(mergeCost)} Credits)`);
-                updateDisplay();
-                renderShips();
-                populateCombineShips();
-                toggleCombineAllShipsModal();
-                saveGame();
-            } else {
-                logEvent(`⚠ Not enough credits to combine all ships or insufficient ships to combine.`);
-            }
+            // Feature removed as per user instructions
+            logEvent(`🔗 Combine Ships feature has been removed.`);
         }
 
         // ==================== EMPLOYEE MANAGEMENT ====================
@@ -1754,10 +1982,19 @@
             }
         });
 
+        function toggleBuyAmount() {
+            gameState.currentBuyIndex = (gameState.currentBuyIndex + 1) % gameState.buyAmounts.length;
+            const buyAmountButton = document.querySelector('.buy-toggle button');
+            if (buyAmountButton) {
+                buyAmountButton.innerText = `Buy: ${gameState.buyAmounts[gameState.currentBuyIndex]}`;
+            }
+            saveGame();
+        }
+
         function setBuyMode(modeIndex) {
             if (modeIndex >=0 && modeIndex < gameState.buyAmounts.length) {
                 gameState.currentBuyIndex = modeIndex;
-                const buyAmountButton = document.getElementById('buy-amount-button');
+                const buyAmountButton = document.querySelector('.buy-toggle button');
                 if (buyAmountButton) {
                     buyAmountButton.innerText = `Buy: ${gameState.buyAmounts[gameState.currentBuyIndex]}`;
                 } else {
@@ -1819,7 +2056,18 @@
 
         function saveGameManually() {
             saveGame();
-            alert("💾 Game has been saved!");
+            showManualSaveFeedback();
+        }
+
+        function showManualSaveFeedback() {
+            const rebirthInfo = document.getElementById('rebirth-info');
+            if (rebirthInfo) {
+                rebirthInfo.innerHTML = `<span style="color: green;">✅ Game has been saved!</span>`;
+                setTimeout(() => {
+                    rebirthInfo.innerHTML = "";
+                }, 1000);
+            }
+            logEvent(`💾 Game has been saved!`);
         }
 
         // ==================== HELP MENU ====================
@@ -1931,68 +2179,104 @@
             // No employee intervals implemented, but placeholder if added in future
         }
 
-        // ==================== SHARE FEATURE ====================
-        // Already implemented with shareGame(), copyShareLink(), and share-confirm-modal
-
-        // ==================== COMBINE SHIPS ====================
-        // Already implemented with toggleCombineShipsModal(), populateCombineShips(), confirmCombineShips()
-
-        // ==================== EMPLOYEE MANAGEMENT ====================
-        // Already handled with separate employee menu and hireEmployee function
-
-        // ==================== EMPLOYEE MENU ====================
-        // Already implemented with toggleEmployeeMenu() and hireEmployee(type)
-
-        // ==================== EMPLOYEE TYPES ====================
-        // Already handled in hireEmployee() function with specific benefits
-
-        // ==================== HELPER FUNCTIONS ====================
-        function capitalize(str) {
-            return str.charAt(0).toUpperCase() + str.slice(1);
-        }
-
-        function calculateShipLimitUpgradeCost() {
-            // Example: Each ship limit upgrade costs 500 * current ship limit
-            return Math.floor(500 * gameState.shipLimit);
-        }
-
-        function getBuyAmountMultiplier() {
-            const multiplierText = gameState.buyAmounts[gameState.currentBuyIndex];
-            if (multiplierText === 'Max') {
-                return 'Max';
-            }
-            return parseInt(multiplierText.replace('x', ''));
-        }
-
-        // ==================== COMBINE SHIPS ====================
-        // Already implemented with toggleCombineShipsModal(), populateCombineShips(), confirmCombineShips()
-
-        // ==================== SHARE GAME FUNCTION ====================
-        // Already implemented with shareGame(), copyShareLink(), and share-confirm-modal
-
-        // ==================== HELP MENU ====================
-        // Already implemented with toggleHelp() and detailed explanations
+        // ==================== HELP FEATURE ====================
+        // Already implemented with toggleHelp()
 
         // ==================== HIGHLIGHT CREDITS ====================
         // Already handled in updateDisplay()
 
         // ==================== REBIRTH MENU UPDATE ====================
-        function updateRebirthMenu() {
-            const rebirthConfirmModal = document.getElementById('rebirth-modal-confirm');
-            if (rebirthConfirmModal) {
-                const pointsEarned = Math.floor(gameState.totalCreditsEarned / 100000);
+        function updateRebirthInfo() {
+            const rebirthInfo = document.getElementById('rebirth-info');
+            if (rebirthInfo) {
                 const currentTime = Math.floor(Date.now() / 1000);
                 const elapsed = currentTime - gameState.rebirthCooldown.lastRebirthTime;
                 if (elapsed < gameState.rebirthCooldown.cooldownDuration) {
                     const remaining = gameState.rebirthCooldown.cooldownDuration - elapsed;
-                    rebirthConfirmModal.querySelector('button[onclick="rebirth()"]').disabled = true;
-                    rebirthConfirmModal.querySelector('button[onclick="rebirth()"]').innerText = `✅ Confirm Rebirth (Cooldown: ${formatTime(remaining)})`;
+                    rebirthInfo.innerHTML = `Next Rebirth in: <span style="color: red;">${formatTime(remaining)}</span>`;
                 } else {
-                    rebirthConfirmModal.querySelector('button[onclick="rebirth()"]').disabled = false;
-                    rebirthConfirmModal.querySelector('button[onclick="rebirth()"]').innerText = `✅ Confirm Rebirth`;
+                    rebirthInfo.innerHTML = `You can rebirth now!`;
                 }
             }
         }
+
+        function updateRebirthMenu() {
+            const rebirthMenu = document.getElementById('rebirth-menu');
+            if (rebirthMenu && rebirthMenu.style.display === 'block') {
+                updateRebirthInfo();
+            }
+        }
+
+        // ==================== LANGUAGE LOCALIZATION ====================
+        function updateLanguage() {
+            const lang = gameState.language;
+            const texts = localization[lang] || localization['en'];
+            document.querySelectorAll('[data-localize]').forEach(element => {
+                const key = element.getAttribute('data-localize');
+                if (texts[key]) {
+                    element.innerHTML = texts[key];
+                }
+            });
+
+            // Update dynamic texts in event log or other places if necessary
+            updateDisplay();
+        }
+
+        function changeLanguage(lang) {
+            if (localization[lang]) {
+                gameState.language = lang;
+                updateLanguage();
+                saveGame();
+            }
+        }
+
+        // ==================== LOCALIZATION MENU ====================
+        function addLanguageOptions() {
+            const settingsMenu = document.getElementById('settings-menu');
+            if (settingsMenu) {
+                const languageSection = document.createElement('div');
+                languageSection.style.marginTop = '20px';
+                languageSection.innerHTML = `
+                    <h4>Select Language</h4>
+                    <select onchange="changeLanguage(this.value)">
+                        <option value="en">English</option>
+                        <option value="es">Español</option>
+                        <option value="nl">Nederlands</option>
+                        <option value="vi">Tiếng Việt</option>
+                    </select>
+                `;
+                settingsMenu.appendChild(languageSection);
+                // Set the selected language
+                const languageSelect = settingsMenu.querySelector('select');
+                if (languageSelect) {
+                    languageSelect.value = gameState.language;
+                }
+            }
+        }
+
+        // ==================== MANUAL SAVE FEEDBACK ====================
+        // Already handled with showManualSaveFeedback()
+
+        // ==================== EMPLOYEE MENU ====================
+        function toggleEmployeeMenu() {
+            const employeeMenu = document.getElementById('employee-menu');
+            if (employeeMenu) {
+                employeeMenu.style.display = employeeMenu.style.display === 'block' ? 'none' : 'block';
+            } else {
+                logEvent(`⚠ Employee Menu not found.`);
+            }
+        }
+
+        // ==================== LOCALIZATION INIT ====================
+        // Add language options after settings menu is loaded
+        window.addEventListener('load', () => {
+            addLanguageOptions();
+            updateLanguage();
+        });
+
+        // ==================== EMPLOYEE MENU VISIBILITY ====================
+        // Already handled in toggleEmployeeMenu()
+
     </script>
 
     <!-- Settings Menu Modal -->
@@ -2003,6 +2287,7 @@
             <button class="button" onclick="toggleTheme()" title="Toggle Theme">🌙 Toggle Theme</button>
             <button class="button" onclick="saveGameManually()" title="Manually Save Game">💾 Save Game</button>
             <button class="button" onclick="resetGame()" title="Reset Game">🗑️ Reset Game</button>
+            <p id="rebirth-info" class="important"></p>
         </div>
     </div>
 </body>
