@@ -57,20 +57,58 @@
             text-align: left;
             color: #ff9900;
         }
+        .progress-bar {
+            width: 100%;
+            background-color: #555;
+            border-radius: 5px;
+            margin: 10px 0;
+            height: 20px;
+        }
+        .progress {
+            height: 100%;
+            background-color: #00ff00;
+            border-radius: 5px;
+            width: 0;
+            transition: width 1s ease-in-out;
+        }
+        .column {
+            display: inline-block;
+            width: 48%;
+            vertical-align: top;
+            margin: 1%;
+        }
+        .header-link {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #00ff00;
+            text-decoration: none;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
+    <a href="https://sites.google.com/view/staticquasar931" class="header-link">Made By Static</a>
     <h1>✨ Interstellar Trader ✨</h1>
     <h2>Your goal: Build an intergalactic trading empire!</h2>
     
     <div id="game-area">
         <p>Credits: <span id="credits">100</span> 💸</p>
         <p>Spaceships: <span id="spaceship-count">1</span> 🚀</p>
-        <button class="button" onclick="sendShip()">⚙ Send Ship to Trade</button>
-        <button class="button" onclick="buyShip()">⚖ Buy a New Ship (Cost: 100)</button>
-        <button class="button" onclick="researchTech()">⚛ Research Technology (Cost: 200)</button>
-        <button class="button" onclick="toggleUpgradeMenu()">🔧 Upgrade Menu</button>
-        <button class="button" onclick="toggleRebirthMenu()">♻️ Rebirth Menu</button>
+        <div>
+            <button class="button" onclick="sendShip()">⚙ Send Ship to Trade</button>
+            <button class="button" onclick="buyShip()">⚖ Buy a New Ship (Cost: 100)</button>
+            <button class="button" onclick="researchTech()">⚛ Research Technology (Cost: 200)</button>
+            <button class="button" onclick="toggleUpgradeMenu()">🔧 Upgrade Menu</button>
+            <button class="button" onclick="toggleRebirthMenu()">♻️ Rebirth Menu</button>
+        </div>
+        <div>
+            <button class="button" onclick="massUpgrade(1)">1x</button>
+            <button class="button" onclick="massUpgrade(10)">10x</button>
+            <button class="button" onclick="massUpgrade(100)">100x</button>
+            <button class="button" onclick="massUpgrade(1000)">1000x</button>
+            <button class="button" onclick="massUpgrade('max')">Max</button>
+        </div>
         <p><strong>Technology Level:</strong> <span id="tech-level">1</span> ✯</p>
         <div id="event-log" class="event-log">
             <p>Game log:</p>
@@ -79,6 +117,8 @@
             <h3>Upgrade Menu</h3>
             <button class="button" onclick="buyAutomation()">🤖 Buy Automation (Cost: 500)</button>
             <button class="button" onclick="buyMultiplier()">✖ Buy Multiplier (Cost: 1000)</button>
+            <button class="button" onclick="buyEmployee()">👨‍🚀 Hire Employee (Cost: 800)</button>
+            <button class="button" onclick="buyBigUpgrade()">🚀 Ship Speed x2 (Cost: 5000)</button>
         </div>
         <div id="rebirth-menu" class="rebirth-menu" style="display: none;">
             <h3>Rebirth Menu</h3>
@@ -88,13 +128,26 @@
         </div>
     </div>
 
+    <div id="progress-area">
+        <h3>Spaceship Progress</h3>
+        <div class="column" id="left-column"></div>
+        <div class="column" id="right-column"></div>
+    </div>
+
+    <div id="settings">
+        <a href="https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader" class="header-link" style="top: 50px;">Play Game Here</a>
+    </div>
+
     <script>
         let credits = 100;
         let spaceshipCount = 1;
         let techLevel = 1;
         let rebirthPoints = 0;
         let automation = false;
+        let employee = false;
         const eventLog = document.getElementById('event-log');
+        const leftColumn = document.getElementById('left-column');
+        const rightColumn = document.getElementById('right-column');
 
         function updateDisplay() {
             document.getElementById('credits').innerText = credits;
@@ -111,17 +164,30 @@
         }
 
         function sendShip() {
-            let profit = Math.floor((Math.random() * 10 + 10) * techLevel);
-            credits += profit;
-            logEvent(`✨ One of your ships completed a trade mission and earned ${profit} credits!`);
-            updateDisplay();
-            randomEvent();
+            let shipIndex = Math.floor(Math.random() * spaceshipCount);
+            let progressBar = document.getElementById(`progress-${shipIndex}`);
+            progressBar.style.width = '0%';
+            let progressInterval = setInterval(() => {
+                let currentWidth = parseInt(progressBar.style.width);
+                if (currentWidth < 100) {
+                    currentWidth += 10;
+                    progressBar.style.width = currentWidth + '%';
+                } else {
+                    clearInterval(progressInterval);
+                    let profit = Math.floor((Math.random() * 10 + 10) * techLevel);
+                    credits += profit;
+                    logEvent(`✨ One of your ships completed a trade mission and earned ${profit} credits!`);
+                    updateDisplay();
+                    randomEvent();
+                }
+            }, 500);
         }
 
         function buyShip() {
             if (credits >= 100) {
                 spaceshipCount++;
                 credits -= 100;
+                addProgressBar();
                 logEvent(`🚀 You bought a new spaceship! Total spaceships: ${spaceshipCount}`);
                 updateDisplay();
             } else {
@@ -172,6 +238,33 @@
             }
         }
 
+        function buyEmployee() {
+            if (credits >= 800 && !employee) {
+                credits -= 800;
+                employee = true;
+                logEvent(`👨‍🚀 Employee hired! They will help auto-send ships.`);
+                updateDisplay();
+                setInterval(() => {
+                    if (employee) {
+                        sendShip();
+                    }
+                }, 8000);
+            } else {
+                logEvent(`⚠ Not enough credits or employee already hired!`);
+            }
+        }
+
+        function buyBigUpgrade() {
+            if (credits >= 5000) {
+                credits -= 5000;
+                techLevel *= 2;
+                logEvent(`🚀 Big Upgrade purchased! All ships are now 2x faster.`);
+                updateDisplay();
+            } else {
+                logEvent(`⚠ Not enough credits to buy big upgrade!`);
+            }
+        }
+
         function rebirth() {
             if (credits >= 5000) {
                 let pointsEarned = Math.floor(credits / 1000);
@@ -219,6 +312,40 @@
             }
         }
 
+        function addProgressBar() {
+            const progressContainer = document.createElement('div');
+            progressContainer.classList.add('progress-bar');
+            const progressBar = document.createElement('div');
+            progressBar.classList.add('progress');
+            progressBar.id = `progress-${spaceshipCount - 1}`;
+            progressContainer.appendChild(progressBar);
+            if (spaceshipCount % 2 === 0) {
+                rightColumn.appendChild(progressContainer);
+            } else {
+                leftColumn.appendChild(progressContainer);
+            }
+        }
+
+        function massUpgrade(multiplier) {
+            let cost;
+            switch (multiplier) {
+                case 'max':
+                    cost = credits;
+                    break;
+                default:
+                    cost = 100 * multiplier;
+                    break;
+            }
+            if (credits >= cost) {
+                credits -= cost;
+                techLevel += multiplier === 'max' ? Math.floor(credits / 100) : multiplier;
+                logEvent(`🚀 Mass upgrade completed for ${multiplier}x multiplier!`);
+                updateDisplay();
+            } else {
+                logEvent(`⚠ Not enough credits for mass upgrade!`);
+            }
+        }
+
         setInterval(() => {
             if (automation) {
                 sendShip();
@@ -227,7 +354,6 @@
             logEvent(`⚙ Your spaceships generated ${spaceshipCount * techLevel} credits from trading.`);
             updateDisplay();
         }, 5000);
-
     </script>
 </body>
 </html>
