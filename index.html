@@ -495,10 +495,10 @@
 
     <!-- Modals -->
     <!-- Upgrade Menu Modal -->
-    <div id="upgrade-menu" class="modal-menu">
+    <div id="upgrade-menu" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="upgrade-menu-title">
         <div class="modal-content">
             <span class="close-modal" onclick="toggleUpgradeMenu()">&times;</span>
-            <h3>Upgrade Menu</h3>
+            <h3 id="upgrade-menu-title">Upgrade Menu</h3>
             <button class="button" onclick="buyAutomation()" title="Unlock automation to send ships automatically">🤖 Buy Automation</button>
             <button class="button" onclick="buyMultiplier()" title="Increase your technology level multiplier">✖️ Buy Multiplier</button>
             <button class="button" onclick="toggleEmployeeMenu()" title="Hire specific types of employees">👨‍🚀 Hire Employee</button>
@@ -508,10 +508,10 @@
     </div>
 
     <!-- Rebirth Menu Modal -->
-    <div id="rebirth-menu" class="modal-menu">
+    <div id="rebirth-menu" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="rebirth-menu-title">
         <div class="modal-content">
             <span class="close-modal" onclick="toggleRebirthMenu()">&times;</span>
-            <h3>Rebirth Menu</h3>
+            <h3 id="rebirth-menu-title">Rebirth Menu</h3>
             <p>Rebirth Points (RP): <span id="rebirth-points">0</span> 🔄</p>
             <button class="button" onclick="confirmRebirth()" title="Rebirth to reset progress and earn RP">♻️ Rebirth (Requires 100K Credits)</button>
             <button class="button" onclick="spendRebirthPoints()" title="Spend RP to enhance your empire">🔧 Spend RP for Upgrades</button>
@@ -519,10 +519,10 @@
     </div>
 
     <!-- Help Menu Modal -->
-    <div id="help-menu" class="modal-menu">
+    <div id="help-menu" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="help-menu-title">
         <div class="modal-content" style="width: 90%; max-width: 800px;">
             <span class="close-modal" onclick="toggleHelp()">&times;</span>
-            <h3>Help</h3>
+            <h3 id="help-menu-title">Help</h3>
             <p>Welcome to Interstellar Trader! 🚀</p>
             <p>📈 <strong>Objective:</strong> Build an intergalactic trading empire by sending your ships to trade goods between planets.</p>
             <p>🛠️ <strong>Upgrades:</strong> Purchase upgrades to enhance your technology, increase profits, automate your trading operations, and more.</p>
@@ -568,10 +568,10 @@
     </div>
 
     <!-- Combine Ships Modal -->
-    <div id="combine-ships-modal" class="modal-menu">
+    <div id="combine-ships-modal" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="combine-ships-modal-title">
         <div class="modal-content">
             <span class="close-modal" onclick="toggleCombineShipsModal()">&times;</span>
-            <h3>Combine Ships</h3>
+            <h3 id="combine-ships-modal-title">Combine Ships</h3>
             <p>Select two ships you want to combine:</p>
             <div id="combine-ship-selection">
                 <!-- Dynamic Ship Selection Checkboxes -->
@@ -583,10 +583,10 @@
     </div>
 
     <!-- Combine All Ships Modal -->
-    <div id="combine-all-ships-modal" class="modal-menu">
+    <div id="combine-all-ships-modal" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="combine-all-ships-modal-title">
         <div class="modal-content">
             <span class="close-modal" onclick="toggleCombineAllShipsModal()">&times;</span>
-            <h3>Combine All Ships</h3>
+            <h3 id="combine-all-ships-modal-title">Combine All Ships</h3>
             <p>Are you sure you want to combine all your ships into one powerful ship?</p>
             <p>Combination Cost: <span id="combine-all-cost">0</span> 💸</p>
             <button class="button" onclick="confirmCombineAllShips()" title="Confirm Combine All Ships">✅ Confirm</button>
@@ -595,10 +595,10 @@
     </div>
 
     <!-- Employee Menu Modal -->
-    <div id="employee-menu" class="modal-menu">
+    <div id="employee-menu" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="employee-menu-title">
         <div class="modal-content">
             <span class="close-modal" onclick="toggleEmployeeMenu()">&times;</span>
-            <h3>Employee Menu</h3>
+            <h3 id="employee-menu-title">Employee Menu</h3>
             <button class="button" onclick="hireEmployee('storage')" title="Hire a Storage Employee">📦 Hire Storage Employee</button>
             <button class="button" onclick="hireEmployee('efficiency')" title="Hire an Efficiency Employee">⚙️ Hire Efficiency Employee</button>
             <button class="button" onclick="hireEmployee('security')" title="Hire a Security Employee">🛡️ Hire Security Employee</button>
@@ -606,10 +606,10 @@
     </div>
 
     <!-- Rebirth Confirmation Modal -->
-    <div id="rebirth-modal-confirm" class="modal-menu">
+    <div id="rebirth-modal-confirm" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="rebirth-modal-confirm-title">
         <div class="modal-content">
             <span class="close-modal" onclick="closeRebirthModal()">&times;</span>
-            <h3>Confirm Rebirth</h3>
+            <h3 id="rebirth-modal-confirm-title">Confirm Rebirth</h3>
             <p>Are you sure you want to rebirth? This will reset all your progress but grant you <strong>0</strong> Rebirth Points (RP).</p>
             <button class="button" onclick="rebirth()" title="Confirm Rebirth">✅ Confirm</button>
             <button class="button" onclick="closeRebirthModal()" title="Cancel Rebirth">❌ Cancel</button>
@@ -617,10 +617,10 @@
     </div>
 
     <!-- Reset Confirmation Modal -->
-    <div id="reset-modal" class="modal-menu">
+    <div id="reset-modal" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="reset-modal-title">
         <div class="modal-content">
             <span class="close-modal" onclick="closeResetModal()">&times;</span>
-            <h3>Confirm Reset</h3>
+            <h3 id="reset-modal-title">Confirm Reset</h3>
             <p>Are you sure you want to reset the game? This action cannot be undone.</p>
             <button class="button" onclick="performReset()" title="Confirm Reset">✅ Confirm</button>
             <button class="button" onclick="closeResetModal()" title="Cancel Reset">❌ Cancel</button>
@@ -628,10 +628,10 @@
     </div>
 
     <!-- Big Upgrade Modal -->
-    <div id="big-upgrade-modal" class="modal-menu">
+    <div id="big-upgrade-modal" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="big-upgrade-modal-title">
         <div class="modal-content">
             <span class="close-modal" onclick="closeBigUpgradeModal()">&times;</span>
-            <h3>Select Ship for Big Upgrade</h3>
+            <h3 id="big-upgrade-modal-title">Select Ship for Big Upgrade</h3>
             <p>Select the ship you want to apply the Big Upgrade to:</p>
             <select id="big-upgrade-ship-select">
                 <!-- Options will be populated dynamically -->
@@ -642,10 +642,10 @@
     </div>
 
     <!-- Share Confirmation Modal -->
-    <div id="share-confirm-modal" class="modal-menu">
+    <div id="share-confirm-modal" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="share-confirm-modal-title">
         <div class="modal-content">
             <span class="close-modal" onclick="closeShareConfirmModal()">&times;</span>
-            <h3>Share the Game</h3>
+            <h3 id="share-confirm-modal-title">Share the Game</h3>
             <p>Share this link on your favorite platform to earn a bonus!</p>
             <div style="margin-bottom: 10px;">
                 <a href="https://twitter.com/intent/tweet?text=Join%20me%20in%20Interstellar%20Trader%20and%20build%20your%20own%20intergalactic%20trading%20empire!%20https://sites.google.com/view/staticquasar931/static-gmes/interstellar-trader" target="_blank" class="button" style="background-color: #1da1f2; margin-right: 5px;">🐦 Share on Twitter</a>
@@ -1136,7 +1136,7 @@
             let totalCost = 0;
             let achievableMultiplier = multiplier;
 
-            const costPerUpgrade = 10 * Math.pow(1.5, gameState.techLevel - 1);
+            const costPerUpgrade = Math.floor(10 * Math.pow(1.5, gameState.techLevel - 1));
             if (multiplier === 'Max') {
                 achievableMultiplier = Math.floor(gameState.credits / (costPerUpgrade * gameState.ships.length));
                 totalCost = costPerUpgrade * achievableMultiplier * gameState.ships.length;
@@ -1320,6 +1320,7 @@
                 gameState.credits -= totalCost;
                 ship.traderLevel += totalUpgrades;
                 ship.upgrades += totalUpgrades;
+                gameState.techLevel += 0.1; // Increment tech level slightly for each upgrade
                 gameState.totalUpgrades += totalUpgrades;
                 document.getElementById(`trader-level-${ship.id}`).innerText = ship.traderLevel;
                 logEvent(`🔼 Ship ${ship.id} trader level increased by x${totalUpgrades} to ${ship.traderLevel}.`);
@@ -1896,6 +1897,8 @@
                 }
             });
             startTimeCounter();
+            updateRebirthMenu();
+            setInterval(updateRebirthMenu, 1000); // Update every second
         }
 
         let timeCounterInterval = null;
@@ -1904,8 +1907,6 @@
             if (!timeCounterInterval) {
                 timeCounterInterval = setInterval(() => {
                     gameState.timePlayed += 1;
-                    // If using separate displays in settings, update here
-                    // document.getElementById('time-played').innerText = formatTime(gameState.timePlayed);
                 }, 1000);
             }
         }
@@ -1934,7 +1935,7 @@
         // Already implemented with shareGame(), copyShareLink(), and share-confirm-modal
 
         // ==================== COMBINE SHIPS ====================
-        // Already implemented with dedicated modal and functions
+        // Already implemented with toggleCombineShipsModal(), populateCombineShips(), confirmCombineShips()
 
         // ==================== EMPLOYEE MANAGEMENT ====================
         // Already handled with separate employee menu and hireEmployee function
@@ -1974,13 +1975,31 @@
 
         // ==================== HIGHLIGHT CREDITS ====================
         // Already handled in updateDisplay()
+
+        // ==================== REBIRTH MENU UPDATE ====================
+        function updateRebirthMenu() {
+            const rebirthConfirmModal = document.getElementById('rebirth-modal-confirm');
+            if (rebirthConfirmModal) {
+                const pointsEarned = Math.floor(gameState.totalCreditsEarned / 100000);
+                const currentTime = Math.floor(Date.now() / 1000);
+                const elapsed = currentTime - gameState.rebirthCooldown.lastRebirthTime;
+                if (elapsed < gameState.rebirthCooldown.cooldownDuration) {
+                    const remaining = gameState.rebirthCooldown.cooldownDuration - elapsed;
+                    rebirthConfirmModal.querySelector('button[onclick="rebirth()"]').disabled = true;
+                    rebirthConfirmModal.querySelector('button[onclick="rebirth()"]').innerText = `✅ Confirm Rebirth (Cooldown: ${formatTime(remaining)})`;
+                } else {
+                    rebirthConfirmModal.querySelector('button[onclick="rebirth()"]').disabled = false;
+                    rebirthConfirmModal.querySelector('button[onclick="rebirth()"]').innerText = `✅ Confirm Rebirth`;
+                }
+            }
+        }
     </script>
 
     <!-- Settings Menu Modal -->
-    <div id="settings-menu" class="modal-menu">
+    <div id="settings-menu" class="modal-menu" aria-hidden="true" role="dialog" aria-labelledby="settings-menu-title">
         <div class="modal-content">
             <span class="close-modal" onclick="toggleSettings()">&times;</span>
-            <h3>Settings</h3>
+            <h3 id="settings-menu-title">Settings</h3>
             <button class="button" onclick="toggleTheme()" title="Toggle Theme">🌙 Toggle Theme</button>
             <button class="button" onclick="saveGameManually()" title="Manually Save Game">💾 Save Game</button>
             <button class="button" onclick="resetGame()" title="Reset Game">🗑️ Reset Game</button>
